@@ -58,9 +58,6 @@ On OSX/Linux or Windows<br>
 All videos for the Weak version of MentDB :<br>
 https://www.youtube.com/playlist?list=PLn4aw_h7C96uxzZVMyBS-_6DeIURc6KtL<br>
 <br>
-All videos for the Strong version of MentDB :<br>
-https://www.youtube.com/playlist?list=PLn4aw_h7C96uds2Cg-maKsQEFl-5_9w8a<br>
-<br>
 ——————<br>
 <br>
 <br>
