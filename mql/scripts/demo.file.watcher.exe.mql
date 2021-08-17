@@ -1,0 +1,12 @@
+script create exe "demo.file.watcher" false 1 
+  (param
+  	(var "[kind]" {true} "The kind" is_null:true is_empty:true "")
+  	(var "[file]" {true} "The file" is_null:true is_empty:true "")
+  ;) 
+  "description ..." 
+{
+	
+	log trace (concat "[kind]=" [kind] ", [file]=" [file]);
+	
+} "Return ...";
+script set delay "demo.file.watcher.exe" 0 day {1;};

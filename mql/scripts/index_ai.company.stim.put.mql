@@ -1,0 +1,21 @@
+script create put "index_ai.company.stim" false 1 
+  (param
+  	(var "[db_id]" {true} "The database id" is_null:false is_empty:false "db1")
+  	(var "[company]" {true} "The company id" is_null:false is_empty:false "Innov-AI")
+  ;) 
+  "Stimulate all relations for a specific company" 
+{
+
+	json load "cmds" "[]";
+
+	json load "cmd" "{}";
+	json iobject "cmd" / t "ADD_STIM_COMPANY" "STR";
+	json iobject "cmd" / db [db_id] "STR";
+	json iobject "cmd" / c [company] "STR";
+
+	json iarray "cmds" / (json doc "cmd") OBJ;
+	
+	index_ai execute (json doc "cmds");
+	
+} "Return nothing";
+script set delay "index_ai.company.stim.put" 0 day {1;};

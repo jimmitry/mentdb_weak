@@ -1,0 +1,19 @@
+script create exe "app.100.template.index_ai.page.conf_city" false 1 
+  (param
+  ;) 
+  "Show the conf city page" 
+{
+
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_top.exe");
+
+	#____________________________________________________________;
+
+	#Your container code here;
+	include "app.100.template.index_ai.actions.MENTDB.se_city.skeleton.exe";
+	
+	#____________________________________________________________;
+	
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_bottom.exe");
+
+;} "The 'conf city' page";
+script set delay "app.100.template.index_ai.page.conf_city.exe" 0 day {1;};

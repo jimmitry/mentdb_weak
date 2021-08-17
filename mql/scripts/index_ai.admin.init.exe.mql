@@ -1,0 +1,122 @@
+script create exe "index_ai.admin.init" false 1 
+  (param
+  ;) 
+  "Initialization" 
+{
+
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db2" "[city_id]" "1" "[city_name]" "Cilaos - 97413";
+	execute "index_ai.admin.add_zone.exe" "[db_id]" "db2" "[zone_id]" "0" "[zone_name_en]" "Company" "[zone_name_fr]" "Etablissement";
+	execute "index_ai.admin.add_zone.exe" "[db_id]" "db2" "[zone_id]" "100" "[zone_name_en]" "Graveyard" "[zone_name_fr]" "Cimetière";
+	execute "index_ai.company.delete" "[db_id]" "db2" "[city_id]" "1" "[company]" "1";
+	execute "index_ai.company.add_data_company.post"
+		"[db_id]" "db2"
+		"[city]" "1"
+		"[zone]" "0"
+		"[company_id]" "1"
+		"[name]" "Mairie de Cilaos"
+		"[descr_en]" "Mairie of Cilaos Town"
+		"[descr_fr]" "Mairie de la ville de Cilaos"
+		"[sentencesEn]" "Ciloas from Réunion Island"
+		"[sentencesFr]" "Ciloas ville de l'ile de la Réunion"
+		"[result]" "https://www.ville-cilaos.fr"
+	;
+	execute "index_ai.company.add_data_entity.post"
+		"[db_id]" "db2"
+		"[city]" "1"
+		"[zone]" "100"
+		"[company_id]" "1"
+		"[entityEn]" "antoine payet"
+		"[entityFr]" "antoine payet"
+		"[sentencesEn]" "né le 18 06 1980 a cilaos et  DCD le 25 01 2000 ."
+		"[sentencesFr]" "né le 18 06 1980 a cilaos et  DCD le 25 01 2000 ."
+		"[result]" "A-27"
+	;
+	execute "index_ai.company.add_data_entity.post"
+		"[db_id]" "db2"
+		"[city]" "1"
+		"[zone]" "100"
+		"[company_id]" "1"
+		"[entityEn]" "herber dijoux"
+		"[entityFr]" "herber dijoux"
+		"[sentencesEn]" "né le 20 06 1980 a cilaos et  DCD le 30 01 2006 ."
+		"[sentencesFr]" "né le 20 06 1980 a cilaos et  DCD le 30 01 2006 ."
+		"[result]" "A-27"
+	;
+	
+
+	#Add cities;
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "0" "[city_name]" "Bras-Panon - 97412";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "1" "[city_name]" "Cilaos - 97413";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "2" "[city_name]" "Entre-Deux - 97414";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "3" "[city_name]" "L'Étang-Salé - 97427";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "4" "[city_name]" "La Plaine-des-Palmistes - 97431";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "5" "[city_name]" "La Possession - 97419";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "6" "[city_name]" "Le Port - 97420";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "7" "[city_name]" "Le Tampon - 97430";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "8" "[city_name]" "Les Avirons - 97425";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "9" "[city_name]" "Les Trois-Bassins - 97426";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "10" "[city_name]" "Petite-Île - 97429";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "11" "[city_name]" "Saint-André - 97440";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "12" "[city_name]" "Saint-Benoît - 97470";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "13" "[city_name]" "Saint-Denis - 97400";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "14" "[city_name]" "Saint-Joseph - 97480";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "15" "[city_name]" "Saint-Leu - 97436";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "16" "[city_name]" "Saint-Louis - 97450";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "17" "[city_name]" "Saint-Paul - 97460";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "18" "[city_name]" "Saint-Philippe - 97442";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "19" "[city_name]" "Saint-Pierre - 97410";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "20" "[city_name]" "Sainte-Marie - 97438";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "21" "[city_name]" "Sainte-Rose - 97439";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "22" "[city_name]" "Sainte-Suzanne - 97441";
+	execute "index_ai.admin.add_city.exe" "[db_id]" "db1" "[city_id]" "23" "[city_name]" "Salazie - 97433";
+	
+	#Add zones;
+	execute "index_ai.admin.add_zone.exe" "[db_id]" "db1" "[zone_id]" "0" "[zone_name_en]" "Company" "[zone_name_fr]" "Etablissement";
+	execute "index_ai.admin.add_zone.exe" "[db_id]" "db1" "[zone_id]" "1" "[zone_name_en]" "Product" "[zone_name_fr]" "Produit";
+	execute "index_ai.admin.add_zone.exe" "[db_id]" "db1" "[zone_id]" "2" "[zone_name_en]" "Service" "[zone_name_fr]" "Service";
+	execute "index_ai.admin.add_zone.exe" "[db_id]" "db1" "[zone_id]" "3" "[zone_name_en]" "Form" "[zone_name_fr]" "Formulaire";
+
+	#Delete companies;
+	execute "index_ai.company.delete" "[db_id]" "db1" "[city_id]" "1" "[company]" "1";
+	execute "index_ai.company.delete" "[db_id]" "db1" "[city_id]" "1" "[company]" "2";
+
+	#Add companies;
+	execute "index_ai.company.add_data_company.post"
+		"[db_id]" "db1"
+		"[city]" "1"
+		"[zone]" "0"
+		"[company_id]" "1"
+		"[name]" "Innov-AI"
+		"[descr_en]" "Smart-Earth &amp; Artificial Intelligence"
+		"[descr_fr]" "Smart-Earth &amp; Intelligence Artificielle"
+		"[sentencesEn]" "Research and development from Réunion Island. Smart-Earth and Artificial Intelligence."
+		"[sentencesFr]" "Recherche et développment depuis l'île de la Réunion. Smart-Earth et Intelligence Artificielle."
+		"[result]" "https://www.innov-ai.com"
+	;
+
+	#Add into zones;
+	execute "index_ai.company.add_data_entity.post"
+		"[db_id]" "db1"
+		"[city]" "1"
+		"[zone]" "2"
+		"[company_id]" "1"
+		"[entityEn]" "R&D (Research and Development)"
+		"[entityFr]" "R&D (Recherche et Développement)"
+		"[sentencesEn]" "Complex algorithms to implement. Secret guaranteed. The future is made up of innovations which necessarily involve R&D."
+		"[sentencesFr]" "Algorithmes complexes à mettre en œuvre. Secret garanti. L'avenir est fait d'innovations qui impliquent nécessairement de la R&D."
+		"[result]" "https://www.innov-ai.com/r_d.html"
+	;
+	execute "index_ai.company.add_data_entity.post"
+		"[db_id]" "db1"
+		"[city]" "1"
+		"[zone]" "2"
+		"[company_id]" "1"
+		"[entityEn]" "Interoperability"
+		"[entityFr]" "Interopérabilité"
+		"[sentencesEn]" "Extract transform and load data (ETL). Transferring data from one software to another. Don't change software, make them compatible!"
+		"[sentencesFr]" "Extraire transformer et la charger des données (ETL). Transférer des données d'un logiciel à un autre. Ne changez pas de logiciel, rendez-les compatibles!"
+		"[result]" "https://www.innov-ai.com/interoperability.html"
+	;
+	
+} "Return nothing";
+script set delay "index_ai.admin.init.exe" 0 day {1;};

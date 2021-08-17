@@ -1,0 +1,61 @@
+################################;
+# Download email throught IMAP #;
+################################;
+
+#Initialization;
+-> "[receive_dir]" "tmp";
+
+#Get mails and load the JSON result;
+json load "receive_state" (mail download imap [receive_dir]
+	3 unread null false true
+	"2018-01-01" null
+	(mql {string matches [imap_from] ".*digest-noreply@quora.com.*";})
+	(mql {string matches [imap_subject] ".*champ.*";})
+	{cm get "demo_cm_imap"}
+);
+
+#Handle if the number of receved mails > 0;
+if (> (json select "receive_state" "/NbReceived") 0) {
+
+	#Get the JSON mails folder;
+	-> "[sub_receive_dir]" (json select "receive_state" "/Directory");
+
+	#Get the file list;
+	json load "sub_receive_dir" (file dir_list [sub_receive_dir]);
+
+	#Parse the file list;
+	json parse_array "sub_receive_dir" "/" "[mail]" {
+
+		#If the file ends with json;
+		if (string ends_with [mail] ".json") {
+
+			#Load the mail (full JSON);
+			json load "current_mail" (file load (concat [sub_receive_dir] "/" [mail]));
+
+			#Show the current mail into the log files;
+			log trace (json doc "current_mail");
+
+			#Parse attachements;
+			json parse_array "current_mail" "/Parts" "part" {
+
+				#If file type;
+				if (equal (json select "part" "/type") "file") {
+
+					#Get the filename of the attachement;
+					-> "[filename]" (json select "part" "/filename");
+
+					#Save the file;
+					file b64_write (json select "part" "/content_b64") (concat "tmp/" [filename]);
+
+				};
+
+			};
+
+		};
+	
+	};
+
+};
+
+#Return the JSON result that contains the mails folder and the number of downloaded mails;
+json doc "receive_state";

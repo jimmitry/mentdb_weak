@@ -1,0 +1,12 @@
+script create exe "app.100.obj.onload" false 1 
+  (param
+  ;) 
+  "Onload objects" 
+{
+
+	concat_var "[page]" "<script>window.onload = function() {" (if (env exist var "[on_load_functions]") {[on_load_functions]}) "};</script>";
+
+	[page]
+
+;} "html";
+script set delay "app.100.obj.onload.exe" 0 day {1;};

@@ -1,0 +1,14 @@
+script create exe "doc.lib.write" false 1 
+  (param
+  	(var "[page_html]" {true} "The html page" is_null:true is_empty:true "test.html")
+  	(var "[title_link]" {true} "The title link" is_null:true is_empty:true "test_link")
+  ;) 
+  "Write the html page ..." 
+{
+
+	file create (concat "/Users/jimmitry/Dropbox/INNOV-AI/WebDocuments/mentdb.org/documentation/" [page_html]) [page];
+
+	in editor {concat "<a class=\"doc\" href=\"" [page_html] "\">" [title_link] "</a>"};
+	
+;} "Return ...";
+script set delay "doc.lib.write.exe" 0 day {1;};

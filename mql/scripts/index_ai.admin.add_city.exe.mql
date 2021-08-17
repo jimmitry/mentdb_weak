@@ -1,0 +1,23 @@
+script create exe "index_ai.admin.add_city" false 1 
+  (param
+  	(var "[db_id]" {true} "The database id" is_null:false is_empty:false "db1")
+  	(var "[city_id]" {true} "The city id" is_null:false is_empty:false "1")
+  	(var "[city_name]" {true} "The city name" is_null:false is_empty:false "Cilaos")
+  ;) 
+  "Add a new city" 
+{
+
+	json load "cmds" "[]";
+
+	json load "cmd" "{}";
+	json iobject "cmd" / t "ADD_CITY" "STR";
+	json iobject "cmd" / db [db_id] "STR";
+	json iobject "cmd" / cy [city_id] "STR";
+	json iobject "cmd" / n [city_name] "STR";
+
+	json iarray "cmds" / (json doc "cmd") OBJ;
+	
+	index_ai execute (json doc "cmds");
+	
+} "Return nothing";
+script set delay "index_ai.admin.add_city.exe" 0 day {1;};

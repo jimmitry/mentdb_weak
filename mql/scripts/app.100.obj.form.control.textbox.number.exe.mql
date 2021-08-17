@@ -1,0 +1,30 @@
+script create exe "app.100.obj.form.control.textbox.number" false 1 
+  (param
+  	(var "[control_id]" {true} "The control id" is_null:false is_empty:false "control_1")
+  	(var "[class]" {true} "The class" is_null:false is_empty:false "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12")
+  	(var "[label]" {true} "The label of the control" is_null:false is_empty:true "Name")
+  	(var "[description]" {true} "The description of the control" is_null:false is_empty:true "")
+  	(var "[maxlength]" {true} "The max length" is_null:false is_empty:true "3")
+  	(var "[min]" {true} "The min" is_null:false is_empty:true "0")
+  	(var "[max]" {true} "The max" is_null:false is_empty:true "100")
+  	(var "[step]" {true} "The step" is_null:false is_empty:true "5")
+  	(var "[placeholder]" {true} "The placeholder of the control" is_null:false is_empty:true "")
+  	(var "[readonly]" {type is_bool [readonly] 1 0;} "Read only ?" is_null:false is_empty:false "0")
+  	(var "[required]" {type is_bool [required] 1 0;} "Required ?" is_null:false is_empty:false "0")
+  	(var "[disabled]" {type is_bool [disabled] 1 0;} "Disabled ?" is_null:false is_empty:false "0")
+  	(var "[html]" {true} "Custom HTML" is_null:false is_empty:true "")
+  	(var "[value]" {true} "The value of the control" is_null:false is_empty:true "")
+  ;) 
+  "Control object" 
+{
+	
+	concat_var "[object]" 
+		"<fieldset class='form-group " [class] "' style='padding-left:0px;padding-right: 0px;'>
+		<label>" [label] "</label>
+		<input " [html] " name='" [control_id] "' id='" [control_id] "' type='number' class='form-control' maxlength='" [maxlength] "' min='" [min] "' max='" [max] "' step='" [step] "' value='" (string replace [value] "'" "&#39;") "' placeholder='" [placeholder] "' 
+		 " (if ([readonly]) {"readonly"}) " " (if ([required]) {"required"}) " " (if ([disabled]) {"disabled"}) ">
+		<small class='text-muted'>" [description] "</small>
+		</fieldset>";
+
+;} "html";
+script set delay "app.100.obj.form.control.textbox.number.exe" 0 day {1;};

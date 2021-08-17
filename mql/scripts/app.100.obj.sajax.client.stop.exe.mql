@@ -1,0 +1,14 @@
+script create exe "app.100.obj.sajax.client.stop" false 1 
+  (param
+  	(var "[scriptname]" {true} "The script name" is_null:true is_empty:true "")
+  	(var "[OBJ_OVERWRITE_B64]" {true} "The overwrite object configuration" is_null:true is_empty:true "")
+  	(var "[getElementById]" {true} "To get element by id" is_null:true is_empty:true "val=key,val=key,val=key")
+  	(var "[data]" {true} "Data" is_null:true is_empty:true "$(\"#form1\").serializeObject()")
+  ;) 
+  "Client execution" 
+{
+
+	concat "\"execute_script('" (string encode_b64 [scriptname]) "', '" [OBJ_OVERWRITE_B64] "', '" [getElementById] "', '" (string encode_b64 [data]) "');event.stopPropagation();return false;\"";
+	
+;} "html";
+script set delay "app.100.obj.sajax.client.stop.exe" 0 day {1;};

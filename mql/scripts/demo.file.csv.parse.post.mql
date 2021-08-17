@@ -1,0 +1,19 @@
+script create post "demo.file.csv.parse" false 1 
+  (param
+  	(var "[fileName]" {true} "The file name" is_null:false is_empty:false "test.csv")
+  ;) 
+  "Parse a CSV file" 
+{
+
+	#Load the connection id;
+	json load "cm" (cm get "demo_cm_file");
+	-> "[localDir]" (json select "cm" /localDir);
+	
+	csv parse "T" (concat [localDir] "/" [fileName]) "," "'" "A,B,C" {
+	
+		log trace [T_A];
+	
+	};
+	
+} "Return nothing";
+script set delay "demo.file.csv.parse.post" 0 day {1;};

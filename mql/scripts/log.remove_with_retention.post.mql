@@ -1,0 +1,10 @@
+script create post "log.remove_with_retention" true 1 
+  (param
+  ;) 
+  "Remove logs from the MySQL database and keep logs with retention days." 
+{
+
+	log remove;
+
+} "Return 1";
+script set delay "log.remove_with_retention.post" 0 day {1;};

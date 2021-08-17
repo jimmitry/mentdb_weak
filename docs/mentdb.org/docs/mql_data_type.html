@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="Description" CONTENT="MentDB, the first Mentalese Database Engine.">
+	<meta name="Keywords" content="mentdb, artificial intelligence, AI, database, engine, mentalese, data-integration, data-quality, SOA, ETL, ESB">
+	<meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>Data Type | Documentation | MentDB Weak 2.2.3</title>
+    <link rel="icon" type="image/png" href="imgs/innov-ai.png" />
+<link  href="../css/bootstrap.css" rel="stylesheet">
+<link  href="../css/bootstrap-theme.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/jQueryRotate.js"></script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-46755834-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-46755834-3');
+</script>
+<style type="text/css">
+    .board_a {
+        color: #fff;
+        background-color: #464646;
+        border: 1px #000000 solid;
+        width: 100%;
+        height: 40px;
+        margin-bottom: 10px;
+        display: block;
+        text-align: left;
+        padding-left: 20px;
+        line-height: 40px;
+        text-decoration: underline;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 22px;
+    }
+    .board_a:hover {
+        background-color:#FFF;
+        border: 1px #D0D0D0 solid;
+        color:#222;
+    }
+</style>
+
+  </head>
+  <body style="font-size: 18px;line-height: 1.42857143;font-family:'Helvetica Neue', Roboto, Arial, 'Droid Sans', sans-serif;margin:0px;background-color: #3d3c3c;background-image: url(imgs/bg.png);background-repeat: repeat-x;">
+      
+
+      
+<div class="container">
+  <div class="row" style='background-color: #f9F9F9;'>
+      <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding: 0px;'>
+        <div style="background-image: -webkit-linear-gradient(top, #272727 0%, #212121 100%);
+            background-image: -o-linear-gradient(top, #272727 0%, #212121 100%);
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#272727), to(#212121));
+            background-image: linear-gradient(to bottom, #3c3c3c 0%, #101010 100%);
+            margin-bottom: 0px;
+            height: 84px;
+            border: 1px #080808 solid;
+            border-bottom: 0px;
+            width: 100%;">
+              <div style='width: 100%;color: #E7E7E7;margin-top: 10px;margin-left: 10px;'>
+                  <a href='../index.html'><img id='rotate_img' src='imgs/innov-ai.png' style='width:60px;vertical-align: middle;margin-right:7px'></a>
+                  <span class='top_title' style='font-size: 26px;display: inline-block;line-height: 20px;vertical-align: middle;'>MentDB &nbsp;<small style='font-size: 55%;'>Mentalese Database Engine</small><br><a href='index.html' style="text-decoration: underline;color: #fff"><small style='font-size: 65%;'>Back to documentation index ...</small></a></span>
+              </div>
+        </div> 
+     </div>
+  </div>
+  <div class="row" style='background-color: #f9F9F9;padding-top: 15px;'>
+    
+    <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        
+        <div style='background-color: #565656;color:#fff;font-weight: bold;line-height: 48px;width: 100%;font-size: 16px;text-align: center'>DOCUMENTATION | MentDB Weak 2.2.3</div>
+        
+        <div style='line-height: 32px;clear:left;font-weight:bold;padding:0px 8px 4px 0px;font-size:24px;'>Data Type</div><div style='border-bottom: 1px solid #D9DEE4;'></div><h1 style='margin-top: 25px;margin-bottom: 15px;font-size: 17px;color: #3a3a3a;font-weight: normal;line-height: 25px;'><img src='images/p.png' style='vertical-align: middle;'>Here you can see all data types in the MQL language.</h1><div style='display: inline-block;padding-top: 18px;padding-bottom: 18px;padding-left: 15px;background-color: #F0F0F0;border: 1px #D9D9D9 solid;'><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_numeric'>numeric</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_string'>string</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_null'>null</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_[_n_]'>[_n_]</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_[_r_]'>[_r_]</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_variable'>variable</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_boolean'>boolean</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_json'>json</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_comment'>comment</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_data_type.html#fx_error'>error</a></div><div style='clear:left;'></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_numeric'><h3 style='color:#000'>numeric</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; Numeric type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#333'>123</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>123</span></pre></div><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br>+ <span style='color:#333'>3</span> <span style='color:#333'>4</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>7</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_string'><h3 style='color:#000'>string</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; String type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#007700'>"Hello!"</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br>Hello!</pre></div><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>concat</span> <span style='color:#007700'>"Hello "</span> <span style='color:#007700'>"Adam"</span> <span style='color:#007700'>"!"</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>Hello</span> Adam!</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_null'><h3 style='color:#000'>null</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; Null type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>null</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>null</span></pre></div><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>is</span> <span style='color:#003cc8'>null</span> <span style='color:#003cc8'>null</span>;</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>1</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_[_n_]'><h3 style='color:#000'>[_n_]</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; LF</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#ba1c00'>[_n_]</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br>
+</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_[_r_]'><h3 style='color:#000'>[_r_]</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; CR</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#ba1c00'>[_r_]</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_variable'><h3 style='color:#000'>variable</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; Variable type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br>-&gt; <span style='color:#007700'>"[var1]"</span> <span style='color:#333'>16</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>16</span></pre></div><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>env</span> <span style='color:#003cc8'>show</span>;</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br>{
+  <span style='color:#007700'>"[var2]"</span>: <span style='color:#007700'>"16"</span>
+}</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_boolean'><h3 style='color:#000'>boolean</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; Boolean type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>true</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>1</span></pre></div><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>false</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>0</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_json'><h3 style='color:#000'>json</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; JSON type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>json</span> <span style='color:#003cc8'>load</span> <span style='color:#007700'>"keyId"</span> <span style='color:#007700'>"{}"</span>;</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>1</span></pre></div><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>json</span> <span style='color:#003cc8'>doc</span> <span style='color:#007700'>"keyId"</span>;</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br>{}</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_comment'><h3 style='color:#000'>comment</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; Comment type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#bbb'>#This</span><span style='color:#bbb'> </span><span style='color:#bbb'>is</span><span style='color:#bbb'> </span><span style='color:#bbb'>a</span><span style='color:#bbb'> </span><span style='color:#bbb'>comment</span><span style='color:#bbb'>;</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>This</span> <span style='color:#003cc8'>is</span> <span style='color:#003cc8'>a</span> <span style='color:#003cc8'>comment</span> ...</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_error'><h3 style='color:#000'>error</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; Error type</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#9C27B0;font-weight:bold'>exception</span> (<span style='color:#333'>1</span>) (<span style='color:#007700'>"your message ..."</span>);</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br>1: <span style='color:#003cc8'>your</span> <span style='color:#003cc8'>message</span> ...</pre></div></div></div>
+
+        <div style='height: 20px'></div>
+        
+    </div>
+  </div>
+</div>
+
+<div style='clear:left;30px; text-align:center;color: #fff'><br><br>MentDB &copy; 2012 - 2020 - <a href="../mention.html" style='color:#fff'>Legal Notice</a><br>&nbsp;</div>
+
+  </body>
+    
+<script>
+function start_rotation() {
+
+    var rotation = function (){
+      $("#rotate_img").rotate({
+        duration:1300,
+        angle:0,
+        animateTo: 360,
+        callback: rotation,
+        easing: function (x, t, b, c, d, s) {
+            return -c *(t/=d)/2*(t-2) + b;
+        }
+      });
+    }
+    rotation();
+
+}
+    
+window.onload = function() {
+
+    start_rotation();
+
+};
+</script>
+</html>

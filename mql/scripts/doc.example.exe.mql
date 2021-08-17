@@ -1,0 +1,32 @@
+script create exe "doc.example" false 1 
+  (param
+  ;) 
+  "Create documentation page" 
+{
+
+	-> "[page]" (execute "doc.lib.init.exe"
+		"[description]" "test de création de documentation"
+		"[keywords]" "test, de, création, de, documentation"
+		"[return_link]" "artificial_intelligence"
+	);
+
+	include "doc.lib.add_li.exe"
+		"[section]" "TITLEXXXXX"
+		"[is_last]" "0"
+		"[li]" (concat "[
+			[\"TEXT\", \"TEXTXXXXX\"],
+			[\"TEXT_IMG\", \"TEXTXXXXX\", \"IMGXXXXX.png\"],
+			[\"VIDEO\", \"YOUTUBEIDXXXXX\", \"TEXTXXXXX\"],
+			[\"LINK\", \"URLXXXXX.html\", \"TEXTXXXXX\"],
+			[\"MQL\", \"TEXTXXXXX\", \"" (string replace (string mql_to_html (mql {
+concat_var "[var1]" "a" "r";
+})) "\"" (concat \ "\"")) "\"],
+	]");
+
+	include "doc.lib.write.exe"
+		"[page_html]" "test.html"
+		"[title_link]" "test_link"
+	;
+	
+} "Return nothing";
+script set delay "doc.example.exe" 0 day {1;};

@@ -1,0 +1,52 @@
+script create exe "app.100.obj.form.begin" false 1 
+  (param
+  	(var "[form_id]" {true} "The form id" is_null:false is_empty:false "form_1")
+  	(var "[modal]" {type is_bool [modal] 1 0;} "Is modal ?" is_null:false is_empty:false "1")
+  	(var "[action]" {true} "The action" is_null:false is_empty:false "index.jsp")
+  	(var "[enctype]" {type is_bool [enctype] 1 0;} "Enctype ?" is_null:false is_empty:false "0")
+  	(var "[title]" {true} "The title of the form" is_null:false is_empty:false "New book")
+  	(var "[subTitle]" {true} "The sub title of the form" is_null:false is_empty:true "")
+  	(var "[method]" {type is_enum [method] "post,get"} "Method" is_null:false is_empty:false "post")
+  	(var "[widthIfModal]" {true} "The width if modal" is_null:false is_empty:false "modal-lg")
+  	(var "[html]" {true} "Custom HTML" is_null:false is_empty:true "")
+  ;) 
+  "Form object" 
+{
+	
+	if ([modal]) {
+
+		concat_var "[object]" 
+		"<div id='modal_" [form_id] "' class='modal fade' role='dialog' tabindex='-1' role='dialog' aria-labelledby='' aria-hidden='true' style='overflow-y:scroll;'>
+			<div class='modal-dialog " [widthIfModal] "' role='document' style='width: " [widthIfModal] ";'>
+				<div class='modal-content'>
+					<div class='modal-header'>
+						<h5 class='modal-title'>" [title] " <small>" [subTitle] "</small></h5>
+					     <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+					          <span aria-hidden='true'>&times;</span>
+					     </button>
+					</div>
+					<div class='modal-body'>
+						";
+	
+	} {
+		
+		concat_var "[object]" 
+			"<div style='border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;-moz-border-radius: 3px;border-radius: 3px;
+			margin-top: 8px;margin-bottom: 8px;padding:16px;background-color:#fff;color:#313131'>
+			<h2 style='font-size: 20px;margin-top: 0px;'>" [title] " <small>" [subTitle] "</small></h2>
+				";
+		
+	};
+	
+	concat_var "[object]" 
+		"<form name='" [form_id] "' id='" [form_id] "' action='" [action] "' method='" [method] "' " [html] " " (
+			if ([enctype]) {
+			
+				"enctype='multipart/form-data'";
+			
+			};
+		) ">
+						";
+
+;} "html";
+script set delay "app.100.obj.form.begin.exe" 0 day {1;};

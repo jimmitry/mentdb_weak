@@ -1,0 +1,22 @@
+#############################;
+# Upload files throught SCP #;
+#############################;
+
+#Connect to the SSH server;
+ssh connect "session1" {cm get "demo_cm_ssh";};
+
+#Get the file list from a directory;
+json load "list" (file dir_list "/Users/jimmitry/Desktop");
+
+#Parse the file list;
+json parse_array "list" "/" "[filename]" {
+
+	#Upload with SCP;
+	ssh scp to "session1" 
+		(concat "/Users/jimmitry/Desktop/" [filename]) 
+		(concat "tmp/" [T_FILENAME]);
+
+};
+
+#Disconnection;
+ssh disconnect "session1";

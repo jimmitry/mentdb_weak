@@ -1,0 +1,60 @@
+script create exe "server.mysql.dump" false 1 
+  (param;) 
+  "" 
+{
+	
+	if (not (eval (file ini "conf/server.conf" "SQL" "light_mode"))) {
+
+		if (node exist "server.conf") {
+			node uobject "server.conf" / conf (file load "conf/server.conf") STR;
+		} {
+			node create "server.conf";
+			node uobject "server.conf" / conf (file load "conf/server.conf") STR;
+		};
+	
+		-> "[timestamp]" (date systimestamp_min);
+	
+		json load "keyId" "[]";
+		json iarray "keyId" / "mysqldump" STR;
+		#json iarray "keyId" / "/usr/local/mysql/bin/mysqldump" STR;
+		json iarray "keyId" / "--single-transaction" STR;
+		json iarray "keyId" / "--user=root" STR;
+		json iarray "keyId" / "-ppwd" STR;
+		json iarray "keyId" / (concat "--result-file=" (file cur_canonical_dir) "/archives/backups/mentdb_" [timestamp] ".sql") STR;
+		json iarray "keyId" / (atom get (node select "CM[MENTDB]" /jdbc) 4 "/") STR;
+		json iarray "keyId" / "app_user" STR;
+		json iarray "keyId" / "apps" STR;
+		json iarray "keyId" / "cb_botname" STR;
+		json iarray "keyId" / "cb_context" STR;
+		json iarray "keyId" / "cb_intent" STR;
+		json iarray "keyId" / "cb_response" STR;
+		json iarray "keyId" / "cb_subject" STR;
+		json iarray "keyId" / "group_tag" STR;
+		json iarray "keyId" / "groups" STR;
+		json iarray "keyId" / "record" STR;
+		json iarray "keyId" / "stack_wait" STR;
+		json iarray "keyId" / "tags" STR;
+		json iarray "keyId" / "user_group" STR;
+		json iarray "keyId" / "users" STR;
+		
+		os execute (json doc "keyId") 1000;
+	
+		compress zip (concat (file cur_canonical_dir) "/archives/backups/mentdb_" [timestamp] ".sql") (concat (file cur_canonical_dir) "/archives/backups/mentdb_" [timestamp] ".sql.zip");
+		file delete (concat (file cur_canonical_dir) "/archives/backups/mentdb_" [timestamp] ".sql");
+
+		json load "files" (file dir_list "archives/backups");
+		json parse_array "files" "/" "[file]" {
+		
+			-> "[dt_file]" (atom get (atom get [file] 2 "_") 1 ".");
+			-> "[dt_sys_10]" (date format (date difft (date systimestamp) "DAY" 10) "yyyy-MM-dd HH:mm:ss" "yyyyMMddHHmmss");
+			
+			if (< [dt_file] [dt_sys_10]) {
+				file delete (concat (file cur_canonical_dir) "/archives/backups/" [file]);
+			};
+		
+		};
+
+	};
+
+} "";
+script set delay "server.mysql.dump.exe" 0 day {1;};

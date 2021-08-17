@@ -1,0 +1,17 @@
+script create post "demo.glpi.api.ticket" true 5 
+  (param
+  	(var "[app_token]" {true} "The session token" is_null:true is_empty:true "Jrrbl2CTUUCYNHxHXPjjzIgOF8qWTbz0g7WMuW99")
+  	(var "[session_token]" {true} "The session token" is_null:true is_empty:true "")
+  	(var "[no_ticket]" {true} "The ticket number" is_null:true is_empty:true "2002270005")
+  ;) 
+  "Kill a GLPI connection ..." 
+{
+
+	json load "header" "{}";
+	json iobject "header" / "Content-Type" "application/json" STR;
+	json iobject "header" / "Session-Token" [session_token] STR;
+	json iobject "header" / "App-Token" [app_token] STR;
+	rest http get (concat "http://10.10.5.16/apirest.php/Ticket/" [no_ticket]) "" (json doc "header") "[]";
+	
+} "Return nothing";
+script set delay "demo.glpi.api.ticket.post" 0 day {1;};

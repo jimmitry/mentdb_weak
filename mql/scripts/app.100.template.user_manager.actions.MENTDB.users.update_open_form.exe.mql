@@ -1,0 +1,147 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.users.update_open_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open an update form ..." 
+{
+
+	json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+	try {
+		
+		#Connect to the database;
+		sql connect "session1" {cm get "MENTDB";};
+		json load "row" (sql row "session1" (concat "select 
+			`login`, 
+			`password`, 
+			`firstname`, 
+			`lastname`, 
+			`activate`, jsonconf from `users` where `login`= " (sql encode (json select "data" "/client_data/login")) " "));
+	
+		#Disconnection ...;
+		sql disconnect "session1";
+
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		exception (1) ([err]);
+		
+	} "[err]";
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "users_update_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_update_title")
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+			
+		# login -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.hidden.exe"
+				"[control_id]" "login"
+				"[value]" (json select "row" "/login")
+			;
+		
+		# password -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.password.exe" "[control_id]" "password" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_update_field_password") "[description]" "" "[maxlength]" "32" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" ""
+			;
+		
+		# firstname -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "firstname" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_update_field_firstname") "[description]" "" "[maxlength]" "60" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "row" "/firstname")
+			;
+		
+		# lastname -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "lastname" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_update_field_lastname") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "row" "/lastname")
+			;
+		
+		# activate -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.radio_inline.exe" "[control_id]" "activate" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_update_field_activate") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[\"Y\", \"N\"]"
+				"[optionValues]" "[\"Y\", \"N\"]"
+				"[value]" (json select "row" "/activate")
+			;
+			
+			sql connect "session1" {cm get "MENTDB";};
+			json load "inValues" "[]";
+			json load "optionValues" "[]";
+			json load "values" "{}";
+			sql parse "session1" "T" (concat "select id, `name`, group_id from `groups` left join user_group on groups.id=user_group.group_id and user_group.login=" (sql encode (json select "row" "/login")) " order by `name`") {
+			
+				json iarray "inValues" / [T_id] STR;
+				json iarray "optionValues" / [T_name] STR;
+
+				if (not (is null [T_group_id])) {
+					json iobject "values" / [T_id] "" STR;
+				};
+			
+			};
+			include "app.100.obj.form.control.select_multiple.exe" "[control_id]" "groups" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" "Groups" "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" (json doc "inValues")
+				"[optionValues]" (json doc "optionValues")
+				"[values]" (json doc "values")
+			;
+
+			json load "inValues" "[]";
+			json load "optionValues" "[]";
+			json load "values" "{}";
+			sql parse "session1" "T" (concat "select apps.app_id, `title`, app_user.app_id as app_id2 from apps left join app_user on apps.app_id=app_user.app_id and app_user.login=" (sql encode (json select "row" "/login")) " order by `title`") {
+			
+				json iarray "inValues" / [T_app_id] STR;
+				json iarray "optionValues" / [T_title] STR;
+
+				if (not (is null [T_app_id2])) {
+					json iobject "values" / [T_app_id] "" STR;
+				};
+			
+			};
+			include "app.100.obj.form.control.select_multiple.exe" "[control_id]" "apps" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" "Applications" "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" (json doc "inValues")
+				"[optionValues]" (json doc "optionValues")
+				"[values]" (json doc "values")
+			;
+			
+			sql disconnect "session1";
+		
+		# JSONCONF -------- TO DELETE ...;
+
+			include "app.100.obj.form.control.textarea.exe" "[control_id]" "jsonconf" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" "JSON CONF" "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" true "[disabled]" false "[html]" ""
+				"[value]" (json select "row" "/jsonconf")
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "users_update_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.user_manager.actions.MENTDB.users.update.exe"
+		"[data_eval]" "$('#users_update_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_update_close_button")
+		"[submitTitle]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_update_update_button")
+		"[submitType]" "warning";
+	
+} "Return the form";
+script set delay "app.100.template.user_manager.actions.MENTDB.users.update_open_form.exe" 0 day {1;};

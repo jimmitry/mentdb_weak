@@ -1,0 +1,31 @@
+script create get "db.derby.embedded.config" false 1 
+  (param
+  	(var "[database]" {true} "The database" is_null:false is_empty:false "demo/db/derby/test_db")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "sa")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "sa")
+  ;) 
+  "Get a Apache Derby config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "db" STR;
+	json iobject "config_obj" / "subType" "Derby" STR;
+	json iobject "config_obj" / "driver" "org.apache.derby.jdbc.EmbeddedDriver" STR;
+	json iobject "config_obj" / "loginTimeout" "10000" STR;
+
+	json iobject "config_obj" / "jdbc" (
+		concat "jdbc:derby:" [database];
+	) STR;
+
+	json iobject "config_obj" / "defaultSchema" [user] STR;
+	json iobject "config_obj" / "properties" "{}" OBJ;
+	json iobject "config_obj" /properties "user" [user] STR;
+	json iobject "config_obj" /properties "password" [password] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a Derby config connection in JSON";
+script set delay "db.derby.embedded.config.get" 0 day {1;};

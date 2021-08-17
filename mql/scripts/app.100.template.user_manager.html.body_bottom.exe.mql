@@ -1,0 +1,18 @@
+script create exe "app.100.template.user_manager.html.body_bottom" false 1 
+  (param
+  ;) 
+  "Body bottom" 
+{
+
+	concat_var "[page]" "    </div>";
+	concat_var "[page]" "  </div>";
+	concat_var "[page]" "</div>";
+	
+	include (concat "app." [app_version] ".obj.onload.exe");
+
+	concat_var "[page]" "</body></html>";
+
+	[page]
+
+;} "html";
+script set delay "app.100.template.user_manager.html.body_bottom.exe" 0 day {1;};

@@ -1,0 +1,18 @@
+script create exe "app.100.obj.sajax.alert" false 1 
+  (param
+  	(var "[type]" {type is_enum [type] "ALERT_PRIMARY,ALERT_SECONDARY,ALERT_SUCCESS,ALERT_DANGER,ALERT_WARNING,ALERT_INFO,ALERT_LIGHT,ALERT_DARK"} "Result type" is_null:false is_empty:false "ALERT_PRIMARY|ALERT_SECONDARY|ALERT_SUCCESS|ALERT_DANGER|ALERT_WARNING|ALERT_INFO|ALERT_LIGHT|ALERT_DARK")
+  	(var "[strong]" {true} "The strong message" is_null:true is_empty:true "OK !")
+  	(var "[msg]" {true} "The message" is_null:true is_empty:true "Message")
+  ;) 
+  "Ajax result" 
+{
+
+	json load "o" "{}";
+	json iobject "o" / type [type] STR;
+	json iobject "o" / strong [strong] STR;
+	json iobject "o" / msg [msg] STR;
+	json doc "o";
+	json iarray "result" / (json doc "o") OBJ;
+
+;} "html";
+script set delay "app.100.obj.sajax.alert.exe" 0 day {1;};

@@ -1,0 +1,49 @@
+#############################################;
+# Create a REST web service (method DELETE) #;
+#############################################;
+
+script create delete "demo_cm_mysql.products.delete" false 1
+  (param
+  	(var "[id]" {true} "description ..." is_null:false is_empty:false "example ...")
+  )
+  "Delete an element from the table 'products'."
+{
+	
+	try {
+		
+		#Connection ...;
+		sql connect "session1" {cm get "demo_cm_mysql"};
+		
+		-> "[result]" (sql dml "session1" (concat 
+			"DELETE FROM `products`
+			WHERE 
+				`id`=" (sql encode [id]) "
+			;"
+		));
+		
+		#Disconnection ...;
+		sql disconnect "session1";
+		
+		# Return the json;
+		[result]
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+		
+	} "[err]";
+	
+} "Return the number of impacted lines.";
+
+#Your web-service is ready!;
+
+#Connect to your local api manager: ;
+#https://localhost:9999/docs/;
+#user: admin;
+#pwd: pwd;
+
+#Click on your web service and try it... ;

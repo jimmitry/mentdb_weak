@@ -1,0 +1,25 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_db.skeleton" false 1 
+  (param
+  ;) 
+  "SCRUD skeleton ..." 
+{
+
+	if (app is_granted_a "MENTDB.se_db.list.show") {
+
+		include "app.100.obj.sajax.skeleton.container.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+				include "app.100.obj.sajax.skeleton.col.exe" "[id]" "MENTDB_se_db" "[name]" "" "[class]" "col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" "[style]" "padding-left:0px;padding-right:0px";
+				
+				include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+	
+		include "app.100.obj.sajax.skeleton.onload.exe"
+			"[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_db.onload.exe"
+			"[client_data]" (json select "app" "/param")
+		;
+
+	};
+	
+} "Return the page";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_db.skeleton.exe" 0 day {1;};

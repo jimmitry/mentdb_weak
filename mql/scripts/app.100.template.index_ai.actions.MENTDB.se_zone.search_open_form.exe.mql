@@ -1,0 +1,71 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_zone.search_open_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open a search form ..." 
+{
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "se_zone_search_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_search_title") 
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+
+	-> "[filter_sql]" (json select "app" (concat "/objects/MENTDB_se_zone_list/filter_sql"));
+	if (not (is null or empty [filter_sql])) {
+		json load "filter_sql" [filter_sql];
+	} {
+		json load "filter_sql" "{}";
+	};
+			
+		# name_en -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/name_en")) {
+				json iobject "filter_sql" / "name_en" "" STR;
+			};
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name_en" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_search_field_name_en") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "filter_sql" "/name_en")
+			;
+		
+		# name_fr -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/name_fr")) {
+				json iobject "filter_sql" / "name_fr" "" STR;
+			};
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name_fr" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_search_field_name_fr") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "filter_sql" "/name_fr")
+			;
+		
+		# db -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/db")) {
+				json iobject "filter_sql" / "db" "" STR;
+			};
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_search_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "filter_sql" "/db")
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "se_zone_search_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.index_ai.actions.MENTDB.se_zone.search.exe"
+		"[data_eval]" "$('#se_zone_search_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_search_close_button")
+		"[submitTitle]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_search_search_button")
+		"[submitType]" "primary";
+	
+} "Return the form";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_zone.search_open_form.exe" 0 day {1;};

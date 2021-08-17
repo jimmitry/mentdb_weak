@@ -1,0 +1,160 @@
+script create post "demo.dl.cat_dog" false 1 
+  (param
+  	(var "[index]" {type is_double [index]} "The index" is_null:true is_empty:true "1")
+  ;) 
+  "Demo" 
+{
+
+	-> "[file_config]" (concat "demo/animals/imgTrainConfig" [index] ".txt");
+	
+	#Create the training file;
+	file writer_open "w1" [file_config] true TEXT "utf-8";
+	dl img step1 create_training "w1" 24 24 true;
+	
+	#Load input images;
+	-> "[dir]" (concat "demo/animals/CAT" [index]);
+	-> "[id]" "cat";
+	json load "files" (file dir_list [dir]);
+	-> "[nbFiles]" (json count "files" /);
+	-> "[iFiles]" 0;
+	for (-> "[i]" 0) (< [i] [nbFiles]) (++ "[i]") {
+	
+		-> "[cur_file]" (json select "files" (concat "/[" [i] "]"));
+	
+		if (string ends_with [cur_file] ".jpg") {
+	
+			dl img step2 add_image "w1" (concat [dir] "/" [cur_file]) [id];
+			++ "[iFiles]";
+	
+		};
+	
+	};
+	file writer_flush "w1";
+	concat [iFiles] " files added.";
+	
+	#Load input images;
+	-> "[dir]" (concat "demo/animals/DOG" [index]);
+	-> "[id]" "dog";
+	json load "files" (file dir_list [dir]);
+	-> "[nbFiles]" (json count "files" /);
+	-> "[iFiles]" 0;
+	for (-> "[i]" 0) (< [i] [nbFiles]) (++ "[i]") {
+	
+		-> "[cur_file]" (json select "files" (concat "/[" [i] "]"));
+	
+		if (string ends_with [cur_file] ".jpg") {
+	
+			dl img step2 add_image "w1" (concat [dir] "/" [cur_file]) [id];
+			++ "[iFiles]";
+	
+		};
+	
+	};
+	file writer_flush "w1";
+	concat [iFiles] " files added.";
+	
+	dl img step3 create_hidden_layer "w1" "100" "tanh" true;
+	file writer_flush "w1";
+	
+	dl img step3 create_hidden_layer "w1" "50" "tanh" true;
+	file writer_flush "w1";
+	
+	dl img step4 create_or_load_network "w1" "tanh" "demo/animals/network.eg";
+	file writer_flush "w1";
+	
+	dl img step5 train_network "w1" "console" 1 0.25 50 "demo/animals/network.eg";
+	file writer_flush "w1";
+	
+	#Load input images;
+	-> "[dir]" (concat "demo/animals/CAT" [index]);
+	-> "[id]" "cat";
+	json load "files" (file dir_list [dir]);
+	-> "[nbFiles]" (json count "files" /);
+	-> "[iFiles]" 0;
+	for (-> "[i]" 0) (< [i] [nbFiles]) (++ "[i]") {
+	
+		-> "[cur_file]" (json select "files" (concat "/[" [i] "]"));
+	
+		if (string ends_with [cur_file] ".jpg") {
+	
+			dl img step6 predict "w1" (concat [dir] "/" [cur_file]) [id];
+			++ "[iFiles]";
+	
+		};
+	
+	};
+	file writer_flush "w1";
+	concat [iFiles] " files added.";
+	
+	#Load input images;
+	-> "[dir]" (concat "demo/animals/DOG" [index]);
+	-> "[id]" "dog";
+	json load "files" (file dir_list [dir]);
+	-> "[nbFiles]" (json count "files" /);
+	-> "[iFiles]" 0;
+	for (-> "[i]" 0) (< [i] [nbFiles]) (++ "[i]") {
+	
+		-> "[cur_file]" (json select "files" (concat "/[" [i] "]"));
+	
+		if (string ends_with [cur_file] ".jpg") {
+	
+			dl img step6 predict "w1" (concat [dir] "/" [cur_file]) [id];
+			++ "[iFiles]";
+	
+		};
+	
+	};
+	file writer_flush "w1";
+	concat [iFiles] " files added.";
+	
+	#Close the config file;
+	file writer_close "w1";
+
+	dl img execute_config [file_config]
+
+	#Delete the training file;
+	file delete [file_config];
+
+	-> "[ii]" "1";
+	-> "[result]" (concat "cat" (+ [ii] 0) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "cat"
+		"[index]" (+ [ii] 0)
+	;) "   " "cat" (+ [ii] 1) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "cat"
+		"[index]" (+ [ii] 1)
+	;) "   " "cat" (+ [ii] 2) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "cat"
+		"[index]" (+ [ii] 2)
+	;) "   " "cat" (+ [ii] 3) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "cat"
+		"[index]" (+ [ii] 3)
+	;) "   " "cat" (+ [ii] 4) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "cat"
+		"[index]" (+ [ii] 4)
+	;) "   " "cat" (+ [ii] 5) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "cat"
+		"[index]" (+ [ii] 5)
+	;) " |||||||  " "dog" (+ [ii] 0) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "dog"
+		"[index]" (+ [ii] 0)
+	;) "   " "dog" (+ [ii] 1) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "dog"
+		"[index]" (+ [ii] 1)
+	;) "   " "dog" (+ [ii] 2) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "dog"
+		"[index]" (+ [ii] 2)
+	;) "   " "dog" (+ [ii] 3) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "dog"
+		"[index]" (+ [ii] 3)
+	;) "   " "dog" (+ [ii] 4) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "dog"
+		"[index]" (+ [ii] 4)
+	;) "   " "dog" (+ [ii] 5) "=" (include "demo.dl.cat_dog_predict.post"
+		"[cat_or_dog]" "dog"
+		"[index]" (+ [ii] 5)
+	;) [_n_]);
+	file append "/Users/jimmitry/Desktop/training_cat_dog.txt" [result];
+	[result]
+
+;} "Return 1";
+script set delay "demo.dl.cat_dog.post" 0 day {1;};

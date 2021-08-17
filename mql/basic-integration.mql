@@ -1,0 +1,262 @@
+#####################################################################################################;
+#####################################################################################################;
+$ "Prepare basic entities ...";
+
+#Groups;
+user create mentdb aipwd;
+group add sys;
+group add ai;
+group add admin;
+group add app;
+group add lib;
+group add cluster;
+
+group add cm;
+group add sample;
+
+group add api-mql;
+group add api-ai;
+group add api-rest;
+
+$ "[OK]";
+
+#VALID MQL BLOCK;
+
+#####################################################################################################;
+$ "Create basic scripts";
+
+json load "files" (file dir_list "mql/scripts");
+-> "[nb_files]" (json count "files" /);
+for (-> "[i]" 0) (< [i] [nb_files]) (++ "[i]") {
+
+	-> "[cur_filename]" (json select "files" (concat "/[" [i] "]"));
+
+  if (string ends_with [cur_filename] ".mql") {
+
+	 eval (file load (concat "mql/scripts/" [cur_filename]));
+
+  };
+
+};
+
+$ "[OK]";
+
+#VALID MQL BLOCK;
+
+#####################################################################################################;
+$ "Create default users and rights";
+
+user create ai aipwd;
+group grant user ai sys;
+group grant user ai lib;
+group grant user ai api-mql;
+group grant user ai api-ai;
+
+user create admin pwd;
+group grant user admin sys;
+group grant user admin lib;
+group grant user admin api-mql;
+group grant user admin api-ai;
+
+user create public pwd;
+
+$ "[OK]";
+
+#VALID MQL BLOCK;
+
+#####################################################################################################;
+$ "Grant scripts to groups";
+
+json load "scripts" (script show);
+
+json parse_obj "scripts" "/" "[script_name]" "[val]" {
+
+    if (string starts_with [script_name] "server.") {
+        group grant script [script_name] "sys";
+    };
+
+    if (string starts_with [script_name] "boot.") {
+        group grant script [script_name] "sys";
+    };
+
+    if (string starts_with [script_name] "perf.") {
+        group grant script [script_name] "sys";
+    };
+
+    if (string starts_with [script_name] "app.") {
+        group grant script [script_name] "app";
+    };
+
+    if (string starts_with [script_name] "db.") {
+        group grant script [script_name] "cm";
+    };
+
+    if (string starts_with [script_name] "file.") {
+        group grant script [script_name] "cm";
+    };
+
+    if (string starts_with [script_name] "mentdb.") {
+        group grant script [script_name] "cm";
+    };
+
+    if (string starts_with [script_name] "mail.") {
+        group grant script [script_name] "cm";
+    };
+
+    if (string starts_with [script_name] "demo.") {
+        group grant script [script_name] "sample";
+    };
+
+    if (string starts_with [script_name] "data_type.") {
+        group grant script [script_name] "lib";
+    };
+
+    if (string starts_with [script_name] "w_th_fr.") {
+        group grant script [script_name] "lib";
+    };
+
+    if (string starts_with [script_name] "w_th_en.") {
+        group grant script [script_name] "lib";
+    };
+
+    if (string starts_with [script_name] "lib.") {
+        group grant script [script_name] "lib";
+    };
+
+    if (string starts_with [script_name] "cluster.") {
+        group grant script [script_name] "cluster";
+    };
+
+};
+
+group grant user "admin" "sample";
+group grant user "admin" "app";
+
+group grant script "server.info.get" "public";
+group grant script "server.version.get" "public";
+
+$ "[OK]";
+
+#VALID MQL BLOCK;
+
+#####################################################################################################;
+$ "Load data quality algorithms";
+
+dq algorithm set "is_big_int" (mql {
+	type is_big_int [VAR];
+});
+dq algorithm set "is_bool" (mql {
+	type is_bool [VAR] 0 1;
+});
+dq algorithm set "is_byte" (mql {
+	type is_byte [VAR];
+});
+dq algorithm set "is_char" (mql {
+	type is_char [VAR] 25;
+});
+dq algorithm set "is_date" (mql {
+	type is_valid_date [VAR] "yyyy-MM-dd";
+});
+dq algorithm set "is_null" (mql {
+	is null [VAR];
+});
+dq algorithm set "is_empty" (mql {
+	is empty [VAR];
+});
+dq algorithm set "is_null_or_empty" (mql {
+	is null or empty [VAR];
+});
+dq algorithm set "is_decimal" (mql {
+	type is_decimal [VAR] 4 5;
+});
+dq algorithm set "is_double" (mql {
+	type is_double [VAR];
+});
+dq algorithm set "is_email" (mql {
+	type is_email [VAR];
+});
+dq algorithm set "is_enum" (mql {
+	type is_enum [VAR] "1,2,3";
+});
+dq algorithm set "is_float" (mql {
+	type is_float [VAR];
+});
+dq algorithm set "is_hour" (mql {
+	type is_hour [VAR];
+});
+dq algorithm set "is_hour_without_sec" (mql {
+	type is_hour_without_sec [VAR];
+});
+dq algorithm set "is_int" (mql {
+	type is_int [VAR];
+});
+dq algorithm set "is_integer" (mql {
+	type is_integer [VAR] 8;
+});
+dq algorithm set "is_matches_regex" (mql {
+	type is_matches_regex [VAR] ".*ze.*";
+});
+dq algorithm set "is_medium_int" (mql {
+	type is_medium_int [VAR];
+});
+dq algorithm set "is_number" (mql {
+	type is_number [VAR];
+});
+dq algorithm set "is_small_int" (mql {
+	type is_small_int [VAR];
+});
+dq algorithm set "is_time" (mql {
+	type is_time [VAR];
+});
+dq algorithm set "is_valid_timestamp" (mql {
+	type is_valid_timestamp [VAR] "yyyy-MM-dd HH:mm:ss";
+});
+dq algorithm set "is_varchar" (mql {
+	type is_varchar [VAR] 15;
+});
+dq algorithm set "COGNITIVE_french_word" (mql {
+	word exist [VAR] fr;
+});
+
+$ "[OK]";
+
+#VALID MQL BLOCK;
+
+#####################################################################################################;
+$ "Create default jobs";
+
+job add "server.reset_id" "server.reset_id.post" "0 0 0 * * ?" true;
+job add "server.remove_logs" "log.remove_with_retention.post" "0 0 3 * * ?" true;
+job add "server.stack.remove_closed" "stack.remove_closed_with_retention.post" "0 0 1 * * ?" true;
+job add "server.stack.remove_error" "stack.remove_error_with_retention.post" "0 0 2 * * ?" true;
+job add "server.cluster.signal" "server.cluster.signal.post" "0/30 * * * * ?" true;
+job add "server.mail" "server.mail.post" "0/30 * * * * ?" true;
+job add "server.stack" "server.stack.post" "0/30 * * * * ?" true;
+job add "server.backup" "server.mysql.dump.exe" "0 0 0 * * ?" true;
+
+$ "[OK]";
+
+#VALID MQL BLOCK;
+
+#####################################################################################################;
+$ "Create default MENTDB connection";
+
+if (eval (file ini "conf/server.conf" "SQL" "light_mode")) {
+    cm set "MENTDB" {execute "db.h2.embedded.config.get"
+        "[database]" "./data/mentdb_h2"
+        "[user]" (file ini "conf/server.conf" "SQL" "user")
+        "[password]" (file ini "conf/server.conf" "SQL" "pwd")
+    ;};
+} {
+    cm set "MENTDB" {execute "db.mysql.config.get"
+        "[hostname]" (file ini "conf/server.conf" "SQL" "host")
+        "[port]" (file ini "conf/server.conf" "SQL" "port")
+        "[database]" (file ini "conf/server.conf" "SQL" "db")
+        "[user]" (file ini "conf/server.conf" "SQL" "user")
+        "[password]" (file ini "conf/server.conf" "SQL" "pwd")
+    ;};
+};
+
+$ "[OK]";
+
+#VALID MQL BLOCK;

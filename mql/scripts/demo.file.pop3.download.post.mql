@@ -1,0 +1,37 @@
+script create post "demo.file.pop3.download" false 1 
+  (param
+  ;) 
+  "Download mail through POP3" 
+{
+
+	#Initialization;
+	-> "[Directory]" "/Users/jimmitry/Desktop/tmp";
+
+	#Mail download;
+	json load "pop3" (mail download pop3 [Directory]
+	3 true
+	{cm get "demo_cm_pop3";});
+
+	
+
+	if (> (json select "pop3" "/NbReceived") 0) {
+	
+		json load "files" (file dir_list [Directory]);
+		-> "[nb_files]" (json count "files" /);
+		for (-> "[i]" 0) (< [i] [nb_files]) (++ "[i]") {
+		
+			-> "[cur_filename]" (json select "files" (concat "/[" [i] "]"));
+	
+			#Load the mail;
+			json load "mail" (concat [Directory] "/" [cur_filename]);
+			
+			#Here your action;
+			
+			
+		};
+	
+	};
+	
+	
+} "Return nothing";
+script set delay "demo.file.pop3.download.post" 0 day {1;};

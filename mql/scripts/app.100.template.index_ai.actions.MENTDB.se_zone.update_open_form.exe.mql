@@ -1,0 +1,94 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_zone.update_open_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open an update form ..." 
+{
+
+	json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+	try {
+		
+		#Connect to the database;
+		sql connect "session1" {cm get "MENTDB";};
+		json load "row" (sql row "session1" (concat "select 
+			`id`, 
+			`name_en`, 
+			`name_fr`, 
+			`db` from `se_zone` where `id`= " (sql encode (json select "data" "/client_data/id")) " "));
+	
+		#Disconnection ...;
+		sql disconnect "session1";
+
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		exception (1) ([err]);
+		
+	} "[err]";
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "se_zone_update_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_update_title")
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+			
+		# id -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.hidden.exe"
+				"[control_id]" "id"
+				"[value]"(json select "row" "/id")
+			;
+		
+		# name_en -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name_en" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_update_field_name_en") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" true "[disabled]" false "[html]" ""
+				"[value]" (json select "row" "/name_en")
+			;
+		
+		# name_fr -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name_fr" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_update_field_name_fr") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" true "[disabled]" false "[html]" ""
+				"[value]" (json select "row" "/name_fr")
+			;
+		
+		# db -------- TO DELETE ...;
+
+			sql connect "sessionData" {cm get "MENTDB"};
+			json load "inValues" "[]";
+			sql parse "sessionData" "T" (concat "select `name` from se_db order by `name`") {
+			
+				json iarray "inValues" / [T_name] STR;
+			
+			};
+			sql disconnect "sessionData";
+			
+			include "app.100.obj.form.control.select_mono.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_update_field_db") "[description]" ""
+				"[readonly]" false "[required]" true "[disabled]" false "[html]" ""
+				"[inValues]" (json doc "inValues")
+				"[optionValues]" (json doc "inValues")
+				"[value]" (json select "row" "/db")
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "se_zone_update_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.index_ai.actions.MENTDB.se_zone.update.exe"
+		"[data_eval]" "$('#se_zone_update_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_update_close_button")
+		"[submitTitle]" (include "app.100.template.index_ai.actions.MENTDB.se_zone.lang.exe" "[key_lang]" "form_update_update_button")
+		"[submitType]" "warning";
+	
+} "Return the form";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_zone.update_open_form.exe" 0 day {1;};

@@ -1,0 +1,146 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_city.lang" false 1 
+  (param
+  	(var "[key_lang]" {true} "" is_null:false is_empty:true "")
+  ;) 
+  "Get a label from the language" 
+{
+
+	if (not (json exist "MENTDB_se_city_lang")) {
+
+		json load "MENTDB_se_city_lang" "{
+			\"insert_ok\": {
+				\"en\": \"Element added with successfull.\",
+				\"fr\": \"El&eacute;ment(s) ajout&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"update_ok\": {
+				\"en\": \"Element updated with successfull.\",
+				\"fr\": \"El&eacute;ment(s) modifi&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"delete_ok\": {
+				\"en\": \"Element deleted with successfull.\",
+				\"fr\": \"El&eacute;ment(s) suprim&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"list_title\": {
+				\"en\": \"se_city\",
+				\"fr\": \"se_city\"
+			},
+			\"list_filter\": {
+				\"en\": \"Filter\",
+				\"fr\": \"Filtre\"
+			},
+			\"list_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"list_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"list_field_db\": {
+				\"en\": \"db\",
+				\"fr\": \"db\"
+			},
+			\"form_search_title\": {
+				\"en\": \"Search an element\",
+				\"fr\": \"Recherche d'un &eacute;l&eacute;ment\"
+			},
+			\"form_search_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_search_search_button\": {
+				\"en\": \"Search\",
+				\"fr\": \"Rechercher\"
+			},
+			\"form_search_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"form_search_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"form_search_field_db\": {
+				\"en\": \"db\",
+				\"fr\": \"db\"
+			},
+			\"form_insert_title\": {
+				\"en\": \"Insert an element\",
+				\"fr\": \"Ajout d'un &eacute;l&eacute;ment\"
+			},
+			\"form_insert_title_re\": {
+				\"en\": \"Insert an element (Correction)\",
+				\"fr\": \"Ajout d'un &eacute;l&eacute;ment (Correction)\"
+			},
+			\"form_insert_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_insert_insert_button\": {
+				\"en\": \"Add\",
+				\"fr\": \"Ajouter\"
+			},
+			\"form_insert_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"form_insert_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"form_insert_field_db\": {
+				\"en\": \"db\",
+				\"fr\": \"db\"
+			},
+			\"form_update_title\": {
+				\"en\": \"Update an element\",
+				\"fr\": \"Modification d'un &eacute;l&eacute;ment\"
+			},
+			\"form_update_title_re\": {
+				\"en\": \"Update an element (Correction)\",
+				\"fr\": \"Modification d'un &eacute;l&eacute;ment (Correction)\"
+			},
+			\"form_update_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_update_update_button\": {
+				\"en\": \"Update\",
+				\"fr\": \"Modifier\"
+			},
+			\"form_update_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"form_update_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"form_update_field_db\": {
+				\"en\": \"db\",
+				\"fr\": \"db\"
+			},
+			\"form_delete_title_1\": {
+				\"en\": \"Delete of \",
+				\"fr\": \"Suppression de \"
+			},
+			\"form_delete_title_2\": {
+				\"en\": \" element(s)\",
+				\"fr\": \" &eacute;l&eacute;ment(s)\"
+			},
+			\"form_delete_cancel_button\": {
+				\"en\": \"Cancel\",
+				\"fr\": \"Annuler\"
+			},
+			\"form_delete_delete_button\": {
+				\"en\": \"Delete\",
+				\"fr\": \"Supprimer\"
+			},
+		}";
+
+	};
+
+	json select "MENTDB_se_city_lang" (concat "/" [key_lang] "/" (parameter get value "index_ai_LANG"));
+	
+} "Return the translation";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" 0 day {1;};

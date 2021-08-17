@@ -1,0 +1,34 @@
+script create get "demo.sql" false 1 
+  (param
+  ;) 
+  "SQL demonstration" 
+{
+
+	cm set "demo_cm_mysql" {execute "db.mysql.config.get"
+		"[hostname]" "localhost"
+		"[port]" "3306"
+		"[database]" "test_db"
+		"[user]" "bob"
+		"[password]" "pwd"
+	;};
+
+	sql connect "session1" {cm get "demo_cm_mysql";};
+	sql auto_commit "session1" false;
+	-> "[oneValue]" (sql value "session1" (concat "select name from products where id=1"));
+	-> "[oneRow]" (sql row "session1" (concat "select * from products where id=" (sql encode 1)));
+	-> "[oneTable]" (sql to json "session1" "products" (concat "select * from products"));
+	-> "[oneTable]" (sql to xml "session1" "products" (concat "select * from products"));
+	-> "[oneTable]" (sql to csv "session1" "products" (concat "select * from products") "," "'");
+	sql parse "session1" "T" (concat "select name from products") {
+
+		log trace [T_name];
+
+	};
+	sql dml "session1" (concat "insert into products (id, name, quantity) values (4, 'other', '4567');");
+	sql commit "session1";
+	sql rollback "session1";
+	sql disconnect "session1";
+	sql disconnect all;
+
+;} "Return nothing";
+script set delay "demo.sql.get" 0 day {1;};

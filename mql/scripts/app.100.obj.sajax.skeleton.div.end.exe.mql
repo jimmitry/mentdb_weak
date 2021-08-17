@@ -1,0 +1,10 @@
+script create exe "app.100.obj.sajax.skeleton.div.end" false 1 
+  (param
+  ;) 
+  "Bootstrap end div" 
+{
+
+	concat_var "[page]" "</div>";
+
+;} "html";
+script set delay "app.100.obj.sajax.skeleton.div.end.exe" 0 day {1;};

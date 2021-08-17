@@ -1,0 +1,178 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.users.lang" false 1 
+  (param
+  	(var "[key_lang]" {true} "" is_null:false is_empty:true "")
+  ;) 
+  "Get a label from the language" 
+{
+
+	if (not (json exist "MENTDB_users_lang")) {
+
+		json load "MENTDB_users_lang" "{
+			\"insert_ok\": {
+				\"en\": \"User added with successfull.\",
+				\"fr\": \"Utilisateur(s) ajout&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"update_ok\": {
+				\"en\": \"User updated with successfull.\",
+				\"fr\": \"Utilisateur(s) modifi&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"delete_ok\": {
+				\"en\": \"User deleted with successfull.\",
+				\"fr\": \"Utilisateur(s) suprim&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"list_title\": {
+				\"en\": \"users\",
+				\"fr\": \"users\"
+			},
+			\"list_filter\": {
+				\"en\": \"Filter\",
+				\"fr\": \"Filtre\"
+			},
+			\"list_field_login\": {
+				\"en\": \"login\",
+				\"fr\": \"login\"
+			},
+			\"list_field_password\": {
+				\"en\": \"password\",
+				\"fr\": \"password\"
+			},
+			\"list_field_firstname\": {
+				\"en\": \"firstname\",
+				\"fr\": \"firstname\"
+			},
+			\"list_field_lastname\": {
+				\"en\": \"lastname\",
+				\"fr\": \"lastname\"
+			},
+			\"list_field_activate\": {
+				\"en\": \"activate\",
+				\"fr\": \"activate\"
+			},
+			\"form_search_title\": {
+				\"en\": \"Search a user\",
+				\"fr\": \"Recherche d'un utilisateur\"
+			},
+			\"form_search_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_search_search_button\": {
+				\"en\": \"Search\",
+				\"fr\": \"Rechercher\"
+			},
+			\"form_search_field_login\": {
+				\"en\": \"login\",
+				\"fr\": \"login\"
+			},
+			\"form_search_field_password\": {
+				\"en\": \"password\",
+				\"fr\": \"password\"
+			},
+			\"form_search_field_firstname\": {
+				\"en\": \"firstname\",
+				\"fr\": \"firstname\"
+			},
+			\"form_search_field_lastname\": {
+				\"en\": \"lastname\",
+				\"fr\": \"lastname\"
+			},
+			\"form_search_field_activate\": {
+				\"en\": \"activate\",
+				\"fr\": \"activate\"
+			},
+			\"form_insert_title\": {
+				\"en\": \"Insert a user\",
+				\"fr\": \"Ajout d'un utilisateur\"
+			},
+			\"form_insert_title_re\": {
+				\"en\": \"Insert a user (Correction)\",
+				\"fr\": \"Ajout d'un utilisateur (Correction)\"
+			},
+			\"form_insert_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_insert_insert_button\": {
+				\"en\": \"Add\",
+				\"fr\": \"Ajouter\"
+			},
+			\"form_insert_field_login\": {
+				\"en\": \"login\",
+				\"fr\": \"login\"
+			},
+			\"form_insert_field_password\": {
+				\"en\": \"password\",
+				\"fr\": \"password\"
+			},
+			\"form_insert_field_firstname\": {
+				\"en\": \"firstname\",
+				\"fr\": \"firstname\"
+			},
+			\"form_insert_field_lastname\": {
+				\"en\": \"lastname\",
+				\"fr\": \"lastname\"
+			},
+			\"form_insert_field_activate\": {
+				\"en\": \"activate\",
+				\"fr\": \"activate\"
+			},
+			\"form_update_title\": {
+				\"en\": \"Update a user\",
+				\"fr\": \"Modification d'un utilisateur\"
+			},
+			\"form_update_title_re\": {
+				\"en\": \"Update a user (Correction)\",
+				\"fr\": \"Modification d'un utilisateur (Correction)\"
+			},
+			\"form_update_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_update_update_button\": {
+				\"en\": \"Update\",
+				\"fr\": \"Modifier\"
+			},
+			\"form_update_field_login\": {
+				\"en\": \"login\",
+				\"fr\": \"login\"
+			},
+			\"form_update_field_password\": {
+				\"en\": \"password\",
+				\"fr\": \"password\"
+			},
+			\"form_update_field_firstname\": {
+				\"en\": \"firstname\",
+				\"fr\": \"firstname\"
+			},
+			\"form_update_field_lastname\": {
+				\"en\": \"lastname\",
+				\"fr\": \"lastname\"
+			},
+			\"form_update_field_activate\": {
+				\"en\": \"activate\",
+				\"fr\": \"activate\"
+			},
+			\"form_delete_title_1\": {
+				\"en\": \"Delete of \",
+				\"fr\": \"Suppression d'\"
+			},
+			\"form_delete_title_2\": {
+				\"en\": \" user(s)\",
+				\"fr\": \"utilisateur(s)\"
+			},
+			\"form_delete_cancel_button\": {
+				\"en\": \"Cancel\",
+				\"fr\": \"Annuler\"
+			},
+			\"form_delete_delete_button\": {
+				\"en\": \"Delete\",
+				\"fr\": \"Supprimer\"
+			},
+		}";
+
+	};
+
+	json select "MENTDB_users_lang" (concat "/" [key_lang] "/" (parameter get value "User Manager_LANG"));
+	
+} "Return the translation";
+script set delay "app.100.template.user_manager.actions.MENTDB.users.lang.exe" 0 day {1;};

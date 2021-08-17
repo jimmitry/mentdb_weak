@@ -1,0 +1,99 @@
+script create exe "select.import.handle" false 1 
+  (param
+  	(var "[destination_db_id]" {true} "The destination database" is_null:false is_empty:false "MENTDB")
+  	(var "[create_table]" {true} "The SQL request to create the table" is_null:true is_empty:true "")
+  	(var "[configuration]" {true} "The local table name" is_null:false is_empty:false "")
+  ;) 
+  "Import data into the local mysql database" 
+{
+
+	sql connect "sessionData" {cm get [destination_db_id];};
+	if (not (is null or empty [create_table])) {
+		sql dml "sessionData" [create_table];
+	};
+
+	json load "configuration" [configuration];
+  	-> "[tunnel_id]" (json select "configuration" /tunnel_id);
+  	-> "[connection_id]" (json select "configuration" /connection_id);
+  	-> "[sql_request]" (json select "configuration" /sql_request);
+  	-> "[local_table_name]" (json select "configuration" /local_table_name);
+  	-> "[nb_line_by_block]" (json select "configuration" /nb_line_by_block);
+
+  	if (is null or empty [tunnel_id]) {
+		sql connect "session1" {cm get [connection_id]};
+		sql block open "session1" "table" [sql_request];
+  	} {
+		tunnel connect "session1" {cm get [tunnel_id]};
+		tunnel execute "session1" (concat 
+			"-> \"[connection_id]\" \"" (mql encode [connection_id]) "\";"
+			"-> \"[sql_request]\" \"" (mql encode [sql_request]) "\";"
+			"-> \"[nb_line_by_block]\" \"" (mql encode [nb_line_by_block]) "\";"
+			(mql {
+				sql connect "session1" {cm get [connection_id]};
+				sql block open "session1" "table" [sql_request];
+			})
+		);
+  	};
+
+	if (is null or empty [tunnel_id]) {
+  		json load "data" (sql block to_json [nb_line_by_block]);
+  	} {
+		json load "data" (tunnel execute "session1" (concat 
+			(mql {
+				sql block to_json [nb_line_by_block];
+			})
+		));
+  	};
+	
+	while (> (json count "data" /data) 0) {
+		
+		json parse_array "data" "/data" "row" {
+			
+			-> "[insert_col]" (concat "INSERT INTO `" [local_table_name] "` (");
+			-> "[insert_val]" ") VALUES (";
+			
+			json parse_obj "row" "/" "[key]" "[val]" {
+	
+				concat_var "[insert_col]" [_n_] "`" [key] "`, ";
+				concat_var "[insert_val]" [_n_] (sql encode [val]) ", ";
+			
+			};
+	
+			-> "[insert_col]" (string substring [insert_col] 0 (- (string length [insert_col]) 2));
+			-> "[insert_val]" (string substring [insert_val] 0 (- (string length [insert_val]) 2));
+	
+			-> "[insert]" (concat [insert_col] [insert_val] [_n_] ")");
+			#log trace [insert];
+			sql dml "sessionData" [insert];
+		
+		};
+
+		if (is null or empty [tunnel_id]) {
+	  		json load "data" (sql block to_json [nb_line_by_block]);
+	  	} {
+			json load "data" (tunnel execute "session1" (concat 
+				(mql {
+					sql block to_json [nb_line_by_block];
+				})
+			));
+	  	};
+	
+	};
+
+  	if (is null or empty [tunnel_id]) {
+  		sql block close;
+		sql disconnect "session1";
+  	} {
+		tunnel execute "session1" (concat 
+			(mql {
+				sql block close;
+				sql disconnect "session1";
+			})
+		);
+		tunnel disconnect "session1";
+  	};
+
+  	sql disconnect "sessionData";
+	
+;} "Return ...";
+script set delay "select.import.handle.exe" 0 day {1;};

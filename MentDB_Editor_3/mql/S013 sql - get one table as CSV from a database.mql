@@ -1,0 +1,32 @@
+####################################;
+# Get table as CSV from a database #;
+####################################;
+
+#Create a connection 'demo_cm_mysql' to a MySQL Server;
+#Do not add this into your code, this is a configuration;
+cm set "demo_cm_mysql" {execute "db.mysql.config.get"
+	"[hostname]" "localhost"
+	"[port]" "3306"
+	"[database]" "test_db"
+	"[user]" "bob"
+	"[password]" "pwd"
+;};
+
+#Connect with the connection;
+sql connect "session1" {cm get "demo_cm_mysql";};
+
+#Get a table as CSV object;
+file create "/Users/jimmitry/Desktop/table.csv" (sql to csv "session1" "products" (concat "select * from products") "," "'");
+csv parse (mql "T") (mql "/Users/jimmitry/Desktop/table.csv") (mql ",") (mql "'") (mql "") {
+	if (string starts_with [T_name] "PROD") {
+		"do somthing ...";
+	} {
+		"do somthing ...";
+	};
+};
+
+#Disconnect a connection;
+sql disconnect "session1";
+
+#Disconnect all connections;
+sql disconnect all;

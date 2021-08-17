@@ -1,0 +1,57 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_db.insert" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Insert a new element ..." 
+{
+
+	try {
+		
+		#Connection ...;
+		sql connect "session1" {cm get "MENTDB"};
+
+		json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+		
+		-> "[result]" (sql dml "session1" (concat 
+			"INSERT INTO `se_db` (
+			`name`
+			) VALUES (
+			" (sql encode (json select "data" "/client_data/name")) "
+			);"
+		));
+		
+		#Disconnection ...;
+		sql disconnect "session1";
+		
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_SUCCESS"
+			"[strong]" "OK !"
+			"[msg]" (concat "
+			" (include "app.100.template.index_ai.actions.MENTDB.se_db.lang.exe" "[key_lang]" "insert_ok"))
+		;
+
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_db.list.exe"
+			"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		;
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_db.insert_reopen_form.exe"
+			"[OBJ_OVERWRITE_B64]" [OBJ_OVERWRITE_B64]
+		;
+
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_DANGER"
+			"[strong]" "ERR :"
+			"[msg]" [err]
+		;
+		
+	} "[err]";
+	
+} "Return OK or KO";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_db.insert.exe" 0 day {1;};

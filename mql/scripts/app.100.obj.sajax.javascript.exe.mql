@@ -1,0 +1,15 @@
+script create exe "app.100.obj.sajax.javascript" false 1 
+  (param
+  	(var "[javascript]" {true} "The javascript message" is_null:true is_empty:true "")
+  ;) 
+  "Ajax result" 
+{
+
+	json load "o" "{}";
+	json iobject "o" / type "JAVASCRIPT" STR;
+	json iobject "o" / javascript [javascript] STR;
+	json doc "o";
+	json iarray "result" / (json doc "o") OBJ;
+
+;} "html";
+script set delay "app.100.obj.sajax.javascript.exe" 0 day {1;};

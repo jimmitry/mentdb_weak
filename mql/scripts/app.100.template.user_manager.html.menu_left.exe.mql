@@ -1,0 +1,15 @@
+script create exe "app.100.template.user_manager.html.menu_left" false 1 
+  (param
+  ;) 
+  "Menu left" 
+{
+	
+	concat_var "[page]" "<div style='width: 100%;width:100%;height:100%;
+		background-color: " (json select "app" "/menu_background_color") ";'>
+
+		" (app menu show) "
+	
+	</div>";
+
+;} "html";
+script set delay "app.100.template.user_manager.html.menu_left.exe" 0 day {1;};

@@ -1,0 +1,28 @@
+script create get "file.remote.sftp.config" false 1 
+  (param
+  	(var "[hostname]" {true} "The hostname" is_null:false is_empty:false "localhost, 127.0.0.1")
+  	(var "[port]" {type is_int [port]} "The port" is_null:false is_empty:false "22")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "bob")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "pwd")
+  	(var "[connectTimeout]" {true} "The connect timeout" is_null:false is_empty:false "10000")
+  	(var "[dataTimeout]" {true} "The data timeout" is_null:false is_empty:false "30000")
+  ;) 
+  "Get a SFTP config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "sftp" STR;
+	json iobject "config_obj" / "hostname" [hostname] STR;
+	json iobject "config_obj" / "port" [port] STR;
+	json iobject "config_obj" / "user" [user] STR;
+	json iobject "config_obj" / "password" [password] STR;
+	json iobject "config_obj" / "connectTimeout" [connectTimeout] STR;
+	json iobject "config_obj" / "dataTimeout" [dataTimeout] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a SFTP config connection in JSON";
+script set delay "file.remote.sftp.config.get" 0 day {1;};

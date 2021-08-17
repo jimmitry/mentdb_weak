@@ -1,0 +1,341 @@
+script create exe "app.100.template.index_ai.page.search" false 1 
+  (param
+  	(var "[db]" {true} "the database" is_null:false is_empty:true "db1")
+  	(var "[lang]" {true} "the language" is_null:false is_empty:true "-1")
+  	(var "[city]" {true} "the city" is_null:false is_empty:true "-1")
+  	(var "[zone]" {true} "the zone" is_null:false is_empty:true "-1")
+  	(var "[query]" {true} "the query" is_null:false is_empty:true "research and development")
+  	(var "[i_page]" {true} "the page" is_null:false is_empty:true "1")
+  ;) 
+  "Show the search page" 
+{
+
+	-> "[page]" "";
+	
+	if (!= [zone] 100) {
+		-> "[db]" "db1";
+	};
+
+	if (== [zone] 6) {
+		-> "[lang]" "en";
+	};
+
+	-> "[ts]" (date current_ns);
+	
+	json load "result" (execute "index_ai.app.find.get"
+		"[db_id]" [db]
+		"[lang]" [lang]
+		"[city]" [city]
+		"[zone]" [zone]
+		"[txt]" [query]
+		"[depth]" (if (equal [zone] "*") {"500"} {"2500"})
+		"[page]" [i_page]
+	;);
+	
+	-> "[ts2]" (date current_ns);
+
+	-> "[city_name]" "Index-AI";
+	-> "[CITIES]" "";
+
+	json load "cities" (execute "index_ai.admin.get_cities.exe" "[db_id]" [db]);
+	json parse_array "cities" "/" "obj" {
+	
+		if (> (json select "obj" /n) 0) {
+			concat_var "[CITIES]" "<option value='" (json select "obj" /k) "' " (if (== [city] (json select "obj" /k)) {-> "[city_name]" (json select "obj" /v);"selected"}) ">" (string upper (json select "obj" /v)) (if (== [city] (json select "obj" /k)) {concat " &nbsp; (" (if (equal [lang] "fr") {"cliquez ici pour changer la ville ..."} {"click here to change the city ..."}) ")"}) "</option>";
+		};
+		
+	};
+
+	concat_var "[page]" "<!DOCTYPE html>
+<html lang=\"en\" style=\"height: 100%;\">
+  <head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"Description\" CONTENT=\"Index-AI, " (if (equal [lang] "fr") {"le moteur de recherche de l'île de la Réunion"} {"the search engine for Reunion Island"}) "\">
+	<meta name=\"Keywords\" content=\"index, ai, " (if (equal [lang] "fr") {"moteur, recherche, île, Réunion"} {"search, engine, Reunion, Island"}) "\">
+	<meta name=\"robots\" content=\"index, follow\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>" [city_name] " | " (if (equal [lang] "fr") {"Île de la Réunion"} {"Reunion Island"}) "</title>
+    <link rel=\"icon\" type=\"image/png\" href=\"images/innov-ai.png\" />
+  <script src=\"js/jquery-3.1.1.min.js\"></script>
+  <script src=\"js/jQueryRotate.js\"></script>
+      
+<style type=\"text/css\">
+    
+.container {
+  height: 100%;
+  position: relative;
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 100%;
+}
+    
+input:focus, textarea:focus, select:focus{
+    outline: none;
+}
+    
+.myButton {
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:linear-gradient(to bottom, #f9f9f9 5%, #e9e9e9 100%);
+	background-color:#f9f9f9;
+	border-radius:6px;
+	display:inline-block;
+	border:1px solid #292929;
+	cursor:pointer;
+	color:#666666;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #ffffff;
+	padding-left: 15px;
+     padding-right: 15px;
+}
+.myButton:hover {
+	background:linear-gradient(to bottom, #e9e9e9 5%, #f9f9f9 100%);
+	background-color:#e9e9e9;
+	border:1px solid #dcdcdc;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
+
+    
+</style>
+
+  </head>
+  <body style=\"height: 100%; font-size: 15px;line-height: 1.42857143;font-family:'Helvetica Neue', Roboto, Arial, 'Droid Sans', sans-serif;margin:0px;background-color: #3d3c3c\">
+
+<div style='border-bottom: 1px #1b1b1b solid;width:100%;background-color: #292929;color: #fff;padding-left: 10px;padding-right: 10px;box-sizing: border-box;line-height: 40px;'>
+
+	<div style='margin-top:10px;display:inline-block;width: 100%;'>
+	
+				<form action='index.jsp' method='GET'>
+	<input type='hidden' name='app_page' value='search'>
+	<input type='hidden' name='lang' value='" [lang] "'>
+	<input type='hidden' name='city' value='" [city] "'>
+	<input type='hidden' name='zone' value='" [zone] "'>
+	<input type='hidden' name='db' value='" [db] "'>
+	<input type='hidden' name='i_page' value='1'>
+	<a href='index.jsp?app_page=front&lang=" [lang] "'><img id=\"rotate_img\" src=\"images/innov-ai.png\" style=\"position: absolute;width: 40px;vertical-align:middle\"></a><input placeholder='" (if (equal [lang] "fr") {"Taper puis appuyer sur &#39;Entrée&#39;..."} {"Press &#39;Enter&#39; to search..."}) "' type=\"text\" id=\"query\" value=\"" (string replace [query] "\"" "&quote;") "\" name=\"query\" minlength=\"3\" maxlength=\"200\" autofocus style=\"margin-left:22px;padding-left: 30px;width:calc(100% - 55px);line-height: 30px;font-size: 16px; -webkit-border-radius: 0px 65px 65px 0px;-moz-border-radius: 0px 65px 65px 0px;border-radius: 0px 65px 65px 0px;height: 38px;border: 0px;\">
+	</form>
+		<div style='line-height: 32px;margin-top: 8px;'>";
+
+concat_var "[page]" "<a href='index.jsp?app_page=front&lang=" [lang] "' style='margin-right: 15px;color: #fff;text-decoration: none;'>Index-AI</a><form id='form_menu_m1' style='display:inline-block' action='index.jsp' method='GET'>
+				<input type='hidden' name='app_page' value='search'>
+				<input type='hidden' name='lang' value='" [lang] "'>
+				<input type='hidden' name='zone' value='-1'>
+				<input type='hidden' name='city' value='" [city] "'>
+				<input type='hidden' name='i_page' value='1'>
+				<input type='hidden' name='db' value='db1'>
+				<input type='hidden' name='query' value=''>
+				<a href='#' onclick='document.getElementById(\"form_menu_m1\").submit();' style='margin-right:15px;" (if (== [zone] -1) {"border-bottom: 3px #fff solid;color:#fff;text-decoration:none;font-weight:bold"} {"color:#fff;text-decoration:none"}) "'>" (if (equal [lang] "fr") {"Accueil"} {"Home"}) "</a></form>";
+
+if (< [zone] 100) {
+	json load "zones" (execute "index_ai.admin.get_zones.exe" "[db_id]" [db] "[lang]" [lang]);
+	json parse_array "zones" "/" "obj" {
+	
+		concat_var "[page]" "<form id='form_menu_" (json select "obj" /k) "' style='display:inline-block' action='index.jsp' method='GET'>
+			<input type='hidden' name='app_page' value='search'>
+			<input type='hidden' name='lang' value='" [lang] "'>
+			<input type='hidden' name='zone' value='" (json select "obj" /k) "'>
+			<input type='hidden' name='city' value='" [city] "'>
+			<input type='hidden' name='i_page' value='1'>
+			<input type='hidden' name='db' value='db1'>
+			<input type='hidden' name='query' value='" (string replace [query] "'" "&#39;") "'>
+			<a href='#' onclick='document.getElementById(\"form_menu_" (json select "obj" /k) "\").submit();' style='margin-right:15px;" (if (== [zone] (json select "obj" /k)) {"border-bottom: 3px #fff solid;text-decoration:none;color:#fff;font-weight:bold"} {"color:#fff;text-decoration:none"}) "'>" (json select "obj" /v) "</a></form>";
+	
+	};
+};
+
+	concat_var "[page]" "<form id='form_menu_tomb_stone' style='display:inline-block' action='index.jsp' method='GET'>
+		<input type='hidden' name='app_page' value='search'>
+		<input type='hidden' name='lang' value='" [lang] "'>
+		<input type='hidden' name='zone' value='100'>
+		<input type='hidden' name='city' value='" [city] "'>
+		<input type='hidden' name='i_page' value='1'>
+		<input type='hidden' name='db' value='db2'>
+		<input type='hidden' name='query' value='" (string replace [query] "'" "&#39;") "'>
+		<a href='#' onclick='document.getElementById(\"form_menu_tomb_stone\").submit();' style='margin-right:15px;" (if (== [zone] 100) {"border-bottom: 3px #fff solid;text-decoration:none;color:#fff;font-weight:bold"} {"color:#fff;text-decoration:none"}) "'>" (if (equal [lang] "fr") {"Pierre tombale"} {"Tomb stone"}) "</a></form>";
+
+if (equal [lang] "fr") {
+	concat_var "[page]" "<form id='form_en' style='display:inline-block' action='index.jsp' method='GET'>
+				<input type='hidden' name='app_page' value='search'>
+				<input type='hidden' name='lang' value='en'>
+				<input type='hidden' name='zone' value='" [zone] "'>
+				<input type='hidden' name='city' value='" [city] "'>
+				<input type='hidden' name='i_page' value='1'>
+				<input type='hidden' name='db' value='" [db] "'>
+				<input type='hidden' name='query' value='" (string replace [query] "'" "&#39;") "'>
+				<a href='#' onclick='document.getElementById(\"form_en\").submit();' style='margin-right:15px;" (if (equal [lang] "en") {"border-bottom: 3px #fff solid;text-decoration:none;color:#fff;"} {"color:#fff;text-decoration:none"}) "'><img src='images/en.png' style='vertical-align: middle;width: 22px;'></a></form>";
+} {
+	concat_var "[page]" "<form id='form_fr' style='display:inline-block' action='index.jsp' method='GET'>
+				<input type='hidden' name='app_page' value='search'>
+				<input type='hidden' name='lang' value='fr'>
+				<input type='hidden' name='zone' value='" [zone] "'>
+				<input type='hidden' name='city' value='" [city] "'>
+				<input type='hidden' name='i_page' value='1'>
+				<input type='hidden' name='db' value='" [db] "'>
+				<input type='hidden' name='query' value='" (string replace [query] "'" "&#39;") "'>
+				<a href='#' onclick='document.getElementById(\"form_fr\").submit();' style='margin-right:15px;" (if (equal [lang] "fr") {"border-bottom: 3px #fff solid;text-decoration:none;color:#fff;"} {"color:#fff;text-decoration:none"}) "'><img src='images/fr.png' style='vertical-align: middle;width: 22px;'></a></form>";
+};
+
+concat_var "[page]" "<form id='form_city_select' style='display:inline-block;width: 100%;' action='index.jsp' method='GET'>
+				<input type='hidden' name='app_page' value='search'>
+				<input type='hidden' name='lang' value='" [lang] "'>
+				<input type='hidden' name='zone' value='-1'>
+				<input type='hidden' name='i_page' value='1'>
+				<input type='hidden' name='db' value='" [db] "'>
+				<input type='hidden' name='query' value='" (string replace [query] "'" "&#39;") "'>
+				<select onchange='document.getElementById(\"form_city_select\").submit();' name='city' style='margin-top: 5px;height: 38px;margin-bottom: 5px;width: 100%;color: #FFF;background-color: #484848;border: 1px #000 solid;padding: 5px;-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px;' style=\"height: 35px;width: 170px;\">
+                        <option value='-1' " (if (== [city] -1) {"selected"}) ">" (string upper (if (equal [lang] "fr") {"Toutes les villes"} {"All cities"})) (if (== [city] -1) {concat " &nbsp; (" (if (equal [lang] "fr") {"cliquez ici pour changer la ville ..."} {"click here to change the city ..."}) ")"}) "</option>
+                        " [CITIES];
+
+concat_var "[page]" "
+                    </select>
+				</form>
+			
+			
+		</div>
+	</div>
+</div>
+<div style='color:#fff;font-size:15px;padding: 10px;margin-bottom:80px'>
+
+";
+
+-> "[nb]" (json select "result" /nb);
+
+concat_var "[page]" [nb] " " (if (equal [lang] "fr") {"résultat"} {"result"})  (if (> (json select "result" /nb) 1) {"s"}) " " (if (equal [lang] "fr") {"trouvé"} {"found"}) (if ( and (equal [lang] "fr") (> (json select "result" /nb) 1)) {"s"}) " (" (math round (/ (- [ts2] [ts]) 1000000000) 4) " s)";
+
+concat_var "[page]" "<div style='height: 10px;border-bottom: 1px #696969 solid;'></div><div style='height:15px'></div>";
+
+json parse_array "result" "/result" "obj" {
+
+	-> "[s]" (string replace (json select "obj" /s) "'" "&#39;");
+	-> "[z]" (string replace (json select "obj" /z) "'" "&#39;");
+	-> "[z_id]" (json select "obj" /z_id);
+	-> "[c]" (string replace (json select "obj" /c) "'" "&#39;");
+	-> "[c_id]" (json select "obj" /c_id);
+	-> "[cd]" (json select "obj" /cd);
+	-> "[cy]" (string replace (json select "obj" /cy) "'" "&#39;");
+	-> "[cy_id]" (json select "obj" /cy_id);
+	-> "[res]" (json select "obj" /res);
+
+	switch ([z_id])
+		(0) {
+
+			concat_var "[page]" "<img src='images/zone0.png' style='width: 20px;vertical-align: sub;'> <a style='color:#ffff00;font-size:20px' href='" (string replace [res] "'" "&#39;") "' target='_blank'>" [c] "</a><span style='color:#ffff00;'> | " [cd] "</span><div style='border-left:2px #ffff00 solid;margin-left: 9px;padding-left: 10px;'>" [cy] " &gt; " [z] "<br>
+				" (include "index_ai.tools.set_bold.exe" "[color]" "#ffff00") "<br>
+				" [res] "</div>
+				<div style='height:30px'></div>";
+		
+		}
+		(1) {
+
+			-> "[e]" (string replace (json select "obj" /e) "'" "&#39;");
+			concat_var "[page]" "<img src='images/zone1.png' style='width: 20px;vertical-align: sub;'> <a style='color:#55ff00;font-size:20px' href='" (string replace [res] "'" "&#39;") "' target='_blank'>" [e] "</a><br><div style='border-left:2px #55ff00 solid;margin-left: 9px;padding-left: 10px;'>" [c] " | " [cd] "<br>" [cy] " &gt; " [z] "<br>
+				" (include "index_ai.tools.set_bold.exe" "[color]" "#55ff00") "<br>
+				" [res] "</div>
+				<div style='height:30px'></div>";
+		
+		}
+		(2) {
+
+			-> "[e]" (string replace (json select "obj" /e) "'" "&#39;");
+			concat_var "[page]" "<img src='images/zone2.png' style='width: 20px;vertical-align: sub;'> <a style='color:#ea72ff;font-size:20px' href='" (string replace [res] "'" "&#39;") "' target='_blank'>" [e] "</a><div style='border-left:2px #ea72ff solid;margin-left: 9px;padding-left: 10px;'>" [c] " | " [cd] "<br>" [cy] " &gt; " [z] "<br>
+				" (include "index_ai.tools.set_bold.exe" "[color]" "#ea72ff") "<br>
+				" [res] "</div>
+				<div style='height:30px'></div>";
+		
+		}
+		(100) {
+
+			-> "[e]" (string replace (json select "obj" /e) "'" "&#39;");
+			concat_var "[page]" "<img src='images/zone100.png' style='width: 26px;vertical-align: bottom;'> <a style='color:#ffd266;font-size:20px' href='" (string replace [res] "'" "&#39;") "' target='_blank'>" [e] "</a> <span style='margin-left:10px'>Position: <span style='background-color: #805d09;padding: 6px;-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;font-size: 18px;font-weight: bold;border: 1px #ffd266 solid;'>" [res] "</span></span><div style='border-left:2px #ffd266 solid;margin-left: 12px;padding-left: 10px;'>" [cy] " &gt; " [z] "<br>
+				" (include "index_ai.tools.set_bold.exe" "[color]" "#ffd266") "</div>
+				<div style='height:30px'></div>";
+		
+		}
+		{
+
+			-> "[e]" (string replace (json select "obj" /e) "'" "&#39;");
+			concat_var "[page]" "<img src='images/zone99.png' style='width: 20px;vertical-align: sub;'> <a style='color:#58a3ff;font-size:20px' href='" (string replace [res] "'" "&#39;") "' target='_blank'>" [e] "</a><div style='border-left:2px #58a3ff solid;margin-left: 9px;padding-left: 10px;'>" [c] " | " [cd] "<br>" [cy] " &gt; " [z] "<br>
+				" (include "index_ai.tools.set_bold.exe" "[color]" "#58a3ff") "<br>
+				" [res] "</div>
+				<div style='height:30px'></div>";
+		
+		}
+	;
+
+};
+    
+concat_var "[page]" "</div><div>";
+
+concat_var "[page]" "<div style='border-top: 1px #1b1b1b solid;width:100%;position: fixed;bottom: 0px;height: 40px;background-color: #292929;color: #fff;padding-left: 20px;line-height: 40px;'>Page &nbsp; &nbsp;";
+
+for (-> "[ii_page]" 1) (and (<= [ii_page] (math ceil (/ [nb] 10))) (<= [ii_page] 10)) (++ "[ii_page]") {
+
+	if (== [ii_page] [i_page]) {
+		
+		concat_var "[page]" "<span style='font-weight:bold;color:#f00;background-color: #212121;border: 1px #000 solid;padding: 5px;-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius: 20px;'>" [ii_page] "</span> &nbsp; &nbsp;";
+
+	} {
+
+		concat_var "[page]" "<form id='form_page_" [ii_page] "' style='display:inline-block' action='index.jsp' method='GET'>
+			<input type='hidden' name='app_page' value='search'>
+			<input type='hidden' name='lang' value='" [lang] "'>
+			<input type='hidden' name='zone' value='" [zone] "'>
+			<input type='hidden' name='city' value='" [city] "'>
+			<input type='hidden' name='i_page' value='" [ii_page] "'>
+			<input type='hidden' name='db' value='" [db] "'>
+			<input type='hidden' name='query' value='" (string replace [query] "'" "&#39;") "'>
+			<a href='#' onclick='document.getElementById(\"form_page_" [ii_page] "\").submit();' style='font-weight:bold;color:#fff;background-color: #212121;border: 1px #000 solid;padding: 5px;-webkit-border-radius: 20px;-moz-border-radius: 20px;border-radius: 20px;'>" [ii_page] "</a></form> &nbsp; &nbsp;";
+
+	};
+
+};
+
+concat_var "[page]" "<a href=\"https://www.innov-ai.com\" target='_blank' style='color:#fff;text-decoration: underline;float: right;margin-right: 40px'>Innov-AI</a></div>";
+
+concat_var "[page]" "
+  </body>
+    
+<script>
+function start_rotation() {
+
+    var rotation = function (){
+      $(\"#rotate_img\").rotate({
+        duration:2000,
+        angle:0,
+        animateTo: 360,
+        callback: rotation,
+        easing: function (x, t, b, c, d, s) {
+            return -c *(t/=d)/2*(t-2) + b;
+        }
+      });
+    }
+    rotation();
+
+}
+    
+window.onload = function() {
+
+    start_rotation();
+    
+};
+
+</script>
+</html>
+";
+
+	[page]
+
+;} "The 'search' page";
+script set delay "app.100.template.index_ai.page.search.exe" 0 day {1;};

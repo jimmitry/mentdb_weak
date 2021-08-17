@@ -1,0 +1,32 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.groups.delete_confirm" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open a confirm dialog box for delete ..." 
+{
+
+	json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "groups_delete_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (concat 
+					(include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_delete_title_1") (json count "data" "/client_data") 
+					(include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_delete_title_2"))
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-md"
+				"[html]" "style='font-size:14px'";
+			
+		include "app.100.obj.form.end.exe" "[form_id]" "groups_delete_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" [OBJ_OVERWRITE_B64]
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.user_manager.actions.MENTDB.groups.delete.exe"
+		"[data_eval]" ""
+		"[closeTitle]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_delete_cancel_button")
+		"[submitTitle]" (if (> (json count "data" "/client_data") 0) {include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_delete_delete_button"} {""})
+		"[submitType]" "danger";
+	
+} "Return the form";
+script set delay "app.100.template.user_manager.actions.MENTDB.groups.delete_confirm.exe" 0 day {1;};

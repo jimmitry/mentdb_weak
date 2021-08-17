@@ -1,0 +1,131 @@
+script create exe "lib.value.check.v1" false 1 
+  (param
+  	(var "[value]" {true} "The value" is_null:true is_empty:true "foo")
+  	(var "[var_text]" {true} "The variable text" is_null:false is_empty:false "telephone")
+  	(var "[lang]" {> (atom find_lrtrim "en|fr" [lang] "|") 0} "The language" is_null:false is_empty:false "en|fr")
+  	(var "[isNull]" {type is_bool [isNull] 1 0;} "Can be null" is_null:false is_empty:false "false")
+  	(var "[isEmpty]" {type is_bool [isEmpty] 1 0;} "Can be empty" is_null:false is_empty:false "true")
+  	(var "[type]" {> (atom find_lrtrim "string|numeric|date|timestamp|list" [type] "|") 0} "The type" is_null:false is_empty:false "string|numeric|date|timestamp|list")
+  	(var "[format]" {true} "The format" is_null:false is_empty:false "yyyyMMdd")
+  	(var "[maxLength]" {true} "The max length" is_null:false is_empty:true "")
+  	(var "[list]" {true} "The list of value" is_null:false is_empty:false "A,B,C")
+  	(var "[separator]" {true} "The separator" is_null:false is_empty:false ",")
+  	(var "[err]" {true} "The error variable" is_null:false is_empty:false "[err]")
+  ;) 
+  "Check the type of a value" 
+{
+
+	#Initialization;
+	if (not (env exist var [err])) {
+		-> [err] "";
+	};
+
+	#Manage the null value;
+	if (and (not [isNull]) (is null [value])) {
+		if (equal [lang] "fr") {
+			concat_var [err] "Le champ '" [var_text] "' ne peut pas être null." [_n_];
+		} {
+			concat_var [err] "The field '" [var_text] "' cannot be null." [_n_];
+		};
+	};
+
+	#Manage the empty value;
+	if (and (not [isEmpty]) (is empty [value])) {
+		if (equal [lang] "fr") {
+			concat_var [err] "Le champ '" [var_text] "' ne peut pas être vide." [_n_];
+		} {
+			concat_var [err] "The field '" [var_text] "' cannot be empty." [_n_];
+		};
+	};
+
+	if (not (is null or empty [value])) {
+
+		case
+		(equal [type] "string") {
+
+			if (is not empty [maxLength]) {
+
+				if (> (string length [value]) [maxLength]) {
+					if (equal [lang] "fr") {
+						concat_var [err] "Le champ '" [var_text] "' est trop long. Trouvé taille=" (string length [value]) " au lieu de " [maxLength] " max." [_n_];
+					} {
+						concat_var [err] "The field '" [var_text] "' is too large. Found size=" (string length [value]) " instead of " [maxLength] " max." [_n_];
+					};
+				};
+
+			};
+
+		}
+		(equal [type] "numeric") {
+
+			if (is not empty [maxLength]) {
+
+				if (> (string length [value]) [maxLength]) {
+					if (equal [lang] "fr") {
+						concat_var [err] "Le champ '" [var_text] "' est trop long. Trouvé taille=" (string length [value]) " au lieu de " [maxLength] " max." [_n_];
+					} {
+						concat_var [err] "The field '" [var_text] "' is too large. Found size=" (string length [value]) " instead of " [maxLength] " max." [_n_];
+					};
+				};
+
+				if (not (type is_number [value])) {
+					if (equal [lang] "fr") {
+						concat_var [err] "Le champ '" [var_text] "' n\'est pas un nombre valide. Trouvé " [value] "." [_n_];
+					} {
+						concat_var [err] "The field '" [var_text] "' is not a valid number. Found " [value] "." [_n_];
+					};
+				};
+
+			} {
+
+				if (not (type is_number [value])) {
+					if (equal [lang] "fr") {
+						concat_var [err] "Le champ '" [var_text] "' n\'est pas un nombre valide. Trouvé " [value] "." [_n_];
+					} {
+						concat_var [err] "The field '" [var_text] "' is not a valid number. Found " [value] "." [_n_];
+					};
+				};
+
+			};
+
+		}
+		(equal [type] "date") {
+
+			if (not (date is_valid_date [value] [format])) {
+				if (equal [lang] "fr") {
+					concat_var [err] "Le champ '" [var_text] "' n\'est pas une date valide. Trouvé " [value] " au lieu de " [format] "." [_n_];
+				} {
+					concat_var [err] "The field '" [var_text] "' is not a valid date. Found " [value] " instead of " [format] "." [_n_];
+				};
+			};
+
+		}
+		(equal [type] "timestamp") {
+
+			if (not (date is_valid_timestamp [value] [format])) {
+				if (equal [lang] "fr") {
+					concat_var [err] "Le champ '" [var_text] "' n\'est pas un horodatage valide. Trouvé " [value] " au lieu de " [format] "." [_n_];
+				} {
+					concat_var [err] "The field '" [var_text] "' is not a valid datetime. Found " [value] " instead of " [format] "." [_n_];
+				};
+			};
+
+		}
+		(equal [type] "list") {
+
+			if (== (atom find [list] [value] [separator]) 0) {
+				if (equal [lang] "fr") {
+					concat_var [err] "Le champ '" [var_text] "' n\'est pas prévu. Trouvé " [value] " au lieu de " [list] "." [_n_];
+				} {
+					concat_var [err] "The field '" [var_text] "' is not planned. Found " [value] " instead of " [list] "." [_n_];
+				};
+			};
+
+		};
+
+	};
+
+	env get var [err];
+
+;} "Return nothing";
+script set delay "lib.value.check.v1.exe" 0 day {1;};

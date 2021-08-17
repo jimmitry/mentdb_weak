@@ -1,0 +1,108 @@
+script create exe "script.deploy" false 1 
+  (param
+  	(var "[startsWith]" {true} "Scripts starts with" is_null:true is_empty:true "test.")
+  	(var "[mentdbCmId]" {cm exist [mentdbCmId]} "The MentDB server" is_null:true is_empty:true "demo_cm_mentdb")
+  	(var "[groups]" {true} "The group" is_null:true is_empty:true "groupId1,groupId2")
+  	(var "[check]" {type is_bool [check] 1 0;} "Check or deploy" is_null:false is_empty:false "true")
+  ;) 
+  "Check or Deploy scripts to a remote MentDB server" 
+{
+	
+	tunnel connect "session1" {cm get [mentdbCmId]};
+	-> "[result]" (concat "DEPLOYMENTS" [_n_]);
+
+	json load "json" (script show);
+	json load "scripts" (json fields "json" /);
+
+	-> "[n]" (json count "scripts" /);
+
+	for (-> "[i]" 0) (< [i] [n]) (++ "[i]") {
+
+		-> "[scriptName]" (json select "scripts" (concat "/[" [i] "]"));
+
+		if (string starts_with [scriptName] [startsWith]) {
+
+			if (tunnel execute "session1" (concat "script exist \"" [scriptName] "\"")) {
+
+				if (equal (script generate update [scriptName]) (tunnel execute "session1" (concat "script generate update \"" [scriptName] "\""))) {
+		
+					
+
+				} {
+
+					if ([check]) {
+					
+						concat_var "[result]" "TO UPDATE ... " [scriptName] [_n_];
+					
+					} {
+					
+						tunnel execute "session1" (script generate update [scriptName]);
+			
+						concat_var "[result]" "UPDATED >>> " [scriptName] [_n_];
+					
+					};
+
+				};
+
+				if (not (is null or empty [groups])) {
+				
+					for (-> "[g]" 1) (<= [g] (atom size [groups] ",")) (++ "[g]") {
+					
+						-> "[cur_g]" (atom get [groups] [g] ",");
+
+						if (not [check]) {
+
+							tunnel execute "session1" (concat "if (not (group is granted script \"" [scriptName] "\" \"" [cur_g] "\")) {
+	
+								group grant script \"" [scriptName] "\" \"" [cur_g] "\";
+	
+							};");
+
+						};
+					
+					};
+				
+				};
+		
+			} {
+
+				if ([check]) {
+		
+					concat_var "[result]" "TO CREATE ... " [scriptName] [_n_];
+				
+				} {
+				
+					tunnel execute "session1" (script generate create [scriptName]);
+	
+					if (not (is null or empty [groups])) {
+					
+						for (-> "[g]" 1) (<= [g] (atom size [groups] ",")) (++ "[g]") {
+						
+							-> "[cur_g]" (atom get [groups] [g] ",");
+	
+							tunnel execute "session1" (concat "if (not (group is granted script \"" [scriptName] "\" \"" [cur_g] "\")) {
+	
+								group grant script \"" [scriptName] "\" \"" [cur_g] "\";
+	
+							};");
+						
+						};
+					
+					};
+		
+					concat_var "[result]" "CREATED >>> " [scriptName] [_n_];
+				
+				};
+		
+			};
+
+		};
+
+	};
+
+	tunnel disconnect "session1";
+
+	[result]
+	
+;} "Return the state of deployment (String)";
+script set delay "script.deploy.exe" 0 day {1;};

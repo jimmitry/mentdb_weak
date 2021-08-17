@@ -1,0 +1,31 @@
+#################################################;
+# Create a basic REST web service (method POST) #;
+#################################################;
+
+#Create the web-service 'addition';
+script create post "addition" false 1
+  (param
+  	(var "[v1]" {type is_double [v1]} "description ..." is_null:true is_empty:true "example ...")
+  	(var "[v2]" {type is_double [v2]} "description ..." is_null:true is_empty:true "example ...")
+  )
+  "description ..."
+{
+	
+	+ [v1] [v2];
+	
+} "Return ...";
+
+#Your web-service is ready!;
+
+#Connect to your local api manager: ;
+#https://localhost:9999/docs/;
+#user: admin;
+#pwd: pwd;
+
+#Click on addition web service and try it... ;
+
+#API: https://localhost:9999/api/addition;
+#x-token : the JSON Web Token (empty or not define the first time);
+#x-user : the user (required the first time);
+#x-password : the password (required the first time);
+#send v1 and v2 as post parameters (without []);

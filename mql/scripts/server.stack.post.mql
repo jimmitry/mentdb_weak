@@ -1,0 +1,9 @@
+script create post "server.stack" false 1 
+  (param;) 
+  "" 
+{
+
+	stack process;
+
+} "";
+script set delay "server.stack.post" 0 day {1;};

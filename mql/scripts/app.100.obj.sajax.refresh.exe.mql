@@ -1,0 +1,17 @@
+script create exe "app.100.obj.sajax.refresh" false 1 
+  (param
+  	(var "[target]" {true} "The strong message" is_null:true is_empty:true "container_id_1")
+  	(var "[innerHtml]" {true} "The message" is_null:true is_empty:true "html...")
+  ;) 
+  "Ajax result" 
+{
+
+	json load "o" "{}";
+	json iobject "o" / type "REFRESH" STR;
+	json iobject "o" / target [target] STR;
+	json iobject "o" / innerHtml [innerHtml] STR;
+	json doc "o";
+	json iarray "result" / (json doc "o") OBJ;
+
+;} "html";
+script set delay "app.100.obj.sajax.refresh.exe" 0 day {1;};

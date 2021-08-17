@@ -1,0 +1,33 @@
+######################################;
+# Get a table as XML from a database #;
+######################################;
+
+#Create a connection 'demo_cm_mysql' to a MySQL Server;
+#Do not add this into your code, this is a configuration;
+cm set "demo_cm_mysql" {execute "db.mysql.config.get"
+	"[hostname]" "localhost"
+	"[port]" "3306"
+	"[database]" "test_db"
+	"[user]" "bob"
+	"[password]" "pwd"
+;};
+
+#Connect with the connection;
+sql connect "session1" {cm get "demo_cm_mysql";};
+
+#Get a table as XML object;
+xml load "table" (sql to xml "session1" "products" (concat "select * from products"));
+-> "[nb_row]" (xml count "table" "/table/data/item");
+for (-> "[i]" 1) (<= [i] [nb_row]) (++ "[i]") {
+	if (string starts_with (xml select text "table" (concat "/table/data/item[" [i] "]/name")) "PROD") {
+		"do somthing ...";
+	} {
+		"do somthing ...";
+	};
+};
+
+#Disconnect a connection;
+sql disconnect "session1";
+
+#Disconnect all connections;
+sql disconnect all;

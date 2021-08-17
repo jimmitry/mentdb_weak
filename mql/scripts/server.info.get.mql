@@ -1,0 +1,9 @@
+script create get "server.info" false 1 
+  (param;) 
+  "" 
+{
+
+	metric system;
+
+} "";
+script set delay "server.info.get" 0 day {1;};

@@ -1,0 +1,56 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.groups.delete" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Delete elements ..." 
+{
+
+	json load "client_data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+	try {
+
+		#Connection ...;
+		sql connect "session1" {cm get "MENTDB"};
+	
+		json parse_array "client_data" "/client_data" "[o]" {
+		
+			json load "data" [o];
+	
+			-> "[result]" (sql dml "session1" (concat 
+				"DELETE FROM `groups` 
+				WHERE `id`= " (sql encode (json select "data" "/client_data/id")) " 
+				;"
+			));
+		
+		};
+		
+		#Disconnection ...;
+		sql disconnect "session1";
+		
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_SUCCESS"
+			"[strong]" "OK !"
+			"[msg]" (concat "
+			" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "delete_ok"))
+		;
+
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.user_manager.actions.MENTDB.groups.list.exe"
+			"[OBJ_OVERWRITE_B64]" (string encode_b64 "{\"page\":\"1\"}")
+		;
+
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_DANGER"
+			"[strong]" "ERR :"
+			"[msg]" [err]
+		;
+
+	} "[err]";
+	
+} "Return OK or KO";
+script set delay "app.100.template.user_manager.actions.MENTDB.groups.delete.exe" 0 day {1;};

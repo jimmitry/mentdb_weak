@@ -1,0 +1,33 @@
+script create get "db.postgresql.config" false 1 
+  (param
+  	(var "[hostname]" {true} "The hostname" is_null:false is_empty:false "localhost, 127.0.0.1")
+  	(var "[port]" {type is_int [port]} "The port" is_null:false is_empty:false "5432")
+  	(var "[database]" {true} "The database" is_null:false is_empty:false "test_db")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "postgres")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "pwd")
+  ;) 
+  "Get a PostgreSQL config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "db" STR;
+	json iobject "config_obj" / "subType" "PostgreSQL" STR;
+	json iobject "config_obj" / "driver" "org.postgresql.Driver" STR;
+	json iobject "config_obj" / "loginTimeout" "10000" STR;
+
+	json iobject "config_obj" / "jdbc" (
+		concat "jdbc:postgresql://" [hostname] ":" [port] "/" [database];
+	) STR;
+
+	json iobject "config_obj" / "defaultSchema" "public" STR;
+	json iobject "config_obj" / "properties" "{}" OBJ;
+	json iobject "config_obj" /properties "user" [user] STR;
+	json iobject "config_obj" /properties "password" [password] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a PostgreSQL config connection in JSON";
+script set delay "db.postgresql.config.get" 0 day {1;};

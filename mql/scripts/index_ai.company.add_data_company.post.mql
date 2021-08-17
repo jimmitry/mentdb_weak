@@ -1,0 +1,37 @@
+script create post "index_ai.company.add_data_company" false 1 
+  (param
+  	(var "[db_id]" {true} "The database id" is_null:false is_empty:false "db1")
+  	(var "[city]" {true} "The city" is_null:false is_empty:false "1")
+  	(var "[zone]" {true} "The zone" is_null:false is_empty:false "1")
+  	(var "[company_id]" {true} "The company id" is_null:false is_empty:false "1")
+  	(var "[name]" {true} "The company name" is_null:false is_empty:false "Innov-AI")
+  	(var "[descr_en]" {true} "The company description en" is_null:false is_empty:false "Full development services")
+  	(var "[descr_fr]" {true} "The company description fr" is_null:false is_empty:false "Services de développement complet")
+  	(var "[sentencesEn]" {true} "The sentences en" is_null:false is_empty:false "Research and development from Réunion Island.")
+  	(var "[sentencesFr]" {true} "The sentences fr" is_null:false is_empty:false "Recherche et développment depuis l'île de la Réunion.")
+  	(var "[result]" {true} "The result" is_null:false is_empty:false "https://www.innov-ai.com")
+  ;) 
+  "Add data for a specific company" 
+{
+
+	json load "cmds" "[]";
+
+	json load "cmd" "{}";
+	json iobject "cmd" / t "ADD_DATA_COMPANY" "STR";
+	json iobject "cmd" / db [db_id] "STR";
+	json iobject "cmd" / cy [city] "STR";
+	json iobject "cmd" / z [zone] "STR";
+	json iobject "cmd" / c [company_id] "STR";
+	json iobject "cmd" / n [name] "STR";
+	json iobject "cmd" / dEn [descr_en] "STR";
+	json iobject "cmd" / dFr [descr_fr] "STR";
+	json iobject "cmd" / sEn [sentencesEn] "STR";
+	json iobject "cmd" / sFr [sentencesFr] "STR";
+	json iobject "cmd" / res [result] "STR";
+
+	json iarray "cmds" / (json doc "cmd") OBJ;
+	
+	index_ai execute (json doc "cmds");
+	
+} "Return nothing";
+script set delay "index_ai.company.add_data_company.post" 0 day {1;};

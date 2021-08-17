@@ -1,0 +1,34 @@
+script create post "demo.file.json.array.parse" false 1 
+  (param
+  	(var "[fileName]" {true} "The file name" is_null:false is_empty:false "test.json")
+  ;) 
+  "Parse a JSON Array" 
+{
+
+	#Initialization;
+	-> "[targetPath]" "/";
+
+	#Load the connection id;
+	json load "cm" (cm get "demo_cm_file");
+	-> "[localDir]" (json select "cm" /localDir);
+
+	#Load the file;
+	json load "jsonId1" (file load (concat [localDir] "/" [fileName]));
+
+	-> "[nb]" (json count "jsonId1" [targetPath]);
+	
+	#Parse the tab;
+	for (-> "[i]" 0) (< [i] [nb]) (++ "[i]") {
+
+		#Get value;
+		-> "[to_use]" (json select "jsonId1" (concat (if (string ends_with [targetPath] "/") {[targetPath]} {concat [targetPath] "/";}) "[" [i] "]"));
+
+		#Your action here ...;
+		log trace (concat "[to_use]=" [to_use]);
+
+		
+	
+	};
+	
+} "Return nothing";
+script set delay "demo.file.json.array.parse.post" 0 day {1;};

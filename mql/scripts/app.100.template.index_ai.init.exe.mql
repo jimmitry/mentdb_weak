@@ -1,0 +1,64 @@
+script create exe "app.100.template.index_ai.init" false 1 
+  (param
+  ;) 
+  "Start point for the template" 
+{
+
+	sql connect "session1" {cm get "MENTDB";};
+	
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_db.list.show');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_db.list.insert');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_db.list.update');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_db.list.delete');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_db.list.search');");
+	
+	sql disconnect "session1";
+
+	if (not (parameter exist "index_ai_LANG")) {
+		parameter add "index_ai_LANG" "en" 0;
+	};
+
+	sql connect "session1" {cm get "MENTDB";};
+	
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_city.list.show');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_city.list.insert');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_city.list.update');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_city.list.delete');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_city.list.search');");
+	
+	sql disconnect "session1";
+
+	if (not (parameter exist "index_ai_LANG")) {
+		parameter add "index_ai_LANG" "en" 0;
+	};
+
+	sql connect "session1" {cm get "MENTDB";};
+	
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_zone.list.show');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_zone.list.insert');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_zone.list.update');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_zone.list.delete');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_zone.list.search');");
+	
+	sql disconnect "session1";
+
+	if (not (parameter exist "index_ai_LANG")) {
+		parameter add "index_ai_LANG" "en" 0;
+	};
+
+	sql connect "session1" {cm get "MENTDB";};
+	
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_company.list.show');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_company.list.insert');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_company.list.update');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_company.list.delete');");
+	sql dml "session1" (concat "INSERT IGNORE INTO `tags` (`id`) VALUES ('MENTDB.se_company.list.search');");
+	
+	sql disconnect "session1";
+
+	if (not (parameter exist "index_ai_LANG")) {
+		parameter add "index_ai_LANG" "en" 0;
+	};
+
+} "html";
+script set delay "app.100.template.index_ai.init.exe" 0 day {1;};

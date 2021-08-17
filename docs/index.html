@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="Title" content="MentDB | Mentalese Database | Cognitive engine">
+	<meta name="Description" content="An artificial intelligence project based on the universal language of thought to create a digital brain to house a futur conciousness.">
+	<meta name="Keywords" content="project, artificial, intelligence, mentalese, database, engine, cognitive, universal, language, thought, digital, brain, conciousness">
+	<meta name="robots" content="index, follow">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="images/db32x32.png" />
+    <title>MentDB Weak | Smart Earthh Tool</title>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-46755834-3', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<style type="text/css">
+.tooltip {
+  font-size:10pt;
+  background-color:#FFFFCC;
+  border:1px solid black;
+  padding:2px
+}
+</style>
+<style type="text/css">
+.tooltip {
+  position:absolute;
+  display:none
+}
+</style>
+<script src="jquery-3.1.1.min.js"></script>
+<link  href="jquery.fancybox.min.css" rel="stylesheet">
+<script src="jquery.fancybox.min.js"></script>
+<style>
+.bodyForce {
+    margin:0px;
+}
+.tableToStyle {
+    border-collapse: collapse;
+    border: 1px solid #aaa;
+}
+.tableToStyle td {
+    border: 1px solid #aaa;
+    padding: 3px;
+}
+.tableToStyle th {
+    border: 1px solid #aaa;
+    padding: 3px;
+}
+</style>
+</head>
+<body id='top' class="bodyForce">
+  <script type="text/javascript">
+  tooltip = null;
+  document.onmousemove = updateTooltip;
+  function updateTooltip(e) {
+  try {
+  if (document.all) {
+  if (document.documentElement && document.documentElement.scrollTop) { // Explorer 6 Strict
+  x = document.documentElement.scrollLeft + window.event.x;
+  y = document.documentElement.scrollTop + window.event.y;
+  }
+  else { // all other Explorers
+  x = document.body.scrollLeft + window.event.x;
+  y = document.body.scrollTop + window.event.y;
+  }
+  }
+  else {
+  x = e.pageX;
+  y = e.pageY;
+  }
+  if (tooltip != null) {
+  o = 20;
+  var sx, sy;
+  if (self.pageYOffset) { // all except Explorer
+  sx = self.pageXOffset;
+  sy = self.pageYOffset;
+  }
+  else if (document.documentElement && document.documentElement.scrollTop) { // Explorer 6 Strict
+  sx = document.documentElement.scrollLeft;
+  sy = document.documentElement.scrollTop;
+  }
+  else if (document.body) { // all other Explorers
+  sx = document.body.scrollLeft;
+  sy = document.body.scrollTop;
+  }
+  t = y + o + tooltip.offsetHeight;
+  w = sy + document.body.clientHeight;
+  if (t > w) {
+  y = y - o - tooltip.offsetHeight;
+  }
+  else {
+  y = y + o;
+  }
+  t = x + o + tooltip.offsetWidth;
+  w = sx + document.body.clientWidth;
+  if (t > w) {
+  x = x - o - tooltip.offsetWidth;
+  }
+  else {
+  x = x + o;
+  }
+  if ((tooltip.style.top == '' || tooltip.style.top == 0) && (tooltip.style.left == '' || tooltip.style.left == 0))
+  {
+  tooltip.style.width = tooltip.offsetWidth + 'px';
+  tooltip.style.height = tooltip.offsetHeight + 'px';
+  }
+  tooltip.style.left = x + "px";
+  tooltip.style.top = y + "px";
+  }
+  } catch (error) { error = null; }
+  }
+  function showTooltip(id) {
+  try {
+  tooltip = document.getElementById(id);
+  tooltip.style.display = "block";
+  } catch (error) { error = null; }
+  }
+  function hideTooltip() {
+  try {
+  tooltip.style.display = "none";
+  } catch (error) { error = null; }
+  }
+  </script>
+
+  <div class="tooltip" id="n1">MySQL DB (Used to save process status and log activity)</div>
+  <div class="tooltip" id="n2">Service Oriented Architecture (Create your web services easily + Security + User right)</div>
+  <div class="tooltip" id="n3">Extract and Load (ETL functions)</div>
+  <div class="tooltip" id="n4">Enterprise Service Bus (Stack and Job - Execution with delay)</div>
+  <div class="tooltip" id="n5">Application Manager (Create your web applications easily)</div>
+  <div class="tooltip" id="n6">Data transformation (ETL functions)</div>
+  <div class="tooltip" id="n7">Machine Learning</div>
+  <div class="tooltip" id="n8">Predictive Analysis and Data Quality</div>
+  <div class="tooltip" id="n9">Storage structure</div>
+  <div class="tooltip" id="n10">Experience Database (NoSQL)</div>
+  <div class="tooltip" id="n12">Portal (All accesses gathered in 1 point)</div>
+  <div class="tooltip" id="n13">MentDB Project (Description of the project)</div>
+  <div class="tooltip" id="n14">REST API (Connect your external applications to MentDB)</div>
+  <div class="tooltip" id="n15">MQL Documentation</div>
+  <div class="tooltip" id="n16">Trigger (Save your connections for the Java Editor)</div>
+  <div class="tooltip" id="n17">Java Editor (Development GUI)</div>
+  <div class="tooltip" id="n18">Liza (chatbot)</div>
+  <div class="tooltip" id="n19">Application Manager</div>
+  <div class="tooltip" id="n20">app1</div>
+  <div class="tooltip" id="n21">app2</div>
+  <div class="tooltip" id="n22">...</div>
+  <div class="tooltip" id="n23">Java API (Execute MQL with Java)</div>
+  <div class="tooltip" id="n24">Web Socket API (Send message to Liza)</div>
+  <div class="tooltip" id="n25">Business layer</div>
+  <div class="tooltip" id="n26">Mentalese layer</div>
+  <div class="tooltip" id="n27">Mental process</div>
+  <div class="tooltip" id="n28">Emotional cooperation</div>
+
+  <map name="image1_1">
+    <area shape="rect" coords="447,222,626,245" alt="" onmouseover="showTooltip('n24')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,196,626,219" alt="" onmouseover="showTooltip('n23')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="586,361,626,384" alt="" onmouseover="showTooltip('n22')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="517,361,556,384" alt="" onmouseover="showTooltip('n21')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,361,487,384" alt="" onmouseover="showTooltip('n20')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,314,626,337" alt="" onmouseover="showTooltip('n19')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,268,626,291" alt="" onmouseover="showTooltip('n18')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="548,142,626,165" alt="" onmouseover="showTooltip('n17')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,142,529,165" alt="" onmouseover="showTooltip('n16')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,96,626,119" alt="" onmouseover="showTooltip('n15')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,169,626,192" alt="" onmouseover="showTooltip('n14')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,68,626,91" alt="" onmouseover="showTooltip('n13')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="447,40,626,63" alt="" onmouseover="showTooltip('n12')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="436,0,638,400" alt="" onmouseover="showTooltip('n11')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,281,274,303" alt="" onmouseover="showTooltip('n28')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,303,274,326" alt="" onmouseover="showTooltip('n27')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,349,274,372" alt="" onmouseover="showTooltip('n10')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,326,274,349" alt="" onmouseover="showTooltip('n9')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="11,252,285,384" alt="" onmouseover="showTooltip('n26')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,174,368,197" alt="" onmouseover="showTooltip('n8')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,197,368,220" alt="" onmouseover="showTooltip('n7')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,105,368,128" alt="" onmouseover="showTooltip('n6')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,60,368,83" alt="" onmouseover="showTooltip('n5')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,151,368,174" alt="" onmouseover="showTooltip('n4')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,128,368,151" alt="" onmouseover="showTooltip('n3')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="23,83,368,105" alt="" onmouseover="showTooltip('n2')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="11,32,380,232" alt="" onmouseover="showTooltip('n25')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="298,252,380,384" alt="" onmouseover="showTooltip('n1')" onmouseout="hideTooltip()"/>
+    <area shape="rect" coords="0,0,392,400" alt="" onmouseover="showTooltip('n0')" onmouseout="hideTooltip()"/>
+  </map>
+<div style="font-size:13px;margin:0px;font-family: 'Helvetica Neue', Roboto, Arial, 'Droid Sans', sans-serif;">
+<div style='width: 800px;margin-left:auto;margin-right:auto;'>
+  <div style="background-image: -webkit-linear-gradient(top, #3c3c3c 0%, #222 100%);
+        background-image: -o-linear-gradient(top, #3c3c3c 0%, #222 100%);
+        background-image: -webkit-gradient(linear, left top, left bottom, from(#3c3c3c), to(#222));
+        background-image: linear-gradient(to bottom, #3c3c3c 0%, #222 100%);-webkit-border-radius: 140px;-moz-border-radius: 140px;border-radius: 140px;margin-bottom: 0px;height: 67px;">
+          <div style='width:100%;color: #E7E7E7;'>
+              <a href="https://www.mentdb.org"><img style='margin-left: 1px;margin-top: 1px; width: 65px;vertical-align: middle;' src='images/db128x128.png'></a>
+              <span class='top_title' style='margin-left: 18px;font-size: 22px;display: inline-block;line-height: 20px;vertical-align: middle;'>MentDB Weak<br><small style='font-size: 65%;'>Smart Earth Tool</small></span>
+
+          </div>
+    </div>
+
+</div>
+<table style='margin-top:10px;width: 800px;margin-left:auto;margin-right:auto;float:clear'>
+<tr>
+<td width='150px' style='vertical-align: top;padding-top: 12px;'>
+
+<br><b style='font-size:16px;line-height:26px;border-bottom: 1px #000 solid;width: 92%;display: block;margin-bottom:10px'>Home</b>
+<div style='height:10px'></div>
+	<img src='images/p.png' style='vertical-align: middle;'>&nbsp;<a style='color:#000;line-height: 23px;' href='features-roadmap.html'>Roadmap</a><br>
+	<img src='images/p.png' style='vertical-align: middle;'>&nbsp;<a style='color:#000;line-height: 23px;' href='required.html'>Requirement</a><br>
+
+<br><b style='font-size:16px;line-height:26px;border-bottom: 1px #000 solid;width: 92%;display: block;margin-bottom:10px'>Documentation</b>
+<div style='height:10px'></div>
+<img src='images/house.png' style='vertical-align: middle;'>&nbsp;<a style='color:#000;line-height: 23px;' href='mql.html'>Weak MQL</a><br>
+	<img src='images/p.png' style='vertical-align: middle;'>&nbsp;<a style='color:#000;line-height: 23px;' href='mql_mql_syntax.html'>MQL Syntax</a><br>
+	<img src='images/p.png' style='vertical-align: middle;'>&nbsp;<a style='color:#000;line-height: 23px;' href='mql_data_type.html'>Data types</a><br>
+
+<br><b style='font-size:16px;line-height:26px;color:#000;border-bottom: 1px #000 solid;width: 92%;display: block;margin-bottom:10px'>A question ?</b>
+<div style='height:10px'></div>
+	<img src='images/p.png' style='vertical-align: middle;'>&nbsp;<a style='color:#000;line-height: 23px;' href='https://groups.google.com/forum/#!forum/mentdb' target='_blank'>1 - Google group</a><br>
+	<img src='images/p.png' style='vertical-align: middle;'>&nbsp;<a style='color:#000;line-height: 23px;' href='mailto:Jimmitry PAYET<contact@mentdb.org>'>2 - Contact us</a><br>
+
+</td>
+<td style='vertical-align:top;text-align:justify;padding-top: 9px;'>
+<br><div style='border-bottom: 1px #000 solid;width:100%;font-size:24px;font-weight:bold'>Welcome to MentDB,  <small>&nbsp;The first mentalese database engine.</small></div>
+<br>
+<div style='border-bottom: 1px #000 solid;margin-top:22px;margin-bottom:5px;width:100%;font-size:24px;font-weight:bold;float:clear;display:inline-block'><small>Machine learning</small></div><br>
+<a data-fancybox="gallery1" href='images/ML01.png' data-caption="Machine learning" style='float: left;margin-right: 20px;'><img src='images/ML01.png' style='opacity:1;width: 260px;'></a>
+MentDB also provide you with standard learning algorithms:<br><br>
+<img src='images/p.png'> Linear regression <br>
+<img src='images/p.png'> Multiple regression <br>
+<img src='images/p.png'> Distance <br>
+<img src='images/p.png'> Neural network <br>
+<img src='images/p.png'> Clustering<br>
+<div style='border-bottom: 1px #000 solid;margin-top:22px;margin-bottom:5px;width:100%;font-size:24px;font-weight:bold;float:clear;display:inline-block'><small>Chatbot</small></div><br>
+<a data-fancybox="gallery1" href='images/LISA01.png' data-caption="Chatbot" style='float: left;margin-right: 20px;'><img src='images/LISA01.png' style='opacity:1;width: 260px;'></a>
+All the above features can be controlled by Lisa the AI ...<br><br>
+<a href='https://www.youtube.com/channel/UC28dmTwF-r8sJnOGQobB29A' target="_blank">Go to demonstration ...</a>
+<br><div style='border-bottom: 1px #000 solid;margin-top:22px;margin-bottom:5px;width:100%;font-size:24px;font-weight:bold;float:clear;display:inline-block'><small>SOA architecture</small></div><br>
+<a data-fancybox="gallery1" href='images/SOA01.png' data-caption="SOA Architecure" style='float: left;margin-right: 20px;'><img src='images/SOA01.png' style='opacity:1;width: 260px;'></a>
+MentDB allows you to record and organize all your developments in scripts. Your business scripts will be immediately REST Full, documented, secured by users and encrypted. No more spaghetti dishes! You can not only transfer your data by web-service, but also business logic active ! And icing on the cake, your processes can be fully mapped. It is therefore very easy to know where there is a bug in your applications. The time saved to ensure the patches is considerable! And you know it, time is money!<br>
+<div style='border-bottom: 1px #000 solid;margin-top:22px;margin-bottom:5px;width:100%;font-size:24px;font-weight:bold;float:clear;display:inline-block'><small>ETL development</small></div><br>
+<a data-fancybox="gallery1" href='images/ETL01.png' data-caption="ETL development" style='float: left;margin-right: 20px;'><img src='images/ETL01.png' style='opacity:1;width: 260px;'></a>
+MentDB can help you create ETL type processes (Extract data from your IS, transform it and re-inject it into other software / formats). Already ready algorithms will help you go faster. Sources and destinations : JSON, XML, File, CSV, REST and SOAP, Compress, SQL, MentDB, Pop3, Imap, FTP, FTPS, SFTP, CIFS, SSH, Excel, Excelx ... <br>
+<div style='border-bottom: 1px #000 solid;margin-top:22px;margin-bottom:5px;width:100%;font-size:24px;font-weight:bold;float:clear;display:inline-block'><small>ESB development</small></div><br>
+<a data-fancybox="gallery1" href='images/ESB01.png' data-caption="ESB development" style='float: left;margin-right: 20px;'><img src='images/ESB01.png' style='opacity:1;width: 260px;'></a>
+MentDB has everything you need to guarantee process execution and information transfer asynchronously. It will process your scripts in time and in hours, with maximum efficiency.<br>
+<div style='border-bottom: 1px #000 solid;margin-top:22px;margin-bottom:5px;width:100%;font-size:24px;font-weight:bold;float:clear;display:inline-block'><small>Data quality</small></div><br>
+<a data-fancybox="gallery1" href='images/DQ01.png' data-caption="Data quality" style='float: left;margin-right: 20px;'><img src='images/DQ01.png' style='opacity:1;width: 260px;'></a>
+MentDB can work on the quality of your data, network it, reorganize it and prepare it for analysis. Your data is ready to give you their little secrets ...<br>
+<div style='border-bottom: 1px #000 solid;margin-top:22px;margin-bottom:5px;width:100%;font-size:24px;font-weight:bold;float:clear;display:inline-block'><small>Application development</small></div><br>
+<a data-fancybox="gallery1" href='images/APP01.png' data-caption="Application development" style='float: left;margin-right: 20px;'><img src='images/APP01.png' style='opacity:1;width: 260px;'></a>
+MentDB allows you to create web applications (HTLM + CSS + BOOTSTRAP + AJAX). All thanks to its MQL language that allows you to do SCRUD operations with AJAX development server side without web-service.<br>
+
+</td></tr>
+<tr><td colspan='2'><br><br><hr><center>&copy; 2012 - 2021 - <a href='https://www.mentdb.org' style='color:#333;text-decoration:underline'>MentDB</a>.</center>
+<br><br>
+&nbsp;</td></tr>
+</table>
+<br><br>&nbsp;
+</div>
+</body>
+</html>

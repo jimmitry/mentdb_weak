@@ -1,0 +1,17 @@
+################################;
+# Download files throught CIFS #;
+################################;
+
+#Connect to the SAMBA server and get the file list from sharedFolder;
+json load "list" (cifs ls "sharedFolder" {cm get "demo_cm_cifs"});
+
+#Parse the file list;
+json parse_array "list" "/" "[filename]" {
+
+	#Download with samba protocol;
+	cifs get 
+		[filename] 
+		(concat "/Users/jimmitry/Desktop/" [filename]) 
+		{cm get "demo_cm_cifs";};
+
+};

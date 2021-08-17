@@ -1,0 +1,268 @@
+2018-02-10 14:05:57 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "TUTORIALS_TBL" already exists; SQL statement:
+CREATE TABLE tutorials_tbl ( 
+   id bigint NOT NULL auto_increment primary key, 
+   title VARCHAR(50) NOT NULL, 
+   author VARCHAR(20) NOT NULL, 
+   submission_date DATE, 
+); [42101-196]
+2018-02-10 14:22:30 jdbc[7]: exception
+org.h2.jdbc.JdbcSQLException: Column "C.SCHEMA_NAME" not found; SQL statement:
+SELECT c.* FROM INFORMATION_SCHEMA.COLUMNS c, INFORMATION_SCHEMA.TYPE_INFO i WHERE c.data_type=i.data_type AND c.schema_name = 'PUBLIC' AND c.table_name = 'TUTORIALS_TBL'; [42122-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:147)
+	at org.h2.expression.Comparison.optimize(Comparison.java:178)
+	at org.h2.expression.ConditionAndOr.optimize(ConditionAndOr.java:131)
+	at org.h2.expression.ConditionAndOr.optimize(ConditionAndOr.java:130)
+	at org.h2.command.dml.Select.prepare(Select.java:842)
+	at org.h2.command.Parser.prepareCommand(Parser.java:263)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeQuery(JdbcStatement.java:73)
+	at re.jpayet.mentdb.ext.dq.DQManager.db_show_desc(DQManager.java:251)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:3510)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:161)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.ext.session.SessionThread.run(SessionThread.java:161)
+2018-02-10 14:23:11 jdbc[8]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT C.* FROM INFORMATION_SCHEMA.COLUMNS C, INFORMATION_SCHEMA.TYPE_INFO I 
+	WHERE C.DATA_TYPE=I.DATA_TYPE AND C.TABLE_NAME =[*] \'TUTORIALS_TBL\' "; SQL statement:
+SELECT c.* FROM INFORMATION_SCHEMA.COLUMNS c, INFORMATION_SCHEMA.TYPE_INFO i 
+	WHERE c.data_type=i.data_type AND c.table_name = \'TUTORIALS_TBL\' [42000-196]
+2018-02-10 14:23:28 jdbc[9]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT * FROM INFORMATION_SCHEMA.COLUMNS C, INFORMATION_SCHEMA.TYPE_INFO I 
+	WHERE C.DATA_TYPE=I.DATA_TYPE AND C.TABLE_NAME =[*] \'TUTORIALS_TBL\' "; SQL statement:
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS c, INFORMATION_SCHEMA.TYPE_INFO i 
+	WHERE c.data_type=i.data_type AND c.table_name = \'TUTORIALS_TBL\' [42000-196]
+2018-02-10 14:23:52 jdbc[10]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE C.TABLE_NAME =[*] \'TUTORIALS_TBL\' "; SQL statement:
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE c.table_name = \'TUTORIALS_TBL\' [42000-196]
+2018-02-10 14:23:59 jdbc[11]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE TABLE_NAME =[*] \'TUTORIALS_TBL\' "; SQL statement:
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE table_name = \'TUTORIALS_TBL\' [42000-196]
+2018-02-10 14:42:16 jdbc[16]: exception
+org.h2.jdbc.JdbcSQLException: Column "INFORMATION_SCHEMA.COLUMNS.CHARACTER_MAXIMUN_LENGTH" not found; SQL statement:
+SELECT 
+		INFORMATION_SCHEMA.COLUMNS.column_name, 
+		INFORMATION_SCHEMA.COLUMNS.type_name, 
+		INFORMATION_SCHEMA.COLUMNS.is_nullable, 
+		INFORMATION_SCHEMA.COLUMNS.character_maximun_length, 
+		INFORMATION_SCHEMA.COLUMNS.numeric_precision, 
+		INFORMATION_SCHEMA.COLUMNS.numeric_scale, 
+		INFORMATION_SCHEMA.COLUMNS.sequence_name, 
+		INFORMATION_SCHEMA.CONSTRAINTS.constraint_type
+	FROM INFORMATION_SCHEMA.COLUMNS
+	INNER JOIN INFORMATION_SCHEMA.CONSTRAINTS 
+		ON 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_SCHEMA=INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA and 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_NAME=INFORMATION_SCHEMA.COLUMNS.TABLE_NAME
+	WHERE 
+		INFORMATION_SCHEMA.COLUMNS.table_schema = 'PUBLIC' and 
+		INFORMATION_SCHEMA.COLUMNS.table_name = 'TUTORIALS_TBL' [42122-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:147)
+	at org.h2.command.dml.Select.prepare(Select.java:839)
+	at org.h2.command.Parser.prepareCommand(Parser.java:263)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeQuery(JdbcStatement.java:73)
+	at re.jpayet.mentdb.ext.dq.DQManager.db_show_data(DQManager.java:162)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:4289)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:161)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.ext.session.SessionThread.run(SessionThread.java:161)
+2018-02-10 14:42:58 jdbc[18]: exception
+org.h2.jdbc.JdbcSQLException: Column "INFORMATION_SCHEMA.COLUMNS.CHARACTER_MAXIMUN_LENGTH" not found; SQL statement:
+SELECT 
+		INFORMATION_SCHEMA.COLUMNS.column_name, 
+		INFORMATION_SCHEMA.COLUMNS.type_name, 
+		INFORMATION_SCHEMA.COLUMNS.is_nullable, 
+		INFORMATION_SCHEMA.COLUMNS.character_maximun_length, 
+		INFORMATION_SCHEMA.COLUMNS.numeric_precision, 
+		INFORMATION_SCHEMA.COLUMNS.numeric_scale, 
+		INFORMATION_SCHEMA.COLUMNS.sequence_name, 
+		INFORMATION_SCHEMA.CONSTRAINTS.constraint_type
+	FROM INFORMATION_SCHEMA.COLUMNS
+	INNER JOIN INFORMATION_SCHEMA.CONSTRAINTS 
+		ON 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_SCHEMA=INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA and 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_NAME=INFORMATION_SCHEMA.COLUMNS.TABLE_NAME
+	WHERE 
+		INFORMATION_SCHEMA.COLUMNS.table_schema = 'PUBLIC' and 
+		INFORMATION_SCHEMA.COLUMNS.table_name = 'TUTORIALS_TBL' [42122-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:147)
+	at org.h2.command.dml.Select.prepare(Select.java:839)
+	at org.h2.command.Parser.prepareCommand(Parser.java:263)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeQuery(JdbcStatement.java:73)
+	at re.jpayet.mentdb.ext.dq.DQManager.db_show_data(DQManager.java:162)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:4289)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:161)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.ext.session.SessionThread.run(SessionThread.java:161)
+2018-02-10 15:12:46 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT INFORMATION_SCHEMA.COLUMNS.COLUMN_NAME
+		INFORMATION_SCHEMA.[*]CONSTRAINTS.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS
+	LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS 
+		ON 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_SCHEMA=INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA AND 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_NAME=INFORMATION_SCHEMA.COLUMNS.TABLE_NAME
+	WHERE 
+		INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA = 'PUBLIC' AND 
+		INFORMATION_SCHEMA.COLUMNS.TABLE_NAME = 'TUTORIALS_TBL' "; SQL statement:
+SELECT INFORMATION_SCHEMA.COLUMNS.COLUMN_NAME
+		INFORMATION_SCHEMA.CONSTRAINTS.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS
+	LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS 
+		ON 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_SCHEMA=INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA and 
+			INFORMATION_SCHEMA.CONSTRAINTS.TABLE_NAME=INFORMATION_SCHEMA.COLUMNS.TABLE_NAME
+	WHERE 
+		INFORMATION_SCHEMA.COLUMNS.table_schema = 'PUBLIC' and 
+		INFORMATION_SCHEMA.COLUMNS.table_name = 'TUTORIALS_TBL' [42000-196]
+2018-02-10 15:14:27 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Column "A.CONSTRAINTS.TABLE_NAME" not found; SQL statement:
+SELECT 
+		INFORMATION_SCHEMA.COLUMNS.COLUMN_NAME,
+		A.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS
+	LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS A
+		ON 
+			A.TABLE_SCHEMA=INFORMATION_SCHEMA.COLUMNS.TABLE_SCHEMA and 
+			A.CONSTRAINTS.TABLE_NAME=INFORMATION_SCHEMA.COLUMNS.TABLE_NAME
+	WHERE 
+		INFORMATION_SCHEMA.COLUMNS.table_schema = 'PUBLIC' and 
+		INFORMATION_SCHEMA.COLUMNS.table_name = 'TUTORIALS_TBL' [42122-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:147)
+	at org.h2.expression.Comparison.optimize(Comparison.java:178)
+	at org.h2.expression.ConditionAndOr.optimize(ConditionAndOr.java:131)
+	at org.h2.command.dml.Select.setEvaluatableRecursive(Select.java:1029)
+	at org.h2.command.dml.Select.preparePlan(Select.java:1006)
+	at org.h2.command.dml.Select.prepare(Select.java:865)
+	at org.h2.command.Parser.prepareCommand(Parser.java:263)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeQuery(JdbcStatement.java:73)
+	at re.jpayet.mentdb.ext.dq.DQManager.db_show_data(DQManager.java:162)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:4289)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.core.db.command.CommandFullAccess.execute(CommandFullAccess.java:161)
+	at re.jpayet.mentdb.core.db.command.CommandManager.executeAllCommands(CommandManager.java:147)
+	at re.jpayet.mentdb.ext.session.SessionThread.run(SessionThread.java:161)
+2018-02-10 15:16:39 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	OUTTER[*] JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA AND 
+			A.TABLE_NAME=B.TABLE_NAME
+	WHERE 
+		A.TABLE_SCHEMA = 'PUBLIC' AND 
+		A.TABLE_NAME = 'TUTORIALS_TBL' "; SQL statement:
+SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	OUTTER JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA and 
+			A.TABLE_NAME=B.TABLE_NAME
+	WHERE 
+		A.table_schema = 'PUBLIC' and 
+		A.table_name = 'TUTORIALS_TBL' [42000-196]
+2018-02-10 15:16:48 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	OUTER[*] JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA AND 
+			A.TABLE_NAME=B.TABLE_NAME
+	WHERE 
+		A.TABLE_SCHEMA = 'PUBLIC' AND 
+		A.TABLE_NAME = 'TUTORIALS_TBL' "; SQL statement:
+SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	OUTER JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA and 
+			A.TABLE_NAME=B.TABLE_NAME
+	WHERE 
+		A.table_schema = 'PUBLIC' and 
+		A.table_name = 'TUTORIALS_TBL' [42000-196]
+2018-02-10 15:19:45 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	OUTER[*] JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA AND 
+			A.TABLE_NAME=B.TABLE_NAME
+	WHERE 
+		A.TABLE_SCHEMA = 'PUBLIC' AND 
+		A.TABLE_NAME = 'TUTORIALS_TBL' "; SQL statement:
+SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	OUTER JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA and 
+			A.TABLE_NAME=B.TABLE_NAME
+	WHERE 
+		A.table_schema = 'PUBLIC' and 
+		A.table_name = 'TUTORIALS_TBL' [42000-196]
+2018-02-10 15:29:55 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA AND 
+			A.TABLE_NAME=B.TABLE_NAME
+			B[*].COLUMN_LIST=A.COLUMN_NAME
+	WHERE 
+		B.TABLE_SCHEMA = 'PUBLIC' AND 
+		B.TABLE_NAME = 'TUTORIALS_TBL' "; SQL statement:
+SELECT 
+		A.COLUMN_NAME,
+		B.CONSTRAINT_TYPE
+	FROM INFORMATION_SCHEMA.COLUMNS A
+	LEFT JOIN INFORMATION_SCHEMA.CONSTRAINTS B
+		ON 
+			A.TABLE_SCHEMA=B.TABLE_SCHEMA and 
+			A.TABLE_NAME=B.TABLE_NAME
+			B.column_list=A.COLUMN_NAME
+	WHERE 
+		B.table_schema = 'PUBLIC' and 
+		B.table_name = 'TUTORIALS_TBL' [42000-196]

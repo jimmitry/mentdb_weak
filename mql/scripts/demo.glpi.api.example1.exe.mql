@@ -1,0 +1,106 @@
+script create exe "demo.glpi.api.example1" true 5 
+  (param
+  ;) 
+  "Exemple 1 ..." 
+{
+
+	-> "[app_token]" "Jrrbl2CTUUCYNHxHXPjjzIgOF8qWTbz0g7WMuW99";
+	-> "[user_token]" "mUIC7IvM1hxsTZHma7kjzTEja44s5U0KaeCdMsRN";
+
+	-> "[session_token]" (execute "demo.glpi.api.init.exe"
+		"[app_token]" [app_token]
+		"[user_token]" [user_token]
+	);
+	
+	try {
+
+		execute "demo.glpi.api.changeActiveProfile.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+			"[profile_id]" "4"
+		;
+
+		#-> "[result1]" (execute "demo.glpi.api.getMyProfiles.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+		);
+
+		#-> "[result1]" (execute "demo.glpi.api.getActiveProfile.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+		);
+
+		#-> "[result1]" (execute "demo.glpi.api.tickets.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+		);
+
+		execute "demo.glpi.api.ticket.put"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+			"[no_ticket]" "2011040001"
+		;
+
+		#-> "[result1]" (execute "demo.glpi.api.ticket.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+			"[no_ticket]" "2011040001"
+		);
+
+		#-> "[result1]" (execute "demo.glpi.api.ticketfollowups.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+			"[no_ticket]" "2011040001"
+		);
+
+		#-> "[result1]" (execute "demo.glpi.api.ticketfollowup.post"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+			"[no_ticket]" "2011040001"
+			"[content]" "suivi approu par jimjim"
+		);
+
+		#-> "[result1]" (execute "demo.glpi.api.ticketsolutions.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+			"[no_ticket]" "2011040001"
+		);
+
+		-> "[result1]" (execute "demo.glpi.api.ticketsolution.post"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+			"[no_ticket]" "2011040001"
+			"[content]" "solution approu par jimjim"
+		);
+
+		#-> "[result1]" (execute "demo.glpi.api.getMyEntities.get"
+			"[app_token]" [app_token]
+			"[session_token]" [session_token]
+		);
+
+
+
+		
+
+		execute "demo.glpi.api.destroy.exe"
+			"[app_token]"  [app_token]
+			"[session_token]" [session_token]
+		;
+	
+	} {
+		
+		execute "demo.glpi.api.destroy.exe"
+			"[app_token]"  [app_token]
+			"[session_token]" [session_token]
+		;
+
+		exception (1) ([err])
+	
+	} "[err]";
+
+	json load "keyId" [result1];
+	json load "keyId" (json select "keyId" /reponse);
+	json doc "keyId";
+	
+} "Return nothing";
+script set delay "demo.glpi.api.example1.exe" 0 day {1;};

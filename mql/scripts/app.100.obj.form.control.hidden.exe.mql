@@ -1,0 +1,12 @@
+script create exe "app.100.obj.form.control.hidden" false 1 
+  (param
+  	(var "[control_id]" {true} "The control id" is_null:false is_empty:false "control_1")
+  	(var "[value]" {true} "The value of the control" is_null:false is_empty:true "")
+  ;) 
+  "Control object" 
+{
+	
+	concat_var "[object]" "<input type='hidden' name='" [control_id] "' value='" (string replace [value] "'" "&#39;") "'>";
+
+;} "html";
+script set delay "app.100.obj.form.control.hidden.exe" 0 day {1;};

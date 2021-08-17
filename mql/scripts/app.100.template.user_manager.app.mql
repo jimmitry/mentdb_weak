@@ -1,0 +1,107 @@
+script create app "app.100.template.user_manager" false 1 
+  (param
+  ;) 
+  "Start point for the template" 
+{
+
+	#Main actions;
+	if (not (is null or empty [app_action])) {
+
+		#Disconnect the user;
+		if (equal [app_action] "logout";) {
+
+			json iobject "app" / connected "0" STR;
+			json iobject "app" / disconnected "1" STR;
+		
+		};
+
+		#Menu toggle;
+		if (equal [app_action] "menu_toggle") {
+
+			if (json select "app" /menu_default_show) {
+				log trace test1;
+				json iobject "app" / menu_default_show false STR;
+			
+			} {
+				log trace test2;
+				json iobject "app" / menu_default_show true STR;
+			
+			};
+		
+		};
+	
+	};
+
+	#Change the page;
+	if (not (is null or empty [app_page])) {
+
+		json iobject "app" / "current_page" [app_page] STR;
+	
+	};
+	
+	-> "[app_page]" (json select "app" /current_page);
+	-> "[app_user]" (json select "app" /user);
+
+	#Check if the user is connected;
+	if (json select "app" /connected) {
+
+		include (concat "app." [app_version] ".template." [app_template] ".page." [app_page] ".exe");
+	
+	} {
+		
+		#try to connect if the user is send;
+		if (is not null (json select "app" "/param/x-user")) {
+
+			try {
+				
+				sql connect "session1" {cm get (json select "app" "/database")};
+
+				if (or (> (sql value "session1" (concat "select count(*) from `user_group` where group_id<=2 and `login`=" (sql encode (json select "app" "/param/x-user")))) 0)
+					(> (sql value "session1" (concat "select count(*) from `app_user` where app_id=" (sql encode (json select "app" "/context")) " and `login`=" (sql encode (json select "app" "/param/x-user")))) 0)) {
+				
+					if (> (sql value "session1" (concat "select count(*) from `users` where activate='Y' and `login`=" (sql encode (json select "app" "/param/x-user")) " and `password`=" (sql encode (string md5 (json select "app" "/param/x-password"))))) 0) {
+	
+						json iobject "app" / groups (sql col_distinct "session1" (concat "select distinct tag 
+							from user_group inner join group_tag on user_group.group_id=group_tag.group_id
+							where login=" (sql encode (json select "app" "/param/x-user")));) OBJ;
+						
+						json iobject "app" / connected "1" STR;
+						json iobject "app" / "user" (json select "app" "/param/x-user") STR;
+						json iobject "app" / "current_page" (json select "app" "/default_page") STR;
+						-> "[app_page]" (json select "app" /current_page);
+						
+						include (concat "app." [app_version] ".template." [app_template] ".page." [app_page] ".exe");
+						
+					} {
+						
+						include (concat "app." [app_version] ".template." [app_template] ".page.login.exe") "[err]" (json select "app" "/login_error_msg");
+						
+					};
+
+				} {
+					
+					include (concat "app." [app_version] ".template." [app_template] ".page.login.exe") "[err]" "No rights on this application.";
+					
+				};
+				
+				sql disconnect "session1";
+		
+			} {
+				
+				include (concat "app." [app_version] ".template." [app_template] ".page.login.exe") "[err]" [err];
+				try {sql disconnect "session1";} {} "[sub_err]";
+				
+			} "[err]";
+
+			[page];
+		
+		} {
+
+			include (concat "app." [app_version] ".template." [app_template] ".page.login.exe") "[err]" "";
+		
+		};
+	
+	};
+
+} "html";
+script set delay "app.100.template.user_manager.app" 0 day {1;};

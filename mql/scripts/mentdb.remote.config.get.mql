@@ -1,0 +1,36 @@
+script create get "mentdb.remote.config" false 1 
+  (param
+  	(var "[hostname]" {true} "The hostname" is_null:false is_empty:false "localhost, 127.0.0.1")
+  	(var "[port]" {type is_int [port]} "The port" is_null:false is_empty:false "21")
+  	(var "[key]" {true} "The server key" is_null:false is_empty:false "pwd")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "bob")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "pwd")
+  	(var "[connectTimeout]" {true} "The connect timeout" is_null:false is_empty:false "10000")
+  	(var "[readTimeout]" {true} "The read timeout" is_null:false is_empty:false "30000")
+  	(var "[subTunnels]" {true} "The sub tunnel (in MQL)" is_null:false is_empty:false "[MQL]")
+  ;) 
+  "Get a MentDB config connection" 
+{
+
+	json load "mql_users" "[]";
+	json iarray "mql_users" / (who) STR;
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "mentdb" STR;
+	json iobject "config_obj" / "hostname" [hostname] STR;
+	json iobject "config_obj" / "port" [port] STR;
+	json iobject "config_obj" / "key" [key] STR;
+	json iobject "config_obj" / "user" [user] STR;
+	json iobject "config_obj" / "mql_users" (json doc "mql_users") STR;
+	json iobject "config_obj" / "password" [password] STR;
+	json iobject "config_obj" / "connectTimeout" [connectTimeout] STR;
+	json iobject "config_obj" / "readTimeout" [readTimeout] STR;
+	json iobject "config_obj" / "subTunnels" [subTunnels] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a MentDB config connection in JSON";
+script set delay "mentdb.remote.config.get" 0 day {1;};

@@ -1,0 +1,32 @@
+script create exe "index_ai.tools.set_bold" false 1 
+  (param
+  	(var "[color]" {true} "" is_null:true is_empty:true "")
+  ;) 
+  "Set words to bold" 
+{
+
+	json load "words" (string split [s] " " 0);
+
+	-> "[result]" "";
+	json parse_array "words" "/" "[word]" {
+
+		try {
+		
+			if (not (is null or empty (json select "result" (concat "/w/" (string replace (string replace [word] "[" "") "]" ""))))) {
+				concat_var "[result]" "<span style='font-weight:bold;color: " [color] ";'>" [word] "</span> ";
+			} {
+				concat_var "[result]" [word] " ";
+			};
+		
+		} {
+		
+			concat_var "[result]" [word] " "; 
+		
+		} "[err]";
+	
+	};
+
+	string lrtrim [result];
+	
+} "Return a string ...";
+script set delay "index_ai.tools.set_bold.exe" 0 day {1;};

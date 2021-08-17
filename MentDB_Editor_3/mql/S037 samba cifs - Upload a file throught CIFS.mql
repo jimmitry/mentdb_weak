@@ -1,0 +1,17 @@
+##############################;
+# Upload files throught CIFS #;
+##############################;
+
+#Get the file list from a directory;
+json load "list" (file dir_list "/Users/jimmitry/Desktop");
+
+#Parse the file list;
+json parse_array "list" "/" "[filename]" {
+
+	#Upload with SCP;
+	cifs put 
+		(concat "/Users/jimmitry/Desktop/" [filename]) 
+		[filename] 
+		{cm get "demo_cm_cifs";};
+
+};

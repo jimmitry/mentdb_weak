@@ -1,0 +1,18 @@
+script create exe "app.100.start" false 1 
+  (param
+  ;) 
+  "Start point for the application manager" 
+{
+
+	#Load default variables;
+	-> "[app_template]" (json select "app" /template);
+	-> "[app_page]" (json select "app" /param/app_page);
+	-> "[app_action]" (json select "app" /param/app_action);
+	-> "[app_object_id]" 0;
+	-> "[app_object_id_no_load]" 0;
+
+	#Call the page;
+	include (concat "app." [app_version] ".template." [app_template] ".app")
+
+;} "html";
+script set delay "app.100.start.exe" 0 day {1;};

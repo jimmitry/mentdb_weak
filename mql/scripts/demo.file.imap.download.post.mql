@@ -1,0 +1,42 @@
+script create post "demo.file.imap.download" false 1 
+  (param
+  ;) 
+  "Download mail through IMAP" 
+{
+
+	#Initialization;
+    -> "[receive_dir]" "tmp";
+
+	#Récupération des mails;
+	json load "receive_state" (mail download imap [receive_dir]
+		3 unread null false true
+		"2018-01-01" null
+		(mql {string matches [imap_from] ".*digest-noreply@quora.com.*";})
+		(mql {string matches [imap_subject] ".*champ.*";})
+		{cm get "demo_cm_imap"}
+	);
+
+	if (> (json select "receive_state" "/NbReceived") 0) {
+
+		-> "[sub_receive_dir]" (json select "receive_state" "/Directory");
+
+		json load "sub_receive_dir" (file dir_list [sub_receive_dir]);
+		json parse_array "sub_receive_dir" "/" "[mail]" {
+
+			if (string ends_with [mail] ".json") {
+
+				json load "current_mail" (file load (concat [sub_receive_dir] "/" [mail]));
+
+				log trace (json doc "current_mail");
+
+			};
+		
+		};
+
+	};
+
+	json doc "receive_state";
+	
+	
+} "Return nothing";
+script set delay "demo.file.imap.download.post" 0 day {1;};

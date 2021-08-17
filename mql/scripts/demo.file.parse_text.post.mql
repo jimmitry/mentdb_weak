@@ -1,0 +1,38 @@
+script create post "demo.file.parse_text" false 1 
+  (param
+  	(var "[fileName]" {true} "The file name" is_null:false is_empty:false "test.txt")
+  ;) 
+  "Parse a text file" 
+{
+
+	#Load the connection id;
+	json load "cm" (cm get "demo_cm_file");
+	-> "[localDir]" (json select "cm" /localDir);
+
+	#Open a reader;
+	file reader_open "r1" (concat [localDir] "/" [fileName]) TEXT "utf-8";
+
+	try {
+
+		#Parse the file;
+		while (is not null (-> "[line]" (file reader_get_line "r1"));) {
+	
+			log trace (concat "line=" [line]);
+	
+		};
+
+		#Close the reader;
+		file reader_close "r1";
+	
+	} {
+
+		#Close the reader;
+		try {file reader_close "r1";} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+	
+	} "[err]";
+
+;} "Return 1";
+script set delay "demo.file.parse_text.post" 0 day {1;};

@@ -1,0 +1,36 @@
+script create get "index_ai.app.find" false 1 
+  (param
+  	(var "[db_id]" {true} "The database id" is_null:false is_empty:false "db1")
+  	(var "[lang]" {true} "The language to search" is_null:false is_empty:false "en")
+  	(var "[city]" {true} "The city to search" is_null:false is_empty:false "-1|0|1|2")
+  	(var "[zone]" {true} "The zone to search" is_null:false is_empty:false "-1|0|1|2")
+  	(var "[txt]" {true} "The text to search" is_null:false is_empty:true "research and")
+  	(var "[depth]" {type is_int [depth]} "The depth to search" is_null:false is_empty:false "500")
+  	(var "[page]" {type is_int [page]} "The page to search" is_null:false is_empty:false "1")
+  ;) 
+  "Search" 
+{
+
+	json load "cmds" "[]";
+
+	json load "cmd" "{}";
+	json iobject "cmd" / t "FIND" "STR";
+	json iobject "cmd" / db [db_id] "STR";
+	json iobject "cmd" / l [lang] "STR";
+	json iobject "cmd" / cy [city] "STR";
+	json iobject "cmd" / z [zone] "STR";
+	json iobject "cmd" / txt [txt] "STR";
+	json iobject "cmd" / d [depth] "STR";
+	json iobject "cmd" / p [page] "STR";
+
+	json iarray "cmds" / (json doc "cmd") OBJ;
+	
+	json load "result" (index_ai execute (json doc "cmds"));
+	if (> (json count "result" /) 0) {
+		json select "result" /[0];
+	} {
+		"{}";
+	};
+	
+} "Return nothing";
+script set delay "index_ai.app.find.get" 0 day {1;};

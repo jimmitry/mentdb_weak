@@ -1,0 +1,11 @@
+script create exe "app.100.template.index_ai.page.user.onload" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Show the user page" 
+{
+
+	
+
+;} "The 'user' page";
+script set delay "app.100.template.index_ai.page.user.onload.exe" 0 day {1;};

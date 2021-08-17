@@ -1,0 +1,94 @@
+script create exe "app.100.obj.chartjs.line_courbe_fill" false 1 
+  (param
+  	(var "[container_id]" {true} "" is_null:false is_empty:true "container1")
+  ;) 
+  "Chart JS bar object" 
+{
+
+	#Build labels;
+	json load "labels" "[]";
+	json iarray "labels" / "January" STR;
+	json iarray "labels" / "February" STR;
+	json iarray "labels" / "March" STR;
+	json iarray "labels" / "April" STR;
+
+	#Build data;
+	json load "data" "[]";
+
+	#Build the data set 1;
+	json load "dataset1" (include "app.100.obj.chartjs.dataset.init.exe");
+	json iobject "dataset1" / "label" "Dataset 1" STR;
+	json iobject "dataset1" / "backgroundColor" "#1867c0" STR;
+	json iobject "dataset1" / "borderColor" "#1867c0" STR;
+	json iobject "dataset1" / "pointBackgroundColor" "#b50000" STR;
+	json iarray "dataset1" /data 40 NUM;
+	json iarray "dataset1" /data 2 NUM;
+	json iarray "dataset1" /data 100 NUM;
+	json iarray "dataset1" /data 40 NUM;
+	json iarray "data" / (json doc "dataset1") OBJ;
+
+	#Build the data set 2;
+	json load "dataset2" (include "app.100.obj.chartjs.dataset.init.exe");
+	json iobject "dataset2" / "label" "Dataset 2" STR;
+	json iobject "dataset2" / "backgroundColor" "#AAA" STR;
+	json iobject "dataset2" / "borderColor" "#444" STR;
+	json iobject "dataset2" / "pointBackgroundColor" "#222" STR;
+	json iarray "dataset2" /data 5 NUM;
+	json iarray "dataset2" /data 2 NUM;
+	json iarray "dataset2" /data 10 NUM;
+	json iarray "dataset2" /data 60 NUM;
+	json iarray "data" / (json doc "dataset2") OBJ;
+
+	-> "[title]" "Line courbe fill";
+	-> "[labels]" (json doc "labels");
+	-> "[data]" (json doc "data");
+
+	#Initialize the object id;
+	++ "[app_object_id]";
+	-> "[object]" "";
+	concat_var "[object]" "<div style='border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;border-radius: 3px;
+		margin-top: 8px;margin-bottom: 8px;padding:16px;background-color:#fff;color:#313131'>
+		<div id='container' style='width: 100%;'>
+			<canvas id='object_canvas" [app_object_id] "'></canvas>
+		</div>
+		<script>
+	        var object_color" [app_object_id] " = Chart.helpers.color;
+	        var object_data" [app_object_id] " = {
+	            labels: " [labels] ",
+	            datasets: " [data] "
+	        };
+	
+	        function object_onload" [app_object_id] "() {
+	        	
+	            var object_ctx" [app_object_id] " = document.getElementById(\"object_canvas" [app_object_id] "\").getContext(\"2d\");
+	            window.object_js" [app_object_id] " = new Chart(object_ctx" [app_object_id] ", {
+	                type: 'line',
+	                data: object_data" [app_object_id] ",
+	                options: {
+	                    responsive: true,
+	                    legend: {
+	                        position: 'top',
+	                    },
+	                    title: {
+	                        display: true,
+	                        text: '" [title] "'
+	                    }
+	                }
+	            });
+	
+	        };
+	     </script>
+	</div>";
+
+	include "app.100.obj.sajax.refresh.exe"
+		"[target]" [container_id]
+		"[innerHtml]" [object]
+	;
+
+	include "app.100.obj.sajax.javascript.exe"
+		"[javascript]" (concat "object_onload" [app_object_id] "();")
+	;
+
+;} "html";
+script set delay "app.100.obj.chartjs.line_courbe_fill.exe" 0 day {1;};

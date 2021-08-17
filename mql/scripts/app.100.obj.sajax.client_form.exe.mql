@@ -1,0 +1,15 @@
+script create exe "app.100.obj.sajax.client_form" false 1 
+  (param
+  	(var "[form_id]" {true} "The form id" is_null:true is_empty:true "")
+  	(var "[scriptname]" {true} "The script name" is_null:true is_empty:true "")
+  	(var "[OBJ_OVERWRITE_B64]" {true} "The overwrite object configuration" is_null:true is_empty:true "")
+  	(var "[getElementById]" {true} "To get element by id" is_null:true is_empty:true "val=key,val=key,val=key")
+  	(var "[data]" {true} "Data" is_null:true is_empty:true "$(\"#form1\").serializeObject()")
+  ;) 
+  "Client execution" 
+{
+
+	concat "\"if (check_form_values('" [form_id] "')) {execute_script('" (string encode_b64 [scriptname]) "', '" [OBJ_OVERWRITE_B64] "', '" [getElementById] "', '" (string encode_b64 [data]) "');$('#modal_" [form_id] "').modal('hide');};return false;\"";
+	
+;} "html";
+script set delay "app.100.obj.sajax.client_form.exe" 0 day {1;};

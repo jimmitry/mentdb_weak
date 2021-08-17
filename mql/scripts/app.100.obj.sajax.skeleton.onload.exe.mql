@@ -1,0 +1,12 @@
+script create exe "app.100.obj.sajax.skeleton.onload" false 1 
+  (param
+  	(var "[scriptname]" {true} "The script name" is_null:true is_empty:true "")
+  	(var "[client_data]" {true} "The client data" is_null:true is_empty:true "")
+  ;) 
+  "Ajax loader" 
+{
+
+	concat_var "[on_load_functions]" "execute_script('" (string encode_b64 [scriptname]) "', '" (string encode_b64 [client_data]) "');";
+
+;} "html";
+script set delay "app.100.obj.sajax.skeleton.onload.exe" 0 day {1;};

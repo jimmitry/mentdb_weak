@@ -1,0 +1,14 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_city.onload" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Execute this script on load ..." 
+{
+
+	include "app.100.obj.sajax.server.exe"
+		"[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe"
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{\"container_id\":\"MENTDB_se_city\", \"page\":\"1\", \"nb_by_page\":\"3\", \"nb_lr_pagination\":\"4\", \"order_by\":\"\"}")
+	;
+	
+} "Reload all blocs";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_city.onload.exe" 0 day {1;};

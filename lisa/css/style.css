@@ -1,0 +1,249 @@
+/* Change the white to any color ;) */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px white inset;
+}
+
+#divSignIn img {
+    margin-top: 15px;
+}
+
+#divSignIn input {
+	padding: 0px 8px 0px 8px;
+    height: 25px;
+    margin-bottom: 3px;
+}
+
+#divSignIn span {
+    font-size: 12px;
+    color: #b00;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+#divSignInCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -175px;
+    margin-left: -130px;
+    width: 260px;
+    height: 290px;
+    text-align: center;
+}
+
+#divSignInImg {
+    -moz-border-radius: 10px 10px 0px 0px;
+    -webkit-border-radius: 10px 10px 0px 0px;
+    border-radius: 10px 10px 0px 0px;
+    margin-bottom: 10px;
+    padding-top: 25px;
+}
+
+#divSignInImg img {
+    margin-top: 5px;
+}
+
+#divSignIn {
+    -moz-border-radius: 10px 10px 10px 10px;
+    -webkit-border-radius: 10px 10px 10px 10px;
+    border-radius: 10px 10px 10px 10px;
+    min-height: 274px;
+}
+
+.style-1  {
+  box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    border: 1px solid #565656;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    padding: 7px;
+    outline: none;
+    width: 200px;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: #8D8D8D;
+    border-color: #8D8D8D;
+}
+
+.btn-secondary:hover {
+    background-color: #6D6D6D;
+    border-color: #6D6D6D;
+}
+
+.btn-dark {
+    color: #fff;
+    background-color: #545454;
+    border-color: #545454;
+}
+
+.btn-dark:hover {
+    background-color: #434343;
+    border-color: #434343;
+}
+
+#copyright {
+    position: fixed;
+    height: 27px;
+    line-height: 27px;
+    width: 100%;
+    bottom: 0px;
+    color: #888;
+    font-size: 10px;
+    text-align: center;
+    background-color: #e0e0e0;
+	  background-position: bottom;
+    border-top: 1px #ccc solid;
+}
+
+#copyright a {
+    color: #888;
+    text-decoration: none;
+}
+
+.signBg {
+	background-color: #fff;
+}
+
+html {
+    height: 100%;
+}
+
+#copyright a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+#copyrightSign {
+    margin-top: 20px;
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+}
+
+#copyrightSign a {
+    color: #fff;
+    text-decoration: none;
+}
+
+#copyrightSign a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+#submitButton {
+    width: 70px;
+    height: 25px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #0361d6;
+    color: #fff;
+}
+
+#submitButton:hover {
+    background-color: #2583F8;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+
+/* CSS talk bubble */
+.chat {
+    width: 100%;
+}
+
+.bubble{
+    background-color: #F2F2F2;
+    border-radius: 5px;
+    box-shadow: 0 0 6px #B2B2B2;
+    display: inline-block;
+    padding: 10px 18px;
+    position: relative;
+    vertical-align: top;
+}
+
+.bubble_timeout{
+    background-color: #545454;
+    border-radius: 5px;
+    color:#fff;
+    display: inline-block;
+    padding: 10px 18px;
+    position: relative;
+    vertical-align: top;
+    box-shadow: 0 0 6px #545454;
+}
+
+.bubble_timeout::before {
+    background-color: #545454;
+    content: "\00a0";
+    display: block;
+    height: 16px;
+    position: absolute;
+    top: 11px;
+    transform:             rotate( 29deg ) skew( -35deg );
+        -moz-transform:    rotate( 29deg ) skew( -35deg );
+        -ms-transform:     rotate( 29deg ) skew( -35deg );
+        -o-transform:      rotate( 29deg ) skew( -35deg );
+        -webkit-transform: rotate( 29deg ) skew( -35deg );
+    width:  20px;
+}
+
+.bubble::before {
+    background-color: #F2F2F2;
+    content: "\00a0";
+    display: block;
+    height: 16px;
+    position: absolute;
+    top: 11px;
+    transform:             rotate( 29deg ) skew( -35deg );
+        -moz-transform:    rotate( 29deg ) skew( -35deg );
+        -ms-transform:     rotate( 29deg ) skew( -35deg );
+        -o-transform:      rotate( 29deg ) skew( -35deg );
+        -webkit-transform: rotate( 29deg ) skew( -35deg );
+    width:  20px;
+}
+
+.me {
+    margin: 5px 0px 5px 16px;
+    width: calc(100% - 65px);
+}
+
+.me::before {
+    box-shadow: -2px 1px 1px 0 rgba( 178, 178, 178, .4 );
+    left: -9px;
+}
+
+.you {
+    margin: 5px 20px 5px 16px;
+    width: calc(100% - 105px);
+}
+
+.bubble_init_right {
+    margin: 5px 0px 5px 16px;
+    width: calc(100% - 16px);
+}
+
+.bubble_init_left {
+    float: left;
+    margin: 5px 20px 5px 16px;
+    width: calc(100% - 16px);
+}
+
+.you::before {
+    box-shadow: 2px -2px 2px 0 rgba( 178, 178, 178, .4 );
+    right: -9px;
+}

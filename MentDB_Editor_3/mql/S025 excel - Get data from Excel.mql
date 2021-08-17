@@ -1,0 +1,44 @@
+#######################;
+# Get data from Excel #;
+#######################;
+
+#Get the Excel file;
+-> "[localDir]" "/Users/jimmitry/Desktop";
+-> "[fileName]" "test.xls";
+
+#Initialization;
+-> "[start_line]" 1;
+-> "[end_line]" 10;
+-> "[start_col]" 1;
+-> "[end_col]" 5;
+
+try {
+
+	#Load the Excel file;
+	excel load "excelId" (concat [localDir] "/" [fileName]);
+
+	for (-> "[row]" [start_line]) (<= [row] [end_line]) (++ "[row]") {
+	
+		for (-> "[col]" [start_col]) (<= [col] [end_col]) (++ "[col]") {
+		
+			-> "[value]" (excel cell get "excelId" "sheet1" [row] [col]);
+
+			#Your code here;
+			log trace [value];
+		
+		};
+	
+	};
+
+	#Close the Excel object;
+	excel close "excelId";
+
+} {
+
+	#Close objects;
+	try {excel close "excelId";} {} "[sub_err]";
+
+	#Generate an error;
+	exception (1) ([err]);
+
+} "[err]";

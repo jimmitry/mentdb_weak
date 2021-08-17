@@ -1,0 +1,60 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.users.search" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Insert a new element ..." 
+{
+
+	try {
+		
+		json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+		json load "filter_sql" "{\"filter_sql\":{}}";
+
+		
+
+		if (not (is null or empty (json select "data" "/client_data/login"))) {
+			json iobject "filter_sql" "/filter_sql" "login" (json select "data" "/client_data/login") STR;
+			json iobject "filter_sql" "/filter_sql" "type:login" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+
+		if (not (is null or empty (json select "data" "/client_data/password"))) {
+			json iobject "filter_sql" "/filter_sql" "password" (json select "data" "/client_data/password") STR;
+			json iobject "filter_sql" "/filter_sql" "type:password" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+
+		if (not (is null or empty (json select "data" "/client_data/firstname"))) {
+			json iobject "filter_sql" "/filter_sql" "firstname" (json select "data" "/client_data/firstname") STR;
+			json iobject "filter_sql" "/filter_sql" "type:firstname" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+
+		if (not (is null or empty (json select "data" "/client_data/lastname"))) {
+			json iobject "filter_sql" "/filter_sql" "lastname" (json select "data" "/client_data/lastname") STR;
+			json iobject "filter_sql" "/filter_sql" "type:lastname" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+
+		if (not (is null or empty (json select "data" "/client_data/activate"))) {
+			json iobject "filter_sql" "/filter_sql" "activate" (json select "data" "/client_data/activate") STR;
+			json iobject "filter_sql" "/filter_sql" "type:activate" "EQUAL" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+		
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.user_manager.actions.MENTDB.users.list.exe"
+			"[OBJ_OVERWRITE_B64]" (string encode_b64 (json doc "filter_sql"))
+		;
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_DANGER"
+			"[strong]" "ERR :"
+			"[msg]" [err]
+		;
+		
+	} "[err]";
+	
+} "Return OK or KO";
+script set delay "app.100.template.user_manager.actions.MENTDB.users.search.exe" 0 day {1;};

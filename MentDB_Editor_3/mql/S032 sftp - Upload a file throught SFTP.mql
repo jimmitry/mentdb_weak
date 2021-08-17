@@ -1,0 +1,57 @@
+###############################;
+# Upload a file throught sFTP #;
+###############################;
+
+#Create the script to upload;
+script create post "demo.file.sftp.upload" false 1 
+  (param
+  	(var "[localDirectory]" {true} "The local directory" is_null:false is_empty:false "/Users/jimmitry/Desktop/ftp")
+  	(var "[filter]" {true} "The file filter from the remote directory" is_null:false is_empty:false ".*png")
+  	(var "[remoteDirectory]" {true} "The remote directory" is_null:false is_empty:false "/Users/jimmitry/Desktop")
+  ;) 
+  "Upload file through SFTP" 
+{
+
+	try {
+
+		#Connect to the SFTP server;
+		sftp connect "session1" {cm get "demo_cm_sftp";};
+
+		#Move to the remote directory;
+		sftp cd "session1" [remoteDirectory];
+
+		#Get all local files;
+		json load "files" (file dir_list_regex [localDirectory] [filter] true true);
+
+		#Put all files;
+		-> "[nbFiles]" (json count "files" "/");
+		for (-> "[i]" 0) (< [i] [nbFiles]) (++ "[i]") {
+
+			-> "[filename]" (json select "files" (concat "/[" [i] "]"));
+			
+			sftp put "session1" (concat [localDirectory] "/" [filename]) (concat [localDirectory] "/" [filename]) "RESUME";
+			
+		};
+
+		#Disconnect the session;
+		sftp disconnect "session1";
+	
+	} {
+	
+		#Close objects;
+		try {sftp disconnect "session1";} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+	
+	} "[err]";
+	
+	
+} "Return nothing";
+
+#Execute the script;
+execute "demo.file.sftp.upload.post"
+	"[localDirectory]" "/Users/jimmitry/Desktop/ftp"
+	"[filter]" ".*png"
+	"[remoteDirectory]" "/Users/jimmitry/Desktop"
+;

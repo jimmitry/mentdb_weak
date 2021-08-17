@@ -1,0 +1,23 @@
+script create post "demo.file.parse_dir" false 1 
+  (param
+  ;) 
+  "Parse a directory" 
+{
+
+	#Load the connection id;
+	json load "cm" (cm get "demo_cm_file");
+	-> "[localDir]" (json select "cm" /localDir);
+	
+	json load "files" (file dir_list [localDir]);
+	-> "[nb_files]" (json count "files" /);
+	for (-> "[i]" 0) (< [i] [nb_files]) (++ "[i]") {
+	
+		-> "[cur_filename]" (json select "files" (concat "/[" [i] "]"));
+
+		#Here your action;
+		log trace [cur_filename];
+		
+	};
+	
+} "nothing";
+script set delay "demo.file.parse_dir.post" 0 day {1;};

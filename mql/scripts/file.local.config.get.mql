@@ -1,0 +1,18 @@
+script create get "file.local.config" false 1 
+  (param
+  	(var "[dir]" {true} "The local directory" is_null:false is_empty:false "/Users/jimmitry/Desktop")
+  ;) 
+  "Get a file config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "file" STR;
+	json iobject "config_obj" / "localDir" [dir] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a file config connection in JSON";
+script set delay "file.local.config.get" 0 day {1;};

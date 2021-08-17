@@ -1,0 +1,21 @@
+script create post "perf.read_node" false 1 
+  (param;) 
+  "" 
+{
+
+	#Save the start time;
+	-> "[start_ms]" (date current_ms);
+
+	for (-> "[i]" 0) (< [i] 1000) (++ "[i]") {
+
+		node show "S[a]";
+
+	};
+
+	#Save the end time;
+	-> "[end_ms]" (date current_ms);
+
+	exception (1) (- [end_ms] [start_ms]);
+
+} "";
+script set delay "perf.read_node.post" 0 day {1;};

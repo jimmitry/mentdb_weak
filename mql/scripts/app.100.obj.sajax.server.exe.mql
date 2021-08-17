@@ -1,0 +1,14 @@
+script create exe "app.100.obj.sajax.server" false 1 
+  (param
+  	(var "[scriptname]" {true} "The script name" is_null:true is_empty:true "")
+  	(var "[OBJ_OVERWRITE_B64]" {true} "The overwrite object configuration" is_null:true is_empty:true "")
+  ;) 
+  "Server execution" 
+{
+
+	include [scriptname]
+		"[OBJ_OVERWRITE_B64]" [OBJ_OVERWRITE_B64]
+	;
+	
+;} "html";
+script set delay "app.100.obj.sajax.server.exe" 0 day {1;};

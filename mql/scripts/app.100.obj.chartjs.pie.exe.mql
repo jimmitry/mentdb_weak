@@ -1,0 +1,102 @@
+script create exe "app.100.obj.chartjs.pie" false 1 
+  (param
+  	(var "[container_id]" {true} "" is_null:false is_empty:true "container1")
+  ;) 
+  "Chart JS bar object" 
+{
+
+	#Build labels;
+	json load "labels" "[]";
+	json iarray "labels" / "January" STR;
+	json iarray "labels" / "February" STR;
+	json iarray "labels" / "March" STR;
+	json iarray "labels" / "April" STR;
+
+	#Build data;
+	json load "data" "[]";
+
+	#Build the data set 1;
+	json load "dataset" (include "app.100.obj.chartjs.dataset.init.exe");
+	json iobject "dataset" / "label" "Dataset 1" STR;
+	json iobject "dataset" / "backgroundColor" "#1867c0" STR;
+	json iobject "dataset" / "borderColor" "#1867c0" STR;
+	json iobject "dataset" / "pointBackgroundColor" "#b50000" STR;
+	json iarray "dataset" /data 40 NUM;
+	json iarray "dataset" /data 2 NUM;
+	json iarray "dataset" /data 100 NUM;
+	json iarray "dataset" /data 40 NUM;
+	
+	json iarray "data" / (json doc "dataset") OBJ;
+
+	#Build colors;
+	json load "backgroundColors" "[]";
+	json iarray "backgroundColors" / "#1867c0" STR;
+	json iarray "backgroundColors" / "#0000a0" STR;
+	json iarray "backgroundColors" / "#000080" STR;
+	json iarray "backgroundColors" / "#000060" STR;
+
+	json iobject "data" /[0] "backgroundColor" (json doc "backgroundColors") ARRAY;
+
+	-> "[title]" "Pie";
+	-> "[labels]" (json doc "labels");
+	-> "[data]" (json doc "data");
+
+	#Initialize the object id;
+	++ "[app_object_id]";
+
+	json load "data_fill" [data];
+	
+	-> "[nb_dataset]" (json count "data_fill" /);
+	for (-> "[i]" 0) (< [i] [nb_dataset]) (++ "[i]") {
+
+		json iobject "data_fill" (concat "/[" [i] "]") "fill" false BOOL2;
+		json iobject "data_fill" (concat "/[" [i] "]") "lineTension" 0 NUM;
+	
+	};
+	-> "[object]" "";
+	concat_var "[object]" "<div style='border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;border-radius: 3px;
+		margin-top: 8px;margin-bottom: 8px;padding:16px;background-color:#fff;color:#313131'>
+		<div id='container' style='width: 100%;'>
+			<canvas id='object_canvas" [app_object_id] "'></canvas>
+		</div>
+		<script>
+	        var object_color" [app_object_id] " = Chart.helpers.color;
+	        var object_data" [app_object_id] " = {
+	            labels: " [labels] ",
+	            datasets: " (json doc "data_fill") "
+	        };
+	
+	        function object_onload" [app_object_id] "() {
+	        	
+	            var object_ctx" [app_object_id] " = document.getElementById(\"object_canvas" [app_object_id] "\").getContext(\"2d\");
+	            window.object_js" [app_object_id] " = new Chart(object_ctx" [app_object_id] ", {
+	                type: 'pie',
+	                data: object_data" [app_object_id] ",
+	                options: {
+	                    responsive: true,
+	                    legend: {
+	                        position: 'right',
+	                    },
+	                    title: {
+	                        display: true,
+	                        text: '" [title] "'
+	                    }
+	                }
+	            });
+	
+	        };
+	     </script>
+	</div>";
+
+	include "app.100.obj.sajax.refresh.exe"
+		"[target]" [container_id]
+		"[innerHtml]" [object]
+	;
+
+	include "app.100.obj.sajax.javascript.exe"
+		"[javascript]" (concat "object_onload" [app_object_id] "();")
+	;
+
+;} "html";
+script set delay "app.100.obj.chartjs.pie.exe" 0 day {1;};

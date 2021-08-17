@@ -1,0 +1,25 @@
+script create exe "index_ai.admin.add_zone" false 1 
+  (param
+  	(var "[db_id]" {true} "The database id" is_null:false is_empty:false "db1")
+  	(var "[zone_id]" {true} "The zone id" is_null:false is_empty:false "1")
+  	(var "[zone_name_en]" {true} "The zone name en" is_null:false is_empty:false "Company")
+  	(var "[zone_name_fr]" {true} "The zone name fr" is_null:false is_empty:false "Etablissement")
+  ;) 
+  "Add a new zone" 
+{
+
+	json load "cmds" "[]";
+
+	json load "cmd" "{}";
+	json iobject "cmd" / t "ADD_ZONE" "STR";
+	json iobject "cmd" / db [db_id] "STR";
+	json iobject "cmd" / z [zone_id] "STR";
+	json iobject "cmd" / nEn [zone_name_en] "STR";
+	json iobject "cmd" / nFr [zone_name_fr] "STR";
+
+	json iarray "cmds" / (json doc "cmd") OBJ;
+	
+	index_ai execute (json doc "cmds");
+	
+} "Return nothing";
+script set delay "index_ai.admin.add_zone.exe" 0 day {1;};

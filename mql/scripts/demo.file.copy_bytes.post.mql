@@ -1,0 +1,43 @@
+script create post "demo.file.copy_bytes" false 1 
+  (param
+  ;) 
+  "Copy a binary file" 
+{
+
+	#Initialization;
+	-> "[source]" "/Users/jimmitry/Desktop/test.jpg";
+	-> "[destination]" "/Users/jimmitry/Desktop/copy.jpg";
+
+	try {
+
+		#Open a reader;
+		file reader_open "r1" [source] BINARY null;
+		file writer_open "w1" [destination] true BINARY null;
+	
+		#Parse the file;
+		while (is not null (-> "[bytes]" (file reader_get_bytes "r1" 1024));) {
+	
+			file writer_add_bytes "w1" [bytes];
+	
+		};
+	
+		#Force to write;
+		file writer_flush "w1";
+	
+		#Close the reader and the writer;
+		file reader_close "r1";
+		file writer_close "w1";
+	
+	} {
+	
+		#Close objects;
+		try {file reader_close "r1";} {} "[sub_err]";
+		try {file writer_close "w1";} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+	
+	} "[err]";
+
+;} "Return 1";
+script set delay "demo.file.copy_bytes.post" 0 day {1;};

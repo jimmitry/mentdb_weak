@@ -1,0 +1,30 @@
+script create post "stack.remove_closed_with_retention" true 1 
+  (param
+  ;) 
+  "Delete stack closed with retention" 
+{
+
+	#MENTDB connection id (MySQL);
+	-> "[MENTDB_CNT]" "MENTDB";
+	
+	#Number of day of retention;
+	-> "[RETENTION_DAY]" (file ini "conf/server.conf" "STACK" "RETENTION_DAYS_CLOSED");
+
+	try {
+	
+		sql connect "session1" {cm get [MENTDB_CNT]};
+
+		sql dml "session1" (concat "DELETE FROM stack_closed WHERE dtcreate<'" (date difft (date systimestamp) "DAY" [RETENTION_DAY]) "'");
+		
+		sql disconnect "session1";
+	
+	} {
+	
+		try {sql disconnect "session1";} {} "[err_cnt]";
+
+		exception (1) ([err]);
+	
+	} "[err]";
+
+;} "Return nothing";
+script set delay "stack.remove_closed_with_retention.post" 0 day {1;};

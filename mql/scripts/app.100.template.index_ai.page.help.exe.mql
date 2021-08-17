@@ -1,0 +1,71 @@
+script create exe "app.100.template.index_ai.page.help" false 1 
+  (param
+  ;) 
+  "Show the help page" 
+{
+
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_top.exe");
+
+	#____________________________________________________________;
+
+	include "app.100.obj.sajax.skeleton.container.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "kpi" "[name]" "" "[class]" "col-6 col-xs-6 col-sm-6 col-md-6 col-lg-6" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "progress_bar" "[name]" "" "[class]" "col-6 col-xs-6 col-sm-6 col-md-6 col-lg-6" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "sparkline_line" "[name]" "" "[class]" "col-4 col-xs-4 col-sm-4 col-md-4 col-lg-4" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "sparkline_bar" "[name]" "" "[class]" "col-4 col-xs-4 col-sm-4 col-md-4 col-lg-4" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "sparkline_box" "[name]" "" "[class]" "col-4 col-xs-4 col-sm-4 col-md-4 col-lg-4" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "sparkline_tristate" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "sparkline_discrete" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "sparkline_bullet" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "sparkline_pie" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "bar_vertical" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "bar_horizontal" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "bar_vertical_stacked" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "bar_horizontal_stacked" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "doughnut" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "pie" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "polar" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "radar" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "line_basic" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "line_basic_fill" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "line_stepped_before" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "line_stepped_after" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "time_basic" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "time_basic_fill" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "time_courbe" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "time_courbe_fill" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "line_courbe" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "line_courbe_fill" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "line_point" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "gauge" "[name]" "" "[class]" "col-3 col-xs-3 col-sm-3 col-md-3 col-lg-3" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+	include "app.100.obj.sajax.skeleton.div.end.exe";
+
+
+
+	include "app.100.obj.sajax.skeleton.onload.exe"
+		"[scriptname]" (concat "app." [app_version] ".template." [app_template] ".page.help.onload.exe")
+		"[client_data]" (json select "app" "/param")
+	;
+	
+	#____________________________________________________________;
+	
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_bottom.exe");
+
+;} "The 'help' page";
+script set delay "app.100.template.index_ai.page.help.exe" 0 day {1;};

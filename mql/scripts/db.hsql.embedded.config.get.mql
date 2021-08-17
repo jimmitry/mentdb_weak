@@ -1,0 +1,31 @@
+script create get "db.hsql.embedded.config" false 1 
+  (param
+  	(var "[database]" {true} "The database" is_null:false is_empty:false "demo/db/hsql/test_db")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "SA")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "SA")
+  ;) 
+  "Get a HSQL config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "db" STR;
+	json iobject "config_obj" / "subType" "HSQL" STR;
+	json iobject "config_obj" / "driver" "org.hsqldb.jdbc.JDBCDriver" STR;
+	json iobject "config_obj" / "loginTimeout" "10000" STR;
+
+	json iobject "config_obj" / "jdbc" (
+		concat "jdbc:hsqldb:file:" [database];
+	) STR;
+
+	json iobject "config_obj" / "defaultSchema" "PUBLIC" STR;
+	json iobject "config_obj" / "properties" "{}" OBJ;
+	json iobject "config_obj" /properties "user" [user] STR;
+	json iobject "config_obj" /properties "password" [password] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a HSQL config connection in JSON";
+script set delay "db.hsql.embedded.config.get" 0 day {1;};

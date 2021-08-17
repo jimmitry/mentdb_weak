@@ -1,0 +1,21 @@
+script create post "perf.relation" false 1 
+  (param;) 
+  "" 
+{
+
+	#Save the start time;
+	-> "[start_ms]" (date current_ms);
+
+	for (-> "[i]" 0) (< [i] 100) (++ "[i]") {
+
+		relation create "TH[6m] TH[2] TH[7] TH[d]" L fr;
+
+	};
+
+	#Save the end time;
+	-> "[end_ms]" (date current_ms);
+
+	exception (1) (- [end_ms] [start_ms]);
+
+} "";
+script set delay "perf.relation.post" 0 day {1;};

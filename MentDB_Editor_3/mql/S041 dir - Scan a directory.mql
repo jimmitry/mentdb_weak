@@ -1,0 +1,20 @@
+####################;
+# Scan a directory #;
+####################;
+
+#Create a script that will be executed when the directory is modified;
+script create exe "demo.file.watcher" false 1 
+  (param
+  	(var "[kind]" {true} "The kind" is_null:true is_empty:true "")
+  	(var "[file]" {true} "The file" is_null:true is_empty:true "")
+  ;) 
+  "description ..." 
+{
+
+	#Get file change and kind;
+	log trace (concat "[kind]=" [kind] ", [file]=" [file]);
+	
+} "Return ...";
+
+#Start the file watcher (linked with the script name);
+file_watcher start "fKey" "admin" "/Users/jimmitry/Desktop/dir" "demo.file.watcher.exe";

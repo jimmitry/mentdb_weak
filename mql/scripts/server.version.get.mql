@@ -1,0 +1,9 @@
+script create get "server.version" false 1 
+  (param;) 
+  "" 
+{
+
+	version;
+
+} "";
+script set delay "server.version.get" 0 day {1;};

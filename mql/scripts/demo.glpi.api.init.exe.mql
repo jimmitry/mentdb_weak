@@ -1,0 +1,18 @@
+script create exe "demo.glpi.api.init" true 5 
+  (param
+  	(var "[app_token]" {true} "The session token" is_null:true is_empty:true "Jrrbl2CTUUCYNHxHXPjjzIgOF8qWTbz0g7WMuW99")
+  	(var "[user_token]" {true} "The user token" is_null:true is_empty:true "mUIC7IvM1hxsTZHma7kjzTEja44s5U0KaeCdMsRN")
+  ;) 
+  "Init a GLPI connection ..." 
+{
+
+	json load "header" "{}";
+	json iobject "header" / "Content-Type" "application/json" STR;
+	json iobject "header" / "Authorization" (concat "user_token " [user_token]) STR;
+	json iobject "header" / "App-Token" [app_token] STR;
+	json load "result" (rest http get "http://99.10.5.16/apirest.php/initSession/" "" (json doc "header") "[]");
+	json load "result" (json select "result" /reponse);
+	json select "result" /session_token;
+	
+} "Return the GLPI session token";
+script set delay "demo.glpi.api.init.exe" 0 day {1;};

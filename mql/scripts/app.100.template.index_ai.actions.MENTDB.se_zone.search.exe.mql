@@ -1,0 +1,50 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_zone.search" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Insert a new element ..." 
+{
+
+	try {
+		
+		json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+		json load "filter_sql" "{\"filter_sql\":{}}";
+
+		
+
+		if (not (is null or empty (json select "data" "/client_data/name_en"))) {
+			json iobject "filter_sql" "/filter_sql" "name_en" (json select "data" "/client_data/name_en") STR;
+			json iobject "filter_sql" "/filter_sql" "type:name_en" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+
+		if (not (is null or empty (json select "data" "/client_data/name_fr"))) {
+			json iobject "filter_sql" "/filter_sql" "name_fr" (json select "data" "/client_data/name_fr") STR;
+			json iobject "filter_sql" "/filter_sql" "type:name_fr" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+
+		if (not (is null or empty (json select "data" "/client_data/db"))) {
+			json iobject "filter_sql" "/filter_sql" "db" (json select "data" "/client_data/db") STR;
+			json iobject "filter_sql" "/filter_sql" "type:db" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+		
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_zone.list.exe"
+			"[OBJ_OVERWRITE_B64]" (string encode_b64 (json doc "filter_sql"))
+		;
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_DANGER"
+			"[strong]" "ERR :"
+			"[msg]" [err]
+		;
+		
+	} "[err]";
+	
+} "Return OK or KO";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_zone.search.exe" 0 day {1;};

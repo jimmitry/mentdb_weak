@@ -1,0 +1,63 @@
+#######################################################;
+# Copy a local file to a remote file (in binary mode) #;
+#######################################################;
+
+#Initialization;
+-> "[source]" "/Users/jimmitry/Desktop/test.jpg";
+-> "[destination]" "/Users/jimmitry/Desktop/copy.jpg";
+-> "[nb_bytes]" 204800;
+
+try {
+
+    #Connect the remote MentDB server;
+    tunnel connect "session1" {cm get "demo_cm_mentdb";};
+
+    #Open a reader;
+    file reader_open "r1" [source] BINARY null;
+
+    #Open a remote file;
+    tunnel execute "session1" (concat 
+        "-> \"[destination]\" \"" (mql encode [destination]) "\";"
+        (mql {
+            file writer_open "w1" [destination] true BINARY null;
+        })
+    );
+
+    #Parse the file;
+    while (is not null (-> "[bytes]" (file reader_get_bytes "r1" [nb_bytes]))) {
+
+        #Send to the remote server the bytes;
+        tunnel execute "session1" (concat 
+            "-> \"[bytes]\" \"" (mql encode [bytes]) "\";"
+            (mql {
+                file writer_add_bytes "w1" [bytes];
+            })
+        );
+
+    };
+
+    #Force to write and close the remote writer;
+    tunnel execute "session1" (concat 
+        (mql {
+            file writer_flush "w1";
+            file writer_close "w1";
+        })
+    );
+
+    #Close the reader;
+    file reader_close "r1";
+
+    #Disconnect from the remote MentDB server;
+    tunnel disconnect "session1";
+
+} {
+
+    #Close objects;
+    try {tunnel disconnect "session1";} {} "[sub_err]";
+    try {file reader_close "r1";} {} "[sub_err]";
+    try {file writer_close "w1";} {} "[sub_err]";
+
+    #Generate an error;
+    exception (1) ([err]);
+
+} "[err]";

@@ -1,0 +1,24 @@
+script create post "demo.glpi.api.ticketsolution" true 5 
+  (param
+  	(var "[app_token]" {true} "The session token" is_null:true is_empty:true "Jrrbl2CTUUCYNHxHXPjjzIgOF8qWTbz0g7WMuW99")
+  	(var "[session_token]" {true} "The session token" is_null:true is_empty:true "")
+  	(var "[no_ticket]" {true} "The ticket number" is_null:true is_empty:true "2002270005")
+  	(var "[content]" {true} "The content" is_null:true is_empty:true "suivi approuvée par jimjim")
+  ;) 
+  "Kill a GLPI connection ..." 
+{
+
+	json load "header" "{}";
+	json iobject "header" / "Content-Type" "application/json" STR;
+	json iobject "header" / "Session-Token" [session_token] STR;
+	json iobject "header" / "App-Token" [app_token] STR;
+	#json load "data" (concat "{\"input\":{\"tickets_id\": \"" [no_ticket] "\",\"content\": \"\"}}");
+	json load "data" (concat "{\"input\": {\"items_id\": \"" [no_ticket] "\",\"itemtype\": \"Ticket\",\"is_private\": \"0\", \"status\": \"3\",\"solutiontypes_id\":\"2\",\"content\": \"Service jimjim available\"}}");
+	json iobject "data" /input "content" [content] STR;
+	log trace (json doc "data");
+	rest http post (concat "http://10.10.5.16/apirest.php/Ticket/" [no_ticket] "/ITILSolution") 
+		(json doc "data") (json doc "header") "[]";
+
+	
+} "Return nothing";
+script set delay "demo.glpi.api.ticketsolution.post" 0 day {1;};

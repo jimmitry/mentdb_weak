@@ -1,0 +1,34 @@
+script create get "mail.smtp.config" false 1 
+  (param
+  	(var "[hostname]" {true} "The hostname" is_null:false is_empty:false "smtp.gmail.com")
+  	(var "[port]" {type is_int [port]} "The port" is_null:false is_empty:false "465")
+  	(var "[sender]" {true} "The sender" is_null:false is_empty:false "your-account@gmail.com")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "your-account@gmail.com")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "pwd")
+  	(var "[authentication]" {true} "Activate the authentication" is_null:false is_empty:false "true")
+  	(var "[tls]" {true} "Activate the TLS" is_null:false is_empty:false "true")
+  	(var "[connectTimeout]" {true} "The connect timeout" is_null:false is_empty:false "10000")
+  	(var "[sessionTimeout]" {true} "The session timeout" is_null:false is_empty:false "60000")
+  ;) 
+  "Get a SMTP config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "smtp" STR;
+	json iobject "config_obj" / "hostname" [hostname] STR;
+	json iobject "config_obj" / "port" [port] STR;
+	json iobject "config_obj" / "sender" [sender] STR;
+	json iobject "config_obj" / "user" [user] STR;
+	json iobject "config_obj" / "password" [password] STR;
+	json iobject "config_obj" / "authentication" [authentication] STR;
+	json iobject "config_obj" / "tls" [tls] STR;
+	json iobject "config_obj" / "connectTimeout" [connectTimeout] STR;
+	json iobject "config_obj" / "sessionTimeout" [sessionTimeout] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a SMTP config connection in JSON";
+script set delay "mail.smtp.config.get" 0 day {1;};

@@ -1,0 +1,9 @@
+script create post "server.mail" false 1 
+  (param;) 
+  "" 
+{
+
+	mail process;
+
+} "";
+script set delay "server.mail.post" 0 day {1;};

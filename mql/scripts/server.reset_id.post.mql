@@ -1,0 +1,11 @@
+script create post "server.reset_id" false 1 
+  (param;) 
+  "" 
+{
+
+	file create "data/.id" (
+		string generate_random_str 12;
+	);
+
+} "";
+script set delay "server.reset_id.post" 0 day {1;};

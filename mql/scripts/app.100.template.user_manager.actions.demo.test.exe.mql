@@ -1,0 +1,15 @@
+script create exe "app.100.template.user_manager.actions.demo.test" false 1 
+  (param
+  ;) 
+  "Test" 
+{
+
+	include "app.100.obj.sajax.alert.exe"
+		"[type]" "ALERT_SUCCESS"
+		"[strong]" "OK !"
+		"[msg]" "Super
+		..."
+	;
+
+;} "";
+script set delay "app.100.template.user_manager.actions.demo.test.exe" 0 day {1;};

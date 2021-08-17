@@ -1,0 +1,35 @@
+script create post "index_ai.company.add_data_entity" false 1 
+  (param
+  	(var "[db_id]" {true} "The database id" is_null:false is_empty:false "db1")
+  	(var "[city]" {true} "The city" is_null:false is_empty:false "1")
+  	(var "[zone]" {true} "The zone" is_null:false is_empty:false "2")
+  	(var "[company_id]" {true} "The company id" is_null:false is_empty:false "1")
+  	(var "[entityEn]" {true} "The entity name en" is_null:false is_empty:false "HPC (high performance calculation)")
+  	(var "[entityFr]" {true} "The entity name fr" is_null:false is_empty:false "HPC (calcule haute performance)")
+  	(var "[sentencesEn]" {true} "The sentences en" is_null:false is_empty:false "A lot of calculation to do. Calcul machine cluster.")
+  	(var "[sentencesFr]" {true} "The sentences fr" is_null:false is_empty:false "Beaucoup de calcule à faire. Clusteur de machine de calcule.")
+  	(var "[result]" {true} "The result" is_null:false is_empty:false "https://www.innov-ai.com")
+  ;) 
+  "Add data for a specific company" 
+{
+
+	json load "cmds" "[]";
+
+	json load "cmd" "{}";
+	json iobject "cmd" / t "ADD_DATA_ENTITY" "STR";
+	json iobject "cmd" / db [db_id] "STR";
+	json iobject "cmd" / cy [city] "STR";
+	json iobject "cmd" / z [zone] "STR";
+	json iobject "cmd" / c [company_id] "STR";
+	json iobject "cmd" / eEn [entityEn] "STR";
+	json iobject "cmd" / eFr [entityFr] "STR";
+	json iobject "cmd" / sEn [sentencesEn] "STR";
+	json iobject "cmd" / sFr [sentencesFr] "STR";
+	json iobject "cmd" / res [result] "STR";
+
+	json iarray "cmds" / (json doc "cmd") OBJ;
+	
+	index_ai execute (json doc "cmds");
+	
+} "Return nothing";
+script set delay "index_ai.company.add_data_entity.post" 0 day {1;};

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="Description" CONTENT="MentDB, the first Mentalese Database Engine.">
+	<meta name="Keywords" content="mentdb, artificial intelligence, AI, database, engine, mentalese, data-integration, data-quality, SOA, ETL, ESB">
+	<meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>Session | Documentation | MentDB Weak 2.2.3</title>
+    <link rel="icon" type="image/png" href="imgs/innov-ai.png" />
+<link  href="../css/bootstrap.css" rel="stylesheet">
+<link  href="../css/bootstrap-theme.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/jQueryRotate.js"></script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-46755834-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-46755834-3');
+</script>
+<style type="text/css">
+    .board_a {
+        color: #fff;
+        background-color: #464646;
+        border: 1px #000000 solid;
+        width: 100%;
+        height: 40px;
+        margin-bottom: 10px;
+        display: block;
+        text-align: left;
+        padding-left: 20px;
+        line-height: 40px;
+        text-decoration: underline;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 22px;
+    }
+    .board_a:hover {
+        background-color:#FFF;
+        border: 1px #D0D0D0 solid;
+        color:#222;
+    }
+</style>
+
+  </head>
+  <body style="font-size: 18px;line-height: 1.42857143;font-family:'Helvetica Neue', Roboto, Arial, 'Droid Sans', sans-serif;margin:0px;background-color: #3d3c3c;background-image: url(imgs/bg.png);background-repeat: repeat-x;">
+      
+
+      
+<div class="container">
+  <div class="row" style='background-color: #f9F9F9;'>
+      <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding: 0px;'>
+        <div style="background-image: -webkit-linear-gradient(top, #272727 0%, #212121 100%);
+            background-image: -o-linear-gradient(top, #272727 0%, #212121 100%);
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#272727), to(#212121));
+            background-image: linear-gradient(to bottom, #3c3c3c 0%, #101010 100%);
+            margin-bottom: 0px;
+            height: 84px;
+            border: 1px #080808 solid;
+            border-bottom: 0px;
+            width: 100%;">
+              <div style='width: 100%;color: #E7E7E7;margin-top: 10px;margin-left: 10px;'>
+                  <a href='../index.html'><img id='rotate_img' src='imgs/innov-ai.png' style='width:60px;vertical-align: middle;margin-right:7px'></a>
+                  <span class='top_title' style='font-size: 26px;display: inline-block;line-height: 20px;vertical-align: middle;'>MentDB &nbsp;<small style='font-size: 55%;'>Mentalese Database Engine</small><br><a href='index.html' style="text-decoration: underline;color: #fff"><small style='font-size: 65%;'>Back to documentation index ...</small></a></span>
+              </div>
+        </div> 
+     </div>
+  </div>
+  <div class="row" style='background-color: #f9F9F9;padding-top: 15px;'>
+    
+    <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        
+        <div style='background-color: #565656;color:#fff;font-weight: bold;line-height: 48px;width: 100%;font-size: 16px;text-align: center'>DOCUMENTATION | MentDB Weak 2.2.3</div>
+        
+        <div style='line-height: 32px;clear:left;font-weight:bold;padding:0px 8px 4px 0px;font-size:24px;'>Session</div><div style='border-bottom: 1px solid #D9DEE4;'></div><h1 style='margin-top: 25px;margin-bottom: 15px;font-size: 17px;color: #3a3a3a;font-weight: normal;line-height: 25px;'><img src='images/p.png' style='vertical-align: middle;'>You have control functions of web socket session.<br><img src='images/p.png' style='vertical-align: middle;'>You have control functions of database session.</h1><div style='display: inline-block;padding-top: 18px;padding-bottom: 18px;padding-left: 15px;background-color: #F0F0F0;border: 1px #D9D9D9 solid;'><h3 style='clear: left;padding-top: 0px;padding-bottom: 0px;margin-bottom: 10px;margin-top: 0px;'>WS Session</h3><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_chat'>@chat</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_cmdid'>@cmdid</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_count_sessions'>@count sessions</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_sessions'>@sessions</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_sid'>@sid</a><h3 style='clear: left;padding-top: 15px;padding-bottom: 0px;margin-bottom: 10px;'>DB Session</h3><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_bye'>bye</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_cmdid'>cmdid</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_count_sessions'>count sessions</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_exit'>exit</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_help'>help</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_quit'>quit</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_sessions'>sessions</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_sid'>sid</a><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_session.html#fx_who'>who</a></div><div style='clear:left;'></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_chat'><h3 style='color:#000'>@chat</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To change the mode to CHAT.</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br>@chat</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>CHAT</span> <span style='color:#003cc8'>mode</span> <span style='color:#003cc8'>activated</span> (<span style='color:#003cc8'>do</span> <span style='color:#003cc8'>not</span> <span style='color:#003cc8'>use</span> <span style='color:#003cc8'>directly</span> <span style='color:#003cc8'>with</span> <span style='color:#003cc8'>the</span> editor, <span style='color:#003cc8'>only</span> <span style='color:#003cc8'>in</span> <span style='color:#003cc8'>your</span> <span style='color:#003cc8'>application</span> <span style='color:#003cc8'>with</span> <span style='color:#003cc8'>the</span> <span style='color:#003cc8'>web</span> <span style='color:#003cc8'>socket</span> <span style='color:#003cc8'>driver</span>).</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_cmdid'><h3 style='color:#000'>@cmdid</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show the number of web socket command executed by the current user</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br>@cmdid</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>5</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_count_sessions'><h3 style='color:#000'>@count sessions</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To count all open web socket sessions</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br>@count <span style='color:#003cc8'>sessions</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>1</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_sessions'><h3 style='color:#000'>@sessions</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show open web socket sessions</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br>@sessions</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br>[&lt;br&gt;  {&lt;br&gt;    <span style='color:#007700'>"maxUsable"</span>: 600,&lt;br&gt;    <span style='color:#007700'>"nbExecution"</span>: 5,&lt;br&gt;    <span style='color:#007700'>"id"</span>: 2,&lt;br&gt;    <span style='color:#007700'>"used"</span>: 0,&lt;br&gt;    <span style='color:#007700'>"user"</span>: <span style='color:#007700'>"admin"</span>,&lt;br&gt;    <span style='color:#007700'>"life"</span>: <span style='color:#007700'>"0/600s"</span>&lt;br&gt;  }&lt;br&gt;]</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_sid'><h3 style='color:#000'>@sid</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show current web socket session id</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br>@sid</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>3</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_bye'><h3 style='color:#000'>bye</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To close the session (or exit or quit)</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>bye</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>Session</span> <span style='color:#003cc8'>close</span> <span style='color:#003cc8'>with</span> successful.</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_cmdid'><h3 style='color:#000'>cmdid</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show the number of command executed by the current user</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>cmdid</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>25</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_count_sessions'><h3 style='color:#000'>count sessions</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To count all open sessions</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>count</span> <span style='color:#003cc8'>sessions</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>3</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_exit'><h3 style='color:#000'>exit</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To close the session (or bye or quit)</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>exit</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>Session</span> <span style='color:#003cc8'>close</span> <span style='color:#003cc8'>with</span> successful.</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_help'><h3 style='color:#000'>help</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show this help menu</div><br></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_quit'><h3 style='color:#000'>quit</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To close the session (or exit or quit)</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>quit</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>Session</span> <span style='color:#003cc8'>close</span> <span style='color:#003cc8'>with</span> successful.</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_sessions'><h3 style='color:#000'>sessions</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show all open sessions</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>sessions</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br>[&lt;br&gt;  {&lt;br&gt;    <span style='color:#007700'>"maxUsable"</span>: 600,&lt;br&gt;    <span style='color:#007700'>"nbExecution"</span>: 2,&lt;br&gt;    <span style='color:#007700'>"used"</span>: 0,&lt;br&gt;    <span style='color:#007700'>"id"</span>: 4,&lt;br&gt;    <span style='color:#007700'>"user"</span>: <span style='color:#007700'>"admin"</span>,&lt;br&gt;    <span style='color:#007700'>"life"</span>: <span style='color:#007700'>"0/600s"</span>&lt;br&gt;  }&lt;br&gt;]</pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_sid'><h3 style='color:#000'>sid</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show current session id</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>sid</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>5</span></pre></div></div></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_who'><h3 style='color:#000'>who</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; To show the current user</div><br><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>who</span></pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#003cc8'>admin</span></pre></div></div></div>
+
+        <div style='height: 20px'></div>
+        
+    </div>
+  </div>
+</div>
+
+<div style='clear:left;30px; text-align:center;color: #fff'><br><br>MentDB &copy; 2012 - 2020 - <a href="../mention.html" style='color:#fff'>Legal Notice</a><br>&nbsp;</div>
+
+  </body>
+    
+<script>
+function start_rotation() {
+
+    var rotation = function (){
+      $("#rotate_img").rotate({
+        duration:1300,
+        angle:0,
+        animateTo: 360,
+        callback: rotation,
+        easing: function (x, t, b, c, d, s) {
+            return -c *(t/=d)/2*(t-2) + b;
+        }
+      });
+    }
+    rotation();
+
+}
+    
+window.onload = function() {
+
+    start_rotation();
+
+};
+</script>
+</html>

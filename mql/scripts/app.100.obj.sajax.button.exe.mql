@@ -1,0 +1,20 @@
+script create exe "app.100.obj.sajax.button" false 1 
+  (param
+  	(var "[container_id]" {true} "The container id" is_null:true is_empty:true "container_id_1")
+  	(var "[submitTitle]" {true} "Submit title" is_null:false is_empty:false "Submit")
+  	(var "[submitType]" {type is_enum [submitType] "default,primary,success,info,warning,danger,link"} "Submit type" is_null:false is_empty:false "primary")
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  	(var "[mql_script]" {true} "The MQL script name" is_null:true is_empty:true "app.100.template.default.actions.demo.test.exe")
+  	(var "[data_eval]" {true} "The Javascript data eval" is_null:false is_empty:true "")
+  	(var "[html]" {true} "HTML" is_null:false is_empty:false "style='color:#000'")
+  ;) 
+  "Button object" 
+{
+
+	include "app.100.obj.sajax.refresh.exe"
+		"[target]" [container_id]
+		"[innerHtml]" (concat "<button type='submit' " [html] " class='btn btn-" [submitType] "' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" [mql_script] "[OBJ_OVERWRITE_B64]" [OBJ_OVERWRITE_B64] "[getElementById]" "" "[data]" [data_eval]) ">" [submitTitle] "</button>")
+	;
+
+;} "html";
+script set delay "app.100.obj.sajax.button.exe" 0 day {1;};

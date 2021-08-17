@@ -1,0 +1,28 @@
+script create exe "app.100.template.default.page.home" false 1 
+  (param
+  ;) 
+  "Show the home page" 
+{
+
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_top.exe");
+
+	#____________________________________________________________;
+
+	#Your container code here;
+	include "app.100.obj.sajax.skeleton.container.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+		include "app.100.obj.sajax.skeleton.row.exe" "[id]" "" "[name]" "" "[class]" "" "[style]" "";
+			include "app.100.obj.sajax.skeleton.col.exe" "[id]" "container_id_1" "[name]" "" "[class]" "col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" "[style]" ""; include "app.100.obj.sajax.skeleton.div.end.exe";
+		include "app.100.obj.sajax.skeleton.div.end.exe";
+	include "app.100.obj.sajax.skeleton.div.end.exe";
+
+	include "app.100.obj.sajax.skeleton.onload.exe"
+		"[scriptname]" (concat "app." [app_version] ".template." [app_template] ".page.home.onload.exe")
+		"[client_data]" (json select "app" "/param")
+	;
+	
+	#____________________________________________________________;
+	
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_bottom.exe");
+
+;} "The 'home' page";
+script set delay "app.100.template.default.page.home.exe" 0 day {1;};

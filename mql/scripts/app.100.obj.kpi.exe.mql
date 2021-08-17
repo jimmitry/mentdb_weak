@@ -1,0 +1,68 @@
+script create exe "app.100.obj.kpi" false 1 
+  (param
+  	(var "[container_id]" {true} "" is_null:false is_empty:true "container1")
+  ;) 
+  "Chart JS bar object" 
+{
+
+	json load "data" "[]";
+	json load "kpiObj" "{}";
+	json iobject "kpiObj" / "class" "col-xs-12 col-sm-3 col-md-3 col-lg-3" STR;
+	json iobject "kpiObj" / "title" "Title 1" STR;
+	json iobject "kpiObj" / "titleColor" "#BBB" STR;
+	json iobject "kpiObj" / "value" "35" STR;
+	json iobject "kpiObj" / "valueColor" "#1867c0" STR;
+	json iobject "kpiObj" / "faIcon" "fa-home" STR;
+	json iarray "data" / (json doc "kpiObj") OBJ;
+	
+	json load "kpiObj" "{}";
+	json iobject "kpiObj" / "class" "col-xs-12 col-sm-3 col-md-3 col-lg-3" STR;
+	json iobject "kpiObj" / "title" "Title 2" STR;
+	json iobject "kpiObj" / "titleColor" "#BBB" STR;
+	json iobject "kpiObj" / "value" "10%" STR;
+	json iobject "kpiObj" / "valueColor" "#1867c0" STR;
+	json iobject "kpiObj" / "faIcon" "fa-user" STR;
+	json iarray "data" / (json doc "kpiObj") OBJ;
+	
+	json load "kpiObj" "{}";
+	json iobject "kpiObj" / "class" "col-xs-12 col-sm-3 col-md-3 col-lg-3" STR;
+	json iobject "kpiObj" / "title" "Title 3" STR;
+	json iobject "kpiObj" / "titleColor" "#BBB" STR;
+	json iobject "kpiObj" / "value" "9$" STR;
+	json iobject "kpiObj" / "valueColor" "#1867c0" STR;
+	json iobject "kpiObj" / "faIcon" "fa-edit" STR;
+	json iarray "data" / (json doc "kpiObj") OBJ;
+	
+	json load "kpiObj" "{}";
+	json iobject "kpiObj" / "class" "col-xs-12 col-sm-3 col-md-3 col-lg-3" STR;
+	json iobject "kpiObj" / "title" "Title 4" STR;
+	json iobject "kpiObj" / "titleColor" "#BBB" STR;
+	json iobject "kpiObj" / "value" "99.00" STR;
+	json iobject "kpiObj" / "valueColor" "#1867c0" STR;
+	json iobject "kpiObj" / "faIcon" "fa-bug" STR;
+	json iarray "data" / (json doc "kpiObj") OBJ;
+
+	-> "[object]" "";
+	concat_var "[object]" "<div style='height: 81px;border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;border-radius: 3px;
+		margin-top: 8px;margin-bottom: 8px;padding:16px;background-color:#fff;display: flex;text-align: left;font-size: 13px;'>";
+
+		for (-> "[i]" 0) (< [i] (json count "data" /)) (++ "[i]") {
+		
+			concat_var "[object]" "<div class='" (json select "data" (concat "/[" [i] "]/class")) "'>
+				<i class='fa " (json select "data" (concat "/[" [i] "]/faIcon")) "' style='color:" (json select "data" (concat "/[" [i] "]/titleColor")) ";float:left;font-size:48px;margin-right:8px'></i>
+				<div style='color:" (json select "data" (concat "/[" [i] "]/titleColor")) "'>" (json select "data" (concat "/[" [i] "]/title")) "</div>
+				<div style='font-size:22px;color:" (json select "data" (concat "/[" [i] "]/valueColor")) ";font-weight:bold'>" (json select "data" (concat "/[" [i] "]/value")) "</div>
+			</div>";
+		
+		};
+		
+	concat_var "[object]" "</div>";
+
+	include "app.100.obj.sajax.refresh.exe"
+		"[target]" [container_id]
+		"[innerHtml]" [object]
+	;
+
+;} "html";
+script set delay "app.100.obj.kpi.exe" 0 day {1;};

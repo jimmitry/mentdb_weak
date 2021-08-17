@@ -1,0 +1,46 @@
+script create conf "app.100.template.user_manager" false 1 
+  (param
+  ;) 
+  "Configuration" 
+{
+
+	json load "configuration" "{}";
+
+	#All;
+	json iobject "configuration" / title "User / Right" STR;
+	json iobject "configuration" / bar_icon "bar_icon.png" STR;
+	json iobject "configuration" / font_family "Roboto,Helvetica Neue,Helvetica,Arial,sans-serif;" STR;
+	json iobject "configuration" / copyright_years (concat "2012 - " (date year (date sysdate))) STR;
+	json iobject "configuration" / copyright_link "<a href='https://www.mentdb.org' style='color:#fff' target='_blank'><b>MentDB</b></a>" STR;
+	
+	#login;
+	json iobject "configuration" / login_logo "logo.png" STR;
+	json iobject "configuration" / login_placeholder_user "User" STR;
+	json iobject "configuration" / login_placeholder_password "Password" STR;
+	json iobject "configuration" / login_submit_title "Login" STR;
+	json iobject "configuration" / login_error_msg "Bad user or password." STR;
+
+	#default page;
+	json iobject "configuration" / default_page "home" STR;
+
+	#top;
+	json iobject "configuration" / top_background_color "#313131" STR;
+	json iobject "configuration" / top_color "#fff" STR;
+	json iobject "configuration" / top_logo "logow.png" STR;
+	json iobject "configuration" / top_logo_width "50px" STR;
+	json iobject "configuration" / top_logo_top "-2px" STR;
+	json iobject "configuration" / top_logo_left "10px" STR;
+	json iobject "configuration" / top_title "User / Right" STR;
+
+	#menu;
+	json iobject "configuration" / menu_background_color "#fff" STR;
+	json iobject "configuration" / menu_default_show true STR;
+	json iobject "configuration" / menu "[]" ARRAY;
+	
+	app menu "/menu" "home" "Home" "fa-user" "index.jsp?app_page=home" post "home" "menu_user_manager_home" "*-";
+	app menu "/menu" "user" "User" "fa-users" "index.jsp?app_page=user" post "user" "menu_user_manager_users" "*+";
+	
+	json doc "configuration";
+
+} "";
+script set delay "app.100.template.user_manager.conf" 0 day {1;};

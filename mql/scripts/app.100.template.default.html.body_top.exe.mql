@@ -1,0 +1,101 @@
+script create exe "app.100.template.default.html.body_top" false 1 
+  (param
+  ;) 
+  "Body top" 
+{
+
+	-> "[page]" "";
+
+	concat_var "[page]" "<!doctype html>
+		<html lang=\"fr\" style='height:100%'>
+		<head>
+		  <meta charset=\"utf-8\">
+		  <title>" (json select "app" "/title") "</title>
+		  <link href=\"font_awesome/css/font-awesome.min.css\" rel=\"stylesheet\">
+		  <link href=\"css/menu-vertical.css\" rel=\"stylesheet\">
+		  <script src=\"js/menu-vertical.js\"></script>
+		  <link href=\"dist/css/bootstrap.css\" rel=\"stylesheet\">
+		  <link href=\"css/tempusdominus-bootstrap-4.min.css\" rel=\"stylesheet\">
+		  <script src=\"js/jquery.min.js\"></script>
+		  <script src=\"js/moment-with-locales.js\"></script>
+		  <script src=\"js/tempusdominus-bootstrap-4.min.js\"></script>
+		  <script src=\"js/utils.js\"></script>
+		  <script src=\"js/Chart.bundle.js\"></script>
+		  <script src=\"dist/js/bootstrap.min.js\"></script>
+		  <script src=\"js/jquery.sparkline.min.js\"></script>
+		  <script src=\"js/raphael-2.1.4.min.js\"></script>
+		  <script src=\"js/justgage.js\"></script>
+		  <script src=\"js/progressbar.min.js\"></script>
+		  <script src=\"js/ckeditor.js\"></script>
+		  <script src=\"js/mentdb.js\"></script>
+		  <link rel=\"icon\" type=\"image/png\" href=\"images/" (json select "app" "/bar_icon") "\" />
+		  <style>
+.jqstooltip{
+    box-sizing: content-box;
+}
+
+.GaugeMeter{
+	Position:        Relative;
+	Text-Align:      Center;
+	Overflow:        Hidden;
+	Cursor:          Default;
+}
+
+.GaugeMeter SPAN,
+    .GaugeMeter B{
+    	Margin:          0 23%;
+    	Width:           50%;
+    	Position:        Absolute;
+    	Text-align:      Center;
+    	Display:         Inline-Block;
+    	Color:           RGBa(0,0,0,.8);
+    	Font-Weight:     100;
+    	Font-Family:     \"Open Sans\", Arial;
+    	Overflow:        Hidden;
+    	White-Space:     NoWrap;
+    	Text-Overflow:   Ellipsis;
+}
+.GaugeMeter[data-style=\"Semi\"] B{
+	Margin:          0 10%;
+	Width:           80%;
+}
+
+.GaugeMeter S,
+    .GaugeMeter U{
+    	Text-Decoration: None;
+    	Font-Size:       .49em;
+    	Opacity:         .5;
+}
+
+.GaugeMeter B{
+	Color:           Black;
+	Font-Weight:     300;
+	Opacity:         .8;
+}
+
+.progress > svg {
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+			
+		  </style>
+		</head>
+		<body id=\"body\" style='height:100%;margin:0px;color:#333;font-family: " (json select "app" "/font_family") ";font-size: 12px;'>
+			<div id='mentdb_alert_container'></div><div id='mentdb_modal_container'></div>";
+
+	include (concat "app." [app_version] ".template." [app_template] ".html.bar_top.exe");
+	concat_var "[page]" "<div style='display:table;width:100%;height:100%;padding-top: 65px;'>";
+	concat_var "[page]" "  <div style='display:table-row'>";
+	if (json select "app" /menu_default_show) {
+	
+		concat_var "[page]" "    <div style='display:table-cell;width:70px;border-right: 1px solid rgba(0,0,0,.11);vertical-align: top;'>";
+		include (concat "app." [app_version] ".template." [app_template] ".html.menu_left.exe");
+		concat_var "[page]" "    </div>";
+	
+	};
+	
+	concat_var "[page]" "    <div style='display:table-cell;background-color:#f1f2f3;padding: 8px;'>";
+
+;} "html";
+script set delay "app.100.template.default.html.body_top.exe" 0 day {1;};

@@ -1,0 +1,24 @@
+script create get "file.remote.ftp.config" false 1 
+  (param
+  	(var "[hostname]" {true} "The hostname" is_null:false is_empty:false "localhost, 127.0.0.1")
+  	(var "[port]" {type is_int [port]} "The port" is_null:false is_empty:false "21")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "bob")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "pwd")
+  ;) 
+  "Get a FTP config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "ftp" STR;
+	json iobject "config_obj" / "hostname" [hostname] STR;
+	json iobject "config_obj" / "port" [port] STR;
+	json iobject "config_obj" / "user" [user] STR;
+	json iobject "config_obj" / "password" [password] STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a FTP config connection in JSON";
+script set delay "file.remote.ftp.config.get" 0 day {1;};

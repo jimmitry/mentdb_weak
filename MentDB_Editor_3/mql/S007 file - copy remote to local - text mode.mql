@@ -1,0 +1,52 @@
+##########################################################;
+# Copy a local file to another local file (in text mode) #;
+##########################################################;
+
+#Initialization;
+-> "[source]" "/Users/jimmitry/Desktop/test.txt";
+-> "[destination]" "/Users/jimmitry/Desktop/copy.txt";
+
+try {
+
+    #Connect the remote MentDB server;
+    tunnel connect "session1" {cm get "demo_cm_mentdb";};
+
+    #Open a remote reader;
+    tunnel execute "session1" (concat 
+        "-> \"[source]\" \"" (mql encode [source]) "\";"
+        (mql {
+            file reader_open "r1" [source] TEXT "utf-8";
+        })
+    );
+
+    #Open a writer;
+    file writer_open "w1" [destination] false TEXT "utf-8";
+
+    #Parse the file;
+    while (is not null (-> "[line]" (tunnel execute "session1" "file reader_get_line \"r1\""))) {
+
+        file writer_add_line "w1" (concat [line] [_n_]);
+
+    };
+
+    #Force to write;
+    file writer_flush "w1";
+
+    #Close the reader and the writer;
+    tunnel execute "session1" "file reader_close \"r1\";";
+    file writer_close "w1";
+
+    #Disconnect from the remote MentDB server;
+    tunnel disconnect "session1";
+
+} {
+
+    #Close objects;
+    try {tunnel disconnect "session1";} {} "[sub_err]";
+    try {file reader_close "r1";} {} "[sub_err]";
+    try {file writer_close "w1";} {} "[sub_err]";
+
+    #Generate an error;
+    exception (1) ([err]);
+
+} "[err]";

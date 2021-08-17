@@ -1,0 +1,165 @@
+script create exe "app.100.template.index_ai.page.front" false 1 
+  (param
+  ;) 
+  "Show the front page" 
+{
+
+	-> "[page]" "";
+	-> "[lang]" "fr";
+	
+	if (is not null (json select "app" /param/lang)) {
+		-> "[lang]" (string lower (json select "app" /param/lang));
+	};
+
+	concat_var "[page]" "<!DOCTYPE html>
+<html lang=\"en\" style=\"height: 100%;\">
+  <head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"Description\" CONTENT=\"Index-AI, " (if (equal [lang] "fr") {"le moteur de recherche de l'île de la Réunion"} {"the search engine for Reunion Island"}) "\">
+	<meta name=\"Keywords\" content=\"index, ai, " (if (equal [lang] "fr") {"moteur, recherche, île, Réunion"} {"search, engine, Reunion, Island"}) "\">
+	<meta name=\"robots\" content=\"index, follow\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>Index-AI | " (if (equal [lang] "fr") {"L'île de la Réunion à votre service"} {"Reunion Island at your service!"}) "</title>
+    <link rel=\"icon\" type=\"image/png\" href=\"images/innov-ai.png\" />
+  <script src=\"js/jquery-3.1.1.min.js\"></script>
+  <script src=\"js/jQueryRotate.js\"></script>
+      
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-46755834-3\"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-46755834-3');
+</script>
+<style type=\"text/css\">
+    
+.container {
+  height: 100%;
+  position: relative;
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 100%;
+}
+    
+input:focus, textarea:focus, select:focus{
+    outline: none;
+}
+    
+.myButton {
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:linear-gradient(to bottom, #f9f9f9 5%, #e9e9e9 100%);
+	background-color:#f9f9f9;
+	border-radius:6px;
+	display:inline-block;
+	border:1px solid #292929;
+	cursor:pointer;
+	color:#666666;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #ffffff;
+	padding-left: 10px;
+     padding-right: 10px;
+}
+.myButton:hover {
+	background:linear-gradient(to bottom, #e9e9e9 5%, #f9f9f9 100%);
+	background-color:#e9e9e9;
+	border:1px solid #dcdcdc;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
+
+    
+</style>
+
+  </head>
+  <body style=\"height: 100%; font-size: 15px;line-height: 1.42857143;font-family:'Helvetica Neue', Roboto, Arial, 'Droid Sans', sans-serif;margin:0px;background-color: #3d3c3c;background-image: url(images/bg.png);background-repeat: repeat-x;\">
+
+<div style='text-align:right;z-index: 999;border-bottom: 1px #1b1b1b solid;width:100%;position: fixed;top: 0px;height: 40px;background-color: #292929;color: #fff;padding-left: 20px;padding-right: 20px;box-sizing: border-box;line-height: 40px;'>
+<a href=\"index.jsp?app_page=login\" style='color:#fff;text-decoration: underline;float: right;margin-right: 0px'>" (if (equal [lang] "fr") {"Connexion"} {"Login"}) "</a>		
+</div>
+<div class=\"container\">
+    <div class=\"vertical-center\">
+        <div style='margin-left: auto;margin-right: auto;width: 330px;text-align: center;'>
+            <div style=\"margin-top: -180px;\">
+                <div style=\"font-size: 50px;color:#fff;\">Index-AI</div>
+                <div style=\"font-size: 16px;color:#fff;margin-bottom: 25px;\">" (if (equal [lang] "fr") {"L'île de la Réunion à votre service"} {"Reunion Island at your service!"}) "!</div>
+                <form action='index.jsp' method='GET'>
+                <input type='hidden' name='app_page' value='search'>
+                <input type='hidden' name='lang' value='" [lang] "'>
+                <input type='hidden' name='i_page' value='1'>
+                <input type='hidden' name='city' value='-1'>
+                <input type='hidden' name='zone' value='-1'>
+                <input type='hidden' name='db' value='db1'>
+                <div style=\"margin-top: 10px;margin-bottom: 10px;\">
+                    <a href='index.jsp?app_page=front'><img id=\"rotate_img\" src=\"images/innov-ai.png\" style=\"position: absolute;width: 55px;vertical-align:middle\"></a><input placeholder='" (if (equal [lang] "fr") {"Taper puis appuyer sur &#39;Entrée&#39;..."} {"Press &#39;Enter&#39; to search..."}) "' name='query' type=\"text\" id=\"query\" name=\"query\" minlength=\"3\" maxlength=\"200\" autofocus style=\"padding-left: 65px;width:250px;line-height: 30px;font-size: 16px; -webkit-border-radius: 65px;-moz-border-radius: 65px;border-radius: 65px;height: 53px;border: 0px;\">
+                </div>
+                </form><div style='height:15px;border-top: 1px #fff solid;width: 268px;margin-left: auto;margin-right: auto;'></div><span style='font-size: 19px;color:#fff;margin-bottom: 25px;'>" (if (equal [lang] "fr") {"Rechercher par ville"} {"Search by city"}) ":</span><div style='height:15px'></div>";
+
+json load "cities" (execute "index_ai.admin.get_cities.exe" "[db_id]" "db1");
+json parse_array "cities" "/" "obj" {
+
+	if (> (json select "obj" /n) 0) {
+		concat_var "[page]" "<a style='width: 200px;display: inline-block;padding: 5px 15px 5px 15px;color: #fff;' href='index.jsp?app_page=search&db=db1&lang=" [lang] "&i_page=1&city=" (json select "obj" /k) "&zone=-1&query='>" (string upper (json select "obj" /v)) "</a>";
+	};
+	
+};
+
+concat_var "[page]" "
+                <div style='margin-top: 20px;margin-bottom: 10px;color: #fff'>Index-AI " (if (equal [lang] "fr") {"disponible en: <a href=\"index.jsp?app_page=front&lang=en\" style=\"color:#fff\">English</a>"} {"available in: <a href=\"index.jsp?app_page=front&lang=fr\" style=\"color:#fff\">Français</a>"}) "</div>
+			 
+		  </div>
+        </div>
+    </div>
+</div>
+<div style='z-index: 999;border-top: 1px #1b1b1b solid;width:100%;position: fixed;bottom: 0px;height: 40px;background-color: #292929;color: #fff;padding-left: 20px;line-height: 40px;'>
+    
+    
+
+<a href=\"https://www.innov-ai.com\" target='_blank' style='color:#fff;text-decoration: underline;float: right;margin-right: 40px'>Innov-AI</a>
+</div>
+  </body>
+    
+<script>
+function start_rotation() {
+
+    var rotation = function (){
+      $(\"#rotate_img\").rotate({
+        duration:2000,
+        angle:0,
+        animateTo: 360,
+        callback: rotation,
+        easing: function (x, t, b, c, d, s) {
+            return -c *(t/=d)/2*(t-2) + b;
+        }
+      });
+    }
+    rotation();
+
+}
+    
+window.onload = function() {
+
+    start_rotation();
+    
+};
+
+</script>
+</html>
+";
+
+	[page]
+
+;} "The 'front' page";
+script set delay "app.100.template.index_ai.page.front.exe" 0 day {1;};

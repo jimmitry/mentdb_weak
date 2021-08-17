@@ -1,0 +1,64 @@
+###############################;
+# Execute remote MQL commands #;
+###############################;
+
+#Create a remote MentDB connection;
+#Do not add this into your code, this is a configuration;
+cm set "demo_cm_mentdb" {execute "mentdb.remote.config.get"
+	"[hostname]" "localhost"
+	"[port]" "9998"
+	"[key]" "pwd"
+	"[user]" "admin"
+	"[password]" "pwd"
+	"[connectTimeout]" "10000"
+	"[readTimeout]" "30000"
+	"[subTunnels]" (mql {
+
+	[MQL_TO_REPLACE]
+
+})
+};
+
+try {
+
+	#Connect to the remote MentDB server;
+	tunnel connect "session1" {cm get "demo_cm_mentdb";};
+
+	#Init local variables;
+	-> "[local_id]" "1";
+	-> "[local_name_starts_with]" "t";
+
+	#Execute remote commands and get the remote CSV file into a local variable;
+	-> "[LOCAL_CSV]" (tunnel execute "session1" (concat 
+		"-> \"[remote_id]\" \"" (mql encode [local_id]) "\";"
+		"-> \"[remote_name_starts_with]\" \"" (mql encode [local_name_starts_with]) "\";"
+		(mql {
+
+			#Get a CSV file;
+			sql connect "session1" {cm get "demo_cm_mysql";};
+			-> "[REMOTE_CSV]" (sql to csv 
+				"session1" 
+				"products" 
+				(concat "select * from products where id=" (sql encode [remote_id]) " and name like " (sql encode (concat [remote_name_starts_with] "%"))) 
+				"," 
+				"'"
+			);
+			sql disconnect "session1";
+
+			#Return the CSV file;
+			[REMOTE_CSV];
+			
+		})
+	));
+
+	#Disconnect from the remote MentDB server;
+	tunnel disconnect "session1";
+
+	#Return the last command result;
+	[LOCAL_CSV];
+	
+} {
+
+	try {tunnel disconnect "session1";} {} "[err_f]";
+
+} "[err]";

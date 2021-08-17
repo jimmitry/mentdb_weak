@@ -1,0 +1,46 @@
+script create post "demo.file.ftp.download" false 1 
+  (param
+  	(var "[remoteDirectory]" {true} "The remote directory" is_null:false is_empty:false "/Users/jimmitry/Desktop")
+  	(var "[filter]" {true} "The file filter from the remote directory" is_null:false is_empty:false "*.png")
+  	(var "[localDirectory]" {true} "The local directory" is_null:false is_empty:false "/Users/jimmitry/Desktop/ftp")
+  ;) 
+  "Download file through FTP" 
+{
+
+	try {
+
+		#Connect to the FTP server;
+		ftp connect "session1" {cm get "demo_cm_ftp";};
+		ftp set type "session1" "BINARY";
+
+		#Move to the remote directory;
+		ftp cd "session1" [remoteDirectory];
+
+		#Get all remote files;
+		json load "files" (ftp ls "session1" [filter]);
+
+		#Get all files;
+		-> "[nbFiles]" (json count "files" "/");
+		for (-> "[i]" 0) (< [i] [nbFiles]) (++ "[i]") {
+
+			-> "[filename]" (json select "files" (concat "/[" [i] "]/name"));
+		
+			ftp get "session1" [filename] (concat [localDirectory] "/" [filename]);
+		
+		};
+
+		ftp disconnect "session1";
+	
+	} {
+	
+		#Close objects;
+		try {ftp disconnect "session1";} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+	
+	} "[err]";
+	
+	
+} "Return nothing";
+script set delay "demo.file.ftp.download.post" 0 day {1;};

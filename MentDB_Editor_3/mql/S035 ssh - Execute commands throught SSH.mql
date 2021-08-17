@@ -1,0 +1,22 @@
+#################################;
+# Execute commands throught SSH #;
+#################################;
+
+#Connect to the SSH server;
+ssh connect "session1" {cm get "demo_cm_ssh";};
+
+#Get process with java;
+-> "[result1]" (ssh execute_1_cmd "session1" "ps -e | grep java");
+
+#Get the current directory;
+-> "[result2]" (ssh execute_1_cmd "session1" "pwd");
+
+#Execute many commands;
+-> "[result3]" (ssh execute_n_cmd "session1" "pwd;ps -e | grep java");
+
+#Disconnection;
+ssh disconnect "session1";
+
+concat "[result1]=" [result1] [_n_]
+	"[result2]=" [result2] [_n_]
+	"[result3]=" [result3];

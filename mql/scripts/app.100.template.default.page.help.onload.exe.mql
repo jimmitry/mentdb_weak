@@ -1,0 +1,39 @@
+script create exe "app.100.template.default.page.help.onload" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Show the help page" 
+{
+
+	include "app.100.obj.kpi.exe" "[container_id]" "kpi";
+	include "app.100.obj.sparkline.exe" "[container_id]" "sparkline_bar" "[type]" "bar";
+	include "app.100.obj.sparkline.exe" "[container_id]" "sparkline_line" "[type]" "line";
+	include "app.100.obj.sparkline.exe" "[container_id]" "sparkline_box" "[type]" "box";
+	include "app.100.obj.sparkline.exe" "[container_id]" "sparkline_tristate" "[type]" "tristate";
+	include "app.100.obj.sparkline.exe" "[container_id]" "sparkline_discrete" "[type]" "discrete";
+	include "app.100.obj.sparkline.exe" "[container_id]" "sparkline_bullet" "[type]" "bullet";
+	include "app.100.obj.sparkline.exe" "[container_id]" "sparkline_pie" "[type]" "pie";
+	include "app.100.obj.progress_bar.exe" "[container_id]" "progress_bar";
+	include "app.100.obj.chartjs.bar_vertical.exe" "[container_id]" "bar_vertical";
+	include "app.100.obj.chartjs.bar_horizontal.exe" "[container_id]" "bar_horizontal";
+	include "app.100.obj.chartjs.bar_vertical_stacked.exe" "[container_id]" "bar_vertical_stacked";
+	include "app.100.obj.chartjs.bar_horizontal_stacked.exe" "[container_id]" "bar_horizontal_stacked";
+	include "app.100.obj.chartjs.doughnut.exe" "[container_id]" "doughnut";
+	include "app.100.obj.chartjs.pie.exe" "[container_id]" "pie";
+	include "app.100.obj.chartjs.polar.exe" "[container_id]" "polar";
+	include "app.100.obj.chartjs.radar.exe" "[container_id]" "radar";
+	include "app.100.obj.chartjs.line_basic.exe" "[container_id]" "line_basic";
+	include "app.100.obj.chartjs.line_basic_fill.exe" "[container_id]" "line_basic_fill";
+	include "app.100.obj.chartjs.line_stepped_before.exe" "[container_id]" "line_stepped_before";
+	include "app.100.obj.chartjs.line_stepped_after.exe" "[container_id]" "line_stepped_after";
+	include "app.100.obj.chartjs.line_courbe.exe" "[container_id]" "line_courbe";
+	include "app.100.obj.chartjs.line_courbe_fill.exe" "[container_id]" "line_courbe_fill";
+	include "app.100.obj.chartjs.line_point.exe" "[container_id]" "line_point";
+	include "app.100.obj.chartjs.time_basic.exe" "[container_id]" "time_basic";
+	include "app.100.obj.chartjs.time_courbe.exe" "[container_id]" "time_courbe";
+	include "app.100.obj.chartjs.time_courbe_fill.exe" "[container_id]" "time_courbe_fill";
+	include "app.100.obj.chartjs.time_basic_fill.exe" "[container_id]" "time_basic_fill";
+	include "app.100.obj.gauge_meter.exe" "[container_id]" "gauge";
+
+;} "The 'help' page";
+script set delay "app.100.template.default.page.help.onload.exe" 0 day {1;};

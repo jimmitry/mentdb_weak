@@ -1,0 +1,11 @@
+script create exe "app.100.template.user_manager.page.home.onload" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Show the home page" 
+{
+
+	
+
+;} "The 'home' page";
+script set delay "app.100.template.user_manager.page.home.onload.exe" 0 day {1;};

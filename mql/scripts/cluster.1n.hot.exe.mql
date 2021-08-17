@@ -1,0 +1,69 @@
+script create exe "cluster.1n.hot" false 1 
+  (param
+  	(var "[cluster_id]" {true} "The cluster id" is_null:true is_empty:true "cluster_id_1")
+  	(var "[method]" {type is_enum [method] "LB_50_50,SIGNAL"} "The cluster method" is_null:true is_empty:true "LB_50_50|SIGNAL")
+  	(var "[tunnel_id]" {true} "The tunnel id" is_null:true is_empty:true "tunnel_id_1")
+  	(var "[request]" {true} "The MQL request" is_null:true is_empty:true "name")
+  ;) 
+  "description ..." 
+{
+	
+	try {
+		
+		#Get a cluster node;
+		json load "cluster_node" (cluster node [cluster_id] [method]);
+
+		#Execute the request;
+		-> "[result]" (tunnel execute_hot [tunnel_id] (json doc "cluster_node") [request]);
+
+		[result];
+	
+	} {
+
+		#Expels the node if it is a tunnel connection error;
+		if (> (string instr [err_cluster_node] "TunnelCntError: ") -1) {
+
+			#Expels the node;
+			cluster node expels 
+				(json select "cluster_node" /cluster_id) 
+				(json select "cluster_node" /node_id)
+				[err_cluster_node]
+			;
+
+			try {
+		
+				#Get a cluster node;
+				json load "cluster_node" (cluster node [cluster_id] [method]);
+		
+				#Execute the request;
+				-> "[result]" (tunnel execute_hot [tunnel_id] (json doc "cluster_node") [request]);
+		
+				[result];
+			
+			} {
+		
+				#Expels the node if it is a tunnel connection error;
+				if (> (string instr [err_cluster_node] "TunnelCntError: ") -1) {
+				
+					cluster node expels 
+						(json select "cluster_node" /cluster_id) 
+						(json select "cluster_node" /node_id)
+						[err_cluster_node]
+					;
+					
+				};
+		
+				exception (1) ([err_cluster_node]);
+				
+			} "[err_cluster_node]";
+		
+		} {
+			
+			exception (1) ([err_cluster_node]);
+			
+		};
+		
+	} "[err_cluster_node]";
+	
+} "Return ...";
+script set delay "cluster.1n.hot.exe" 0 day {1;};

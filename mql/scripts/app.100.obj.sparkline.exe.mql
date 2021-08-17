@@ -1,0 +1,37 @@
+script create exe "app.100.obj.sparkline" false 1 
+  (param
+  	(var "[container_id]" {true} "" is_null:false is_empty:true "container1")
+  	(var "[type]" {type is_enum [type] "bar,line,box,tristate,discrete,bullet,pie"} "" is_null:false is_empty:true "bar|line|box|tristate|discrete|bullet|pie")
+  ;) 
+  "Sparkline JS bar object" 
+{
+
+	-> "[title]" (concat "Sparkline " [type]);
+	-> "[color]" "#1867c0";
+	-> "[fillColor]" "#f90000";
+	-> "[width]" "150";
+	-> "[height]" "30";
+	case
+		(equal [type] "pie") {-> "[data]" "[1, 23, 45, 10, 7]";}
+		(equal [type] "tristate") {-> "[data]" "[1, 23, 45, -10, 7, 70, 90, 1, 23, -45, 10, 7, 70, 90, -23, 45, 10, 7, 70, 90, 1, -23, 45, 10, 7, 70, 90]";}
+		{-> "[data]" "[1, 23, 45, 10, 7, 70, 90, 1, 23, 45, 10, 7, 70, 90, 23, 45, 10, 7, 70, 90, 1, 23, 45, 10, 7, 70, 90]";}
+	;
+
+	#Initialize the object id;
+	++ "[app_object_id_no_load]";
+	-> "[object]" "";
+	concat_var "[object]" "<div style='border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;border-radius: 3px;
+		margin-top: 8px;margin-bottom: 8px;padding:16px;background-color:#fff;color:#313131'>
+		<div>" [title] "</div>
+		<span id='html_id_" [app_object_id_no_load] "_no_load'>Loading...</span>
+		<script>$('#html_id_" [app_object_id_no_load] "_no_load').sparkline(" [data] ", {type: '" [type] "', barColor: '" [color] "', lineColor: '" [color] "', fillColor: '" [fillColor] "', width: '" [width] "', height: '" [height] "'});</script>
+	</div>";
+
+	include "app.100.obj.sajax.refresh.exe"
+		"[target]" [container_id]
+		"[innerHtml]" [object]
+	;
+
+;} "html";
+script set delay "app.100.obj.sparkline.exe" 0 day {1;};

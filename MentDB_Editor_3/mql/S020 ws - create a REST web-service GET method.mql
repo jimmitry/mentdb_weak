@@ -1,0 +1,61 @@
+##########################################;
+# Create a REST web service (method GET) #;
+##########################################;
+
+script create get "demo_cm_mysql.products.select" false 1
+  (param
+  	(var "[id]" {true} "description ..." is_null:false is_empty:false "example ...")
+  )
+  "Return rows from the table 'products' in JSON."
+{
+	
+	try {
+		
+		#Connection ...;
+		sql connect "session1" {cm get "demo_cm_mysql"};
+		
+		-> "[json_result]" (sql to json "session1" "products" (concat 
+			"SELECT  
+				`id`,
+				`name`,
+				`quantity`,
+				`cat`,
+				`desc`,
+				`dtcreate`,
+				`type`,
+				`subtype`,
+				`price`,
+				`sale`,
+				`weight`
+			 FROM `products` 
+			 WHERE 
+				`id`=" (sql encode [id]) "
+			 LIMIT 0, 100;"
+		));
+		
+		#Disconnection ...;
+		sql disconnect "session1";
+		
+		# Return the json;
+		[json_result]
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+		
+	} "[err]";
+	
+} "Return a JSON Object";
+
+#Your web-service is ready!;
+
+#Connect to your local api manager: ;
+#https://localhost:9999/docs/;
+#user: admin;
+#pwd: pwd;
+
+#Click on your web service and try it... ;

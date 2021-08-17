@@ -1,0 +1,16 @@
+script create exe "app.100.obj.chartjs.dataset.init" false 1 
+  (param
+  ;) 
+  "Chart JS bar dataset" 
+{
+
+	"{
+      \"label\": \"Your title\",
+      \"backgroundColor\": \"#F00\",
+      \"borderColor\": \"#333\",
+      \"borderWidth\": 1,
+      \"data\": []
+  	}";
+
+} "html";
+script set delay "app.100.obj.chartjs.dataset.init.exe" 0 day {1;};

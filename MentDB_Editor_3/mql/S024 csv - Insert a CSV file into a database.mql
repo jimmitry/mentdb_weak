@@ -1,0 +1,23 @@
+#####################################;
+# Insert a CSV file into a database #;
+#####################################;
+
+#Connect to MySQL server;
+sql connect "session1" {cm get "demo_cm_mysql";};
+
+#Parse a CSV file and make actions on each line;
+csv parse (mql "T") (mql "/Users/jimmitry/Desktop/file.csv") (mql ",") (mql "'") (mql "A,B,C") {
+
+	log trace [T_A];
+
+	#Insert an element into a table;
+	sql dml "session1" (concat "insert into products (id, name, quantity) values (
+		" (sql encode [T_A]) ", 
+		" (sql encode [T_B]) ", 
+		" (sql encode [T_C]) "
+	);");
+
+};
+
+#Disconnect the SQL connection;
+sql disconnect "session1";

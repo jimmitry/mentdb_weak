@@ -1,0 +1,62 @@
+Install MySQL/MentDB on Debian 9 (Google cloud)
+
+//Install MySQL
+sudo apt update
+sudo apt upgrade
+wget http://repo.mysql.com/mysql-apt-config_0.8.13-1_all.deb
+sudo dpkg -i mysql-apt-config_0.8.13-1_all.deb
+sudo apt update
+sudo apt install mysql-server
+sudo systemctl restart mysql
+sudo mysql_secure_installation
+
+//Create MentDB database
+mysql -u root -p
+create database mentdb;
+CREATE USER 'mentdb'@'localhost' IDENTIFIED BY 'XXXXPASSWORDXXXX';
+GRANT ALL PRIVILEGES ON mentdb.* TO 'mentdb'@'localhost';
+FLUSH PRIVILEGES;
+exit
+
+//Install unzip
+sudo apt-get update
+sudo apt-get install zip
+sudo apt-get install unzip
+
+//Install MentDB files
+chmod 755 MentDB_Server_2.zip
+unzip MentDB_Server_2.zip
+sudo mv MentDB_Server_2 /opt/
+
+//Install Java files
+chmod 755 jdk-8u181-linux-x64.tar.gz
+tar -xvf jdk-8u181-linux-x64.tar.gz
+sudo mv jdk1.8.0_181/ /opt/
+sudo cp /opt/MentDB_Server_2/tools/*.jar /opt/jdk1.8.0_181/jre/lib/security/
+sudo vi /opt/jdk1.8.0_181/jre/lib/security/java.security
+add > security.provider.10=org.bouncycastle.jce.provider.BouncyCastleProvider
+sudo cp /opt/MentDB_Server_2/lib/bc*.jar /opt/jdk1.8.0_181/jre/lib/ext
+
+//Point to java from the jdk
+cd /opt/MentDB_Server_2
+sudo vi bin/osx-linux/start.sh
+add > /opt/jdk1.8.0_181/bin/ before java
+add > & at the end of the java line
+sudo vi bin/osx-linux/stop.sh
+add > /opt/jdk1.8.0_181/bin/ before java
+add > & at the end of the java line
+
+//Update the MentDB configuration
+sudo vi conf/server.conf
+update > [ADMIN] > PWD
+                 > SERVER_ENCRYPT_KEY
+update > [MYSQL] > user > mentdb
+                   pwd > XXXXPASSWORDXXXX
+update > [WEBSERVER] > WEB_SERVER_HOST > XXXXIPXXXX
+                       WEB_SERVER_PORT_APP_HTTP > 80
+                       WEB_SERVER_PORT_APP_HTTPS > 443
+update > [DATABASE] > REMOTE_ACCESS > ALLOW
+
+//Start the MentDB server
+sudo /opt/MentDB_Server_2/bin/osx-linux/start.sh
+

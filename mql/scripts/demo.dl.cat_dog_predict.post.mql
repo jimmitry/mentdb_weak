@@ -1,0 +1,47 @@
+script create post "demo.dl.cat_dog_predict" false 1 
+  (param
+  	(var "[cat_or_dog]" {true} "cat or dog" is_null:true is_empty:true "cat")
+  	(var "[index]" {type is_double [index]} "The index" is_null:true is_empty:true "1")
+  ;) 
+  "Demo" 
+{
+
+	dl img load_network "demo/animals/network.eg";
+
+	-> "[file_config]" (concat "demo/animals/imgTrainConfig" [index] ".txt");
+
+	log trace "_________________________________________________";
+	#Load input images;
+	-> "[dir]" (concat "demo/animals/" (string upper [cat_or_dog]) [index]);
+	-> "[id]" [cat_or_dog];
+	json load "files" (file dir_list [dir]);
+	-> "[nbFiles]" (json count "files" /);
+	-> "[iFiles]" 0;
+	-> "[nbOk]" 0;
+	for (-> "[i]" 0) (< [i] [nbFiles]) (++ "[i]") {
+	
+		-> "[cur_file]" (json select "files" (concat "/[" [i] "]"));
+	
+		if (string ends_with [cur_file] ".jpg") {
+	
+			-> "[result]" (dl img predict (concat [dir] "/" [cur_file]) true 24 24 "{
+			  \"0\": \"cat\",
+			  \"1\": \"dog\"
+			}";);
+	
+			if (equal [result] [id];) {
+			
+				++ "[nbOk]";
+			
+			};
+	
+			++ "[iFiles]";
+			log trace (concat [cur_file] "=" [result]);
+	
+		};
+	
+	};
+	concat [nbOk] "/" [iFiles];
+
+;} "Return 1";
+script set delay "demo.dl.cat_dog_predict.post" 0 day {1;};

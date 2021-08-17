@@ -1,0 +1,31 @@
+##########################;
+# Parse a table directly #;
+##########################;
+
+#Create a connection 'demo_cm_mysql' to a MySQL Server;
+#Do not add this into your code, this is a configuration;
+cm set "demo_cm_mysql" {execute "db.mysql.config.get"
+	"[hostname]" "localhost"
+	"[port]" "3306"
+	"[database]" "test_db"
+	"[user]" "bob"
+	"[password]" "pwd"
+;};
+
+#Connect with the connection;
+sql connect "session1" {cm get "demo_cm_mysql";};
+
+#Parse a table and execute action on each line;
+sql parse "session1" "T" (concat "select id, name from products") {
+	if (string starts_with [T_name] "PROD") {
+		"do somthing ...";
+	} {
+		"do somthing ...";
+	};
+};
+
+#Disconnect a connection;
+sql disconnect "session1";
+
+#Disconnect all connections;
+sql disconnect all;

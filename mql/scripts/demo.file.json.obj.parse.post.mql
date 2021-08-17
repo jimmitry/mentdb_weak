@@ -1,0 +1,36 @@
+script create post "demo.file.json.obj.parse" false 1 
+  (param
+  	(var "[fileName]" {true} "The file name" is_null:false is_empty:false "test.json")
+  ;) 
+  "Parse a JSON Object" 
+{
+
+	#Initialization;
+	-> "[targetPath]" "/";
+
+	#Load the connection id;
+	json load "cm" (cm get "demo_cm_file");
+	-> "[localDir]" (json select "cm" /localDir);
+
+	#Load the file;
+	json load "jsonId1" (file load (concat [localDir] "/" [fileName]));
+
+	json load "keys" (json fields "jsonId1" [targetPath]);
+	-> "[nb]" (json count "keys" "/");
+
+	#Parse the keys;
+	for (-> "[i]" 0) (< [i] [nb]) (++ "[i]") {
+
+		#Get key and value;
+		-> "[k]" (json select "keys" (concat "/[" [i] "]"));
+		-> "[v]" (json select "jsonId1" (concat (if (string ends_with [targetPath] "/") {[targetPath]} {concat [targetPath] "/";}) [k]));
+
+		#Your action here ...;
+		log trace (concat "[k]=" [k] ", [v]=" [v]);
+
+		
+	
+	};
+	
+} "Return nothing";
+script set delay "demo.file.json.obj.parse.post" 0 day {1;};

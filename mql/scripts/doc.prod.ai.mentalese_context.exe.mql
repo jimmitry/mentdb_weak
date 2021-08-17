@@ -1,0 +1,182 @@
+script create exe "doc.prod.ai.mentalese_context" false 1 
+  (param
+  ;) 
+  "Create documentation page" 
+{
+
+	-> "[page]" (execute "doc.lib.init.exe"
+		"[description]" "Mentalese context"
+		"[keywords]" "Mentalese, context"
+		"[return_link]" "artificial_intelligence"
+	);
+	
+	include "doc.lib.add_li.exe"
+		"[section]" "Goal"
+		"[is_last]" "0"
+		"[li]" (concat "[
+			[\"TEXT\", \"Creation of a Mentalese type bot with context management.\"],
+			[\"TEXT\", \"Please note that the contexts are not stored on the server, but the task is given to the client who calls the functionality.\"],
+			[\"TEXT\", \"Reminder, to execute an order, you can click on <img src='imgs/play0.png' style='width: 60px;'> or <img src='imgs/play.png' style='width: 60px;'> or [CTRL]+E or [Apple]+E on OSX.\"],
+	]");
+	
+	include "doc.lib.add_li.exe"
+		"[section]" "Initialization"
+		"[is_last]" "0"
+		"[li]" (concat "[
+			[\"TEXT\", \"First of all you have to create a language. Here English.\"],
+			[\"MQL\", \"Here the source code to create a new language:\", \"" (string replace (string mql_to_html (mql {
+language create "en";
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"It is also necessary to add in this language the symbols which compose it:\", \"" (string replace (string mql_to_html (mql {
+-> "[c_lang]" "en";
+#Add the symbols A-Z;
+for (-> "[i]" 65) (<= [i] 90) (++ "[i]") {
+	symbol create (string char [i];) [c_lang]; 
+};
+#Add the symbols 0-9;
+for (-> "[i]" 48) (<= [i] 57) (++ "[i]") {
+	symbol create (string char [i];) [c_lang]; 
+};
+#Add the symbols a-z;
+for (-> "[i]" 97) (<= [i] 122) (++ "[i]") {
+	symbol create (string char [i];) [c_lang]; 
+};
+symbol create "." [c_lang]; 
+symbol create "," [c_lang]; 
+symbol create "-" [c_lang]; 
+symbol create ";" [c_lang]; 
+symbol create ":" [c_lang]; 
+symbol create "!" [c_lang]; 
+symbol create "?" [c_lang];
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Now let's create two relations in two contexts:\", \"" (string replace (string mql_to_html (mql {
+#Create the dog context with the relation 'a dog is an animal';
+relation create (concat 
+	(word create a en false) " "
+	(word create dog en false) " "
+	(word create is en false) " "
+	(word create an en false) " "
+	(word create animal en false) " "
+	(word create . en false)
+) en "context_dog" (mql {
+	"i'm a dog";
+});
+
+#Create the cat context with the relation 'a cat is an animal';
+relation create (concat 
+	(word create a en false) " "
+	(word create cat en false) " "
+	(word create is en false) " "
+	(word create an en false) " "
+	(word create animal en false) " "
+	(word create . en false)
+) en "context_cat" (mql {
+	"i'm a cat";
+});
+})) "\"" (concat \ "\"")) "\"],
+	]");
+
+	include "doc.lib.add_li.exe"
+		"[section]" "Perform a search"
+		"[is_last]" "0"
+		"[li]" (concat "[
+			[\"MQL\", \"To perform a search here is the source code:\", \"" (string replace (string mql_to_html (mql {
+relation execute "dog" "{}" 30 "en" false;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"The result:\", \"" (string replace (string mql_to_html (mql {
+{
+  "msg": "i\u0027m a dog",
+  "search": [
+    "RL[0] 1001028.94"
+  ],
+  "ct_obj": {
+    "context_dog": 1
+  }
+}
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Search for the word cat:\", \"" (string replace (string mql_to_html (mql {
+relation execute "cat animal" "{}" 30 "en" false;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"The result:\", \"" (string replace (string mql_to_html (mql {
+{
+  "msg": "i\u0027m a cat",
+  "search": [
+    "RL[1] 1002128.97",
+    "RL[0] 1001027.94"
+  ],
+  "ct_obj": {
+    "context_cat": 1
+  }
+}
+})) "\"" (concat \ "\"")) "\"],
+	]");
+
+	include "doc.lib.add_li.exe"
+		"[section]" "Understand the context"
+		"[is_last]" "1"
+		"[li]" (concat "[
+			[\"MQL\", \"Search for the word animal (who is present in both relationships):\", \"" (string replace (string mql_to_html (mql {
+relation execute "animal" "{}" 30 "en" false;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"The result:\", \"" (string replace (string mql_to_html (mql {
+{
+  "msg": "i\u0027m a cat",
+  "search": [
+    "RL[1] 1001028.94",
+    "RL[0] 1001027.94"
+  ],
+  "ct_obj": {
+    "context_cat": 1
+  }
+}
+})) "\"" (concat \ "\"")) "\"],
+			[\"TEXT\", \"By chance the engine turned over 'cat'.\"],
+			[\"MQL\", \"But I restart 'dog' and 'animal' then:\", \"" (string replace (string mql_to_html (mql {
+relation execute "dog" "{}" 30 "en" false;
+relation execute "animal" "{}" 30 "en" false;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"The result is still 'cat': It's not good.\", \"" (string replace (string mql_to_html (mql {
+{
+  "msg": "i\u0027m a cat",
+  "search": [
+    "RL[1] 1001028.94",
+    "RL[0] 1001027.94"
+  ],
+  "ct_obj": {
+    "context_cat": 1
+  }
+}
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"You can notice that in the result, there is the return of context 'ct_obj'.\", \"" (string replace (string mql_to_html (mql {
+{
+    "context_cat": 1
+}
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"To keep the context, the last context must be passed as a parameter on each call:\", \"" (string replace (string mql_to_html (mql {
+json load "last_result" (relation execute "cat" "{}" 30 "en" false);
+json load "last_result" (relation execute "dog" (json select "last_result" /ct_obj) 30 "en" false);
+relation execute "animal" (json select "last_result" /ct_obj) 30 "en" false;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"The result:\", \"" (string replace (string mql_to_html (mql {
+{
+  "msg": "i\u0027m a dog",
+  "search": [
+    "RL[0] 1002027.94",
+    "RL[1] 1001528.94"
+  ],
+  "ct_obj": {
+    "context_cat": 2,
+    "context_dog": 1
+  }
+}
+})) "\"" (concat \ "\"")) "\"],
+			[\"VIDEO\", \"AgGILy6p-S8\", \"W112 - Manage Mentalese context\"],
+	]");
+
+	include "doc.lib.write.exe"
+		"[page_html]" "mentalese_context.html"
+		"[title_link]" "Mentalese context"
+	;
+	
+} "Return nothing";
+script set delay "doc.prod.ai.mentalese_context.exe" 0 day {1;};

@@ -1,0 +1,53 @@
+########################;
+# Copy Excelx to MySQL #;
+########################;
+
+#Get the Excelx file;
+-> "[localDir]" "/Users/jimmitry/Desktop";
+-> "[fileName]" "test.xlsx";
+
+#Initialization;
+-> "[start_line]" 1;
+-> "[end_line]" 10;
+-> "[start_col]" 1;
+-> "[end_col]" 5;
+
+try {
+
+	#Connect to MySQL server;
+	sql connect "session1" {cm get "demo_cm_mysql";};
+
+	#Load the Excelx file;
+	excelx load "excelId" (concat [localDir] "/" [fileName]);
+
+	for (-> "[row]" [start_line]) (<= [row] [end_line]) (++ "[row]") {
+	
+		-> "[B]" (excelx cell get "excelId" "sheet1" [row] 1);
+		-> "[C]" (excelx cell get "excelId" "sheet1" [row] 2);
+		-> "[D]" (excelx cell get "excelId" "sheet1" [row] 3);
+
+		#Insert into the database;
+		sql dml "session1" (concat "insert into products (id, name, quantity) values (
+			" (sql encode [B]) ", 
+			" (sql encode [C]) ", 
+			" (sql encode [D]) "
+		);");
+	
+	};
+
+	#Disconnect the database;
+	sql disconnect "session1";
+
+	#Close the Excel object;
+	excelx close "excelId";
+
+} {
+
+	#Close objects;
+	try {excelx close "excelId";} {} "[sub_err]";
+	try {sql disconnect "session1"} {} "[sub_err]";
+
+	#Generate an error;
+	exception (1) ([err]);
+
+} "[err]";

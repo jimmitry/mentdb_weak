@@ -1,0 +1,16 @@
+script create get "demo.glpi.api.getMyProfiles" true 5 
+  (param
+  	(var "[app_token]" {true} "The session token" is_null:true is_empty:true "Jrrbl2CTUUCYNHxHXPjjzIgOF8qWTbz0g7WMuW99")
+  	(var "[session_token]" {true} "The session token" is_null:true is_empty:true "")
+  ;) 
+  "Kill a GLPI connection ..." 
+{
+
+	json load "header" "{}";
+	json iobject "header" / "Content-Type" "application/json" STR;
+	json iobject "header" / "Session-Token" [session_token] STR;
+	json iobject "header" / "App-Token" [app_token] STR;
+	rest http get (concat "http://10.10.5.16/apirest.php/getMyProfiles") "" (json doc "header") "[]";
+	
+} "Return nothing";
+script set delay "demo.glpi.api.getMyProfiles.get" 0 day {1;};

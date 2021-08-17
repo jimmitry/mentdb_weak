@@ -1,0 +1,85 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.users.search_open_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open a search form ..." 
+{
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "users_search_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_search_title") 
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+
+	-> "[filter_sql]" (json select "app" (concat "/objects/MENTDB_users_list/filter_sql"));
+	if (not (is null or empty [filter_sql])) {
+		json load "filter_sql" [filter_sql];
+	} {
+		json load "filter_sql" "{}";
+	};
+			
+		# login -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/login")) {
+				json iobject "filter_sql" / "login" "" STR;
+			};
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "login" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_search_field_login") "[description]" "" "[maxlength]" "150" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "filter_sql" "/login")
+			;
+		
+		# firstname -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/firstname")) {
+				json iobject "filter_sql" / "firstname" "" STR;
+			};
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "firstname" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_search_field_firstname") "[description]" "" "[maxlength]" "60" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "filter_sql" "/firstname")
+			;
+		
+		# lastname -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/lastname")) {
+				json iobject "filter_sql" / "lastname" "" STR;
+			};
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "lastname" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_search_field_lastname") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "filter_sql" "/lastname")
+			;
+		
+		# activate -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/activate")) {
+				json iobject "filter_sql" / "activate" "" STR;
+			};
+			
+			include "app.100.obj.form.control.radio_inline.exe" "[control_id]" "activate" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_search_field_activate") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[\"Y\", \"N\"]"
+				"[optionValues]" "[\"Y\", \"N\"]"
+				"[value]" (json select "filter_sql" "/activate")
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "users_search_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.user_manager.actions.MENTDB.users.search.exe"
+		"[data_eval]" "$('#users_search_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_search_close_button")
+		"[submitTitle]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_search_search_button")
+		"[submitType]" "primary";
+	
+} "Return the form";
+script set delay "app.100.template.user_manager.actions.MENTDB.users.search_open_form.exe" 0 day {1;};

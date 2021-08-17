@@ -1,0 +1,29 @@
+script create post "demo.mentdb.execute" false 1 
+  (param
+  	(var "[mql]" {true} "The MQL source" is_null:false is_empty:false "name")
+  ;) 
+  "Execute MQL from a remote MentDB server" 
+{
+
+	try {
+
+		tunnel connect "session1" {cm get "demo_cm_mentdb";};
+
+		-> "[result]" (tunnel execute "session1" [mql]);
+
+		tunnel disconnect "session1";
+
+		[result]
+	
+	} {
+	
+		#Close objects;
+		try {tunnel disconnect "session1";} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+	
+	} "[err]";
+
+;} "Return the last result";
+script set delay "demo.mentdb.execute.post" 0 day {1;};

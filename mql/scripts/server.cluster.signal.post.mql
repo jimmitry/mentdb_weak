@@ -1,0 +1,9 @@
+script create post "server.cluster.signal" false 1 
+  (param;) 
+  "" 
+{
+
+	signal process;
+
+} "";
+script set delay "server.cluster.signal.post" 0 day {1;};

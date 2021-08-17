@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="Description" CONTENT="MentDB, the first Mentalese Database Engine.">
+	<meta name="Keywords" content="mentdb, artificial intelligence, AI, database, engine, mentalese, data-integration, data-quality, SOA, ETL, ESB">
+	<meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>MSWord | Documentation | MentDB Weak 2.2.3</title>
+    <link rel="icon" type="image/png" href="imgs/innov-ai.png" />
+<link  href="../css/bootstrap.css" rel="stylesheet">
+<link  href="../css/bootstrap-theme.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/jquery.min.js"></script>
+  <script src="../js/jQueryRotate.js"></script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-46755834-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-46755834-3');
+</script>
+<style type="text/css">
+    .board_a {
+        color: #fff;
+        background-color: #464646;
+        border: 1px #000000 solid;
+        width: 100%;
+        height: 40px;
+        margin-bottom: 10px;
+        display: block;
+        text-align: left;
+        padding-left: 20px;
+        line-height: 40px;
+        text-decoration: underline;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 22px;
+    }
+    .board_a:hover {
+        background-color:#FFF;
+        border: 1px #D0D0D0 solid;
+        color:#222;
+    }
+</style>
+
+  </head>
+  <body style="font-size: 18px;line-height: 1.42857143;font-family:'Helvetica Neue', Roboto, Arial, 'Droid Sans', sans-serif;margin:0px;background-color: #3d3c3c;background-image: url(imgs/bg.png);background-repeat: repeat-x;">
+      
+
+      
+<div class="container">
+  <div class="row" style='background-color: #f9F9F9;'>
+      <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12" style='padding: 0px;'>
+        <div style="background-image: -webkit-linear-gradient(top, #272727 0%, #212121 100%);
+            background-image: -o-linear-gradient(top, #272727 0%, #212121 100%);
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#272727), to(#212121));
+            background-image: linear-gradient(to bottom, #3c3c3c 0%, #101010 100%);
+            margin-bottom: 0px;
+            height: 84px;
+            border: 1px #080808 solid;
+            border-bottom: 0px;
+            width: 100%;">
+              <div style='width: 100%;color: #E7E7E7;margin-top: 10px;margin-left: 10px;'>
+                  <a href='../index.html'><img id='rotate_img' src='imgs/innov-ai.png' style='width:60px;vertical-align: middle;margin-right:7px'></a>
+                  <span class='top_title' style='font-size: 26px;display: inline-block;line-height: 20px;vertical-align: middle;'>MentDB &nbsp;<small style='font-size: 55%;'>Mentalese Database Engine</small><br><a href='index.html' style="text-decoration: underline;color: #fff"><small style='font-size: 65%;'>Back to documentation index ...</small></a></span>
+              </div>
+        </div> 
+     </div>
+  </div>
+  <div class="row" style='background-color: #f9F9F9;padding-top: 15px;'>
+    
+    <div class="col-12 col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        
+        <div style='background-color: #565656;color:#fff;font-weight: bold;line-height: 48px;width: 100%;font-size: 16px;text-align: center'>DOCUMENTATION | MentDB Weak 2.2.3</div>
+        
+        <div style='line-height: 32px;clear:left;font-weight:bold;padding:0px 8px 4px 0px;font-size:24px;'>MSWord</div><div style='border-bottom: 1px solid #D9DEE4;'></div><h1 style='margin-top: 25px;margin-bottom: 15px;font-size: 17px;color: #3a3a3a;font-weight: normal;line-height: 25px;'><img src='images/p.png' style='vertical-align: middle;'>Work with Word document.</h1><div style='display: inline-block;padding-top: 18px;padding-bottom: 18px;padding-left: 15px;background-color: #F0F0F0;border: 1px #D9D9D9 solid;'><a title='' style=';color:#333;font-size: 16px;text-decoration: underline;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;' href='mql_msword.html#fx_msword_replace'>msword replace</a></div><div style='clear:left;'></div><div style='-moz-box-sizing: border-box;box-sizing: border-box;border-bottom:1px #F0F0F0 solid;padding-bottom:20px;font-size:16px'><div id='fx_msword_replace'><h3 style='color:#000'>msword replace &lt;<span style='color:#808080;font-weight:normal'>source</span>&gt; &lt;<span style='color:#808080;font-weight:normal'>destination</span>&gt; &lt;<span style='color:#808080;font-weight:normal'>jsonKeyValue</span>&gt;</h3></div><div style='margin-left:0px;'><div style='color:#000'><b>Description</b><br><br> &nbsp;  &nbsp; Replace texts in a Word document.</div><br><div style='color:#000'><b>Parameters</b><br><br> &nbsp;  &nbsp; <span style='color:#808080'>source</span>: &nbsp; The source path - <span style='color:#333'>string</span> - <span style='color:#333'>required</span><br> &nbsp;  &nbsp; <span style='color:#808080'>destination</span>: &nbsp; The destination path - <span style='color:#333'>string</span> - <span style='color:#333'>required</span><br> &nbsp;  &nbsp; <span style='color:#808080'>jsonKeyValue</span>: &nbsp; The json findtext/replacetext - <span style='color:#333'>string</span> - <span style='color:#333'>required</span></div><div style='overflow:auto;line-height: 20px;margin-top: 15px;padding:10px 15px 0px 15px;background-color: #F8F8F8;border:1px #F0F0F0 solid'><pre style='color:#000;margin-top: 0px;'><span style='font-size: 18px;'><b>admin</b></span><br><span style='color:#003cc8'>json</span> <span style='color:#003cc8'>load</span> <span style='color:#007700'>"findReplace"</span> <span style='color:#007700'>"{}"</span>;
+<span style='color:#003cc8'>json</span> <span style='color:#003cc8'>iobject</span> <span style='color:#007700'>"findReplace"</span> / <span style='color:#007700'>"tagToReplace"</span> <span style='color:#007700'>"jim"</span> <span style='color:#003cc8'>STR</span>;
+<span style='color:#003cc8'>msword</span> <span style='color:#003cc8'>replace</span> 
+	<span style='color:#007700'>"/Users/jimmitry/Desktop/word1.doc"</span> 
+	<span style='color:#007700'>"/Users/jimmitry/Desktop/word2.doc"</span> 
+	(<span style='color:#003cc8'>json</span> <span style='color:#003cc8'>doc</span> <span style='color:#007700'>"findReplace"</span>);</pre><pre style='color:#000'><span style='font-size: 18px;'><b>mentdb</b></span><br><span style='color:#333'>1</span></pre></div></div></div>
+
+        <div style='height: 20px'></div>
+        
+    </div>
+  </div>
+</div>
+
+<div style='clear:left;30px; text-align:center;color: #fff'><br><br>MentDB &copy; 2012 - 2020 - <a href="../mention.html" style='color:#fff'>Legal Notice</a><br>&nbsp;</div>
+
+  </body>
+    
+<script>
+function start_rotation() {
+
+    var rotation = function (){
+      $("#rotate_img").rotate({
+        duration:1300,
+        angle:0,
+        animateTo: 360,
+        callback: rotation,
+        easing: function (x, t, b, c, d, s) {
+            return -c *(t/=d)/2*(t-2) + b;
+        }
+      });
+    }
+    rotation();
+
+}
+    
+window.onload = function() {
+
+    start_rotation();
+
+};
+</script>
+</html>

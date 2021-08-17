@@ -1,0 +1,160 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.users.insert" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Insert a new element ..." 
+{
+
+	try {
+
+		#Connection ...;
+		sql connect "session1" {cm get "MENTDB"};
+		sql auto_commit "session1" false;
+	
+		json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+		
+		if (is null or empty (json select "data" "/client_data/password")) {
+
+			include "app.100.obj.sajax.alert.exe"
+				"[type]" "ALERT_DANGER"
+				"[strong]" "KO !"
+				"[msg]" "Sorry, the password is required."
+			;
+
+		} {
+
+			json load "test_json" (json select "data" "/client_data/jsonconf");
+	
+			-> "[result]" (sql dml "session1" (concat 
+				"INSERT INTO `users` (
+				`login`, 
+				`password`, 
+				`firstname`, 
+				`lastname`, 
+				`activate`, 
+				`jsonconf`
+				) VALUES (
+				" (sql encode (json select "data" "/client_data/login")) ", 
+				" (sql encode (string md5 (json select "data" "/client_data/password"))) ", 
+				" (sql encode (json select "data" "/client_data/firstname")) ", 
+				" (sql encode (json select "data" "/client_data/lastname")) ", 
+				" (sql encode (json select "data" "/client_data/activate")) ", 
+				" (sql encode (json select "data" "/client_data/jsonconf")) "
+				);"
+			));
+
+			-> "[result]" (sql dml "session1" (concat 
+				"DELETE FROM `user_group` WHERE login=" (sql encode (json select "data" "/client_data/login")) ";"
+			));
+			
+			-> "[result]" (sql dml "session1" (concat 
+				"DELETE FROM `app_user` WHERE login=" (sql encode (json select "data" "/client_data/login")) ";"
+			));
+
+			try {
+				
+				json parse_array "data" "/client_data/groups" "[group]" {
+	
+					-> "[result]" (sql dml "session1" (concat 
+						"INSERT INTO `user_group` (
+						`login`, 
+						`group_id`
+						) VALUES (
+						" (sql encode (json select "data" "/client_data/login")) ", 
+						" (sql encode [group]) "
+						);"
+					));
+				
+				};
+			
+			} {
+	
+				if (not (is null or empty (json select "data" "/client_data/groups"))) {
+			
+					-> "[result]" (sql dml "session1" (concat 
+						"INSERT INTO `user_group` (
+						`login`, 
+						`group_id`
+						) VALUES (
+						" (sql encode (json select "data" "/client_data/login")) ", 
+						" (sql encode (json select "data" "/client_data/groups")) "
+						);"
+					));
+	
+				};
+			
+			} "[err]";
+
+			try {
+				
+				json parse_array "data" "/client_data/apps" "[app]" {
+	
+					-> "[result]" (sql dml "session1" (concat 
+						"INSERT INTO `app_user` (
+						`app_id`, 
+						`login`
+						) VALUES (
+						" (sql encode [app]) ", 
+						" (sql encode (json select "data" "/client_data/login")) "
+						);"
+					));
+				
+				};
+			
+			} {
+	
+				if (not (is null or empty (json select "data" "/client_data/apps"))) {
+			
+					-> "[result]" (sql dml "session1" (concat 
+						"INSERT INTO `app_user` (
+						`app_id`, 
+						`login`
+						) VALUES (
+						" (sql encode (json select "data" "/client_data/apps")) ", 
+						" (sql encode (json select "data" "/client_data/login")) "
+						);"
+					));
+	
+				};
+			
+			} "[err]";
+			
+			include "app.100.obj.sajax.alert.exe"
+				"[type]" "ALERT_SUCCESS"
+				"[strong]" "OK !"
+				"[msg]" (concat "
+				" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "insert_ok"))
+			;
+
+		};
+
+		#Disconnection ...;
+		sql commit "session1";
+		sql disconnect "session1";
+
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.user_manager.actions.MENTDB.users.list.exe"
+			"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		;
+		
+	} {
+
+		#Close the connection;
+		try {sql rollback "session1";} {} "[sub_err]";
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.user_manager.actions.MENTDB.users.insert_reopen_form.exe"
+			"[OBJ_OVERWRITE_B64]" [OBJ_OVERWRITE_B64]
+		;
+
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_DANGER"
+			"[strong]" "ERR :"
+			"[msg]" [err]
+		;
+		
+	} "[err]";
+	
+} "Return OK or KO";
+script set delay "app.100.template.user_manager.actions.MENTDB.users.insert.exe" 0 day {1;};

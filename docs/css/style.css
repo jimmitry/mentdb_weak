@@ -1,0 +1,188 @@
+body {
+    color: #333;
+    margin: 0px;
+    padding: 0px;
+    font-size: 12px;
+    font-family: Arial, Verdana, Helvetica, sans-serif;
+}
+
+.versionSeparator {
+	width: 100%;
+	padding: 5px 5px 5px 15px;
+	margin: 10px 0px 5px 15px;
+    float: left;
+    color: #333;
+    box-sizing: border-box;
+    font-weight: bold;
+}
+
+.divBottom {
+    height: 30px;
+    line-height: 30px;
+    width: 100%;
+    color: #000;
+    font-size: 12px;
+    padding-bottom: 30px;
+}
+
+/* Change the white to any color ;) */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px white inset;
+}
+
+#divSignIn img {
+    margin-top: 15px;
+}
+
+#divSignIn input {
+	padding: 0px 8px 0px 8px;
+    height: 25px;
+    margin-bottom: 3px;
+}
+
+#divSignIn span {
+    font-size: 12px;
+    color: #b00;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+#divSignInCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -300px;
+    margin-left: -180px;
+    width: 360px;
+    height: 310px;
+    text-align: center;
+}
+
+#divSignInImg {
+    -moz-border-radius: 10px 10px 0px 0px;
+    -webkit-border-radius: 10px 10px 0px 0px;
+    border-radius: 10px 10px 0px 0px;
+    margin-bottom: 10px;
+    padding-top: 25px;
+}
+
+#divSignInImg img {
+    margin-top: 5px;
+}
+
+#divSignIn {
+    -moz-border-radius: 10px 10px 10px 10px;
+    -webkit-border-radius: 10px 10px 10px 10px;
+    border-radius: 10px 10px 10px 10px;
+    min-height: 290px;
+}
+
+.style-1  {
+  box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    border: 1px solid #C2C2C2;
+    box-shadow: 1px 1px 4px #EBEBEB;
+    -moz-box-shadow: 1px 1px 4px #EBEBEB;
+    -webkit-box-shadow: 1px 1px 4px #EBEBEB;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    padding: 7px;
+    outline: none;
+    width: 200px;
+}
+
+.btn {
+  background: #b7b7b7;
+  background-image: -webkit-linear-gradient(top, #b7b7b7, #444444);
+  background-image: -moz-linear-gradient(top, #b7b7b7, #444444);
+  background-image: -ms-linear-gradient(top, #b7b7b7, #444444);
+  background-image: -o-linear-gradient(top, #b7b7b7, #444444);
+  background-image: linear-gradient(to bottom, #b7b7b7, #444444);
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Arial;
+  color: #ffffff;
+  border: 1px #4e4e4e solid;
+  font-size: 13px;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+  border: 1px;
+  width: 100px;
+}
+
+.btn:hover {
+  background: #a6a6a6;
+  background-image: -webkit-linear-gradient(top, #a6a6a6, #333);
+  background-image: -moz-linear-gradient(top, #a6a6a6, #333);
+  background-image: -ms-linear-gradient(top, #a6a6a6, #333);
+  background-image: -o-linear-gradient(top, #a6a6a6, #333);
+  background-image: linear-gradient(to bottom, #a6a6a6, #333);
+  text-decoration: none;
+}
+
+#copyright {
+    position: fixed;
+    height: 27px;
+    line-height: 27px;
+    width: 100%;
+    bottom: 0px;
+    color: #888;
+    font-size: 10px;
+    text-align: center;
+    background-color: #e0e0e0;
+	  background-position: bottom;
+    border-top: 1px #ccc solid;
+}
+
+#copyright a {
+    color: #888;
+    text-decoration: none;
+}
+
+.signBg {
+	background-color: #fff;
+}
+
+html {
+    height: 100%;
+}
+
+#copyright a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+#copyrightSign {
+    margin-top: 20px;
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+}
+
+#copyrightSign a {
+    color: #fff;
+    text-decoration: none;
+}
+
+#copyrightSign a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+#submitButton {
+    width: 70px;
+    height: 25px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #0361d6;
+    color: #fff;
+}
+
+#submitButton:hover {
+    background-color: #2583F8;
+}

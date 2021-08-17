@@ -1,0 +1,60 @@
+script create exe "doc.lib.add_li" false 1 
+  (param
+  	(var "[section]" {true} "The title of the section" is_null:true is_empty:true "TITLEXXXXX")
+  	(var "[is_last]" {true} "Is the last section?" is_null:true is_empty:true "0")
+  	(var "[li]" {true} "The lines" is_null:true is_empty:true "[
+[\"TEXT\", \"TEXTXXXXX\"],
+[\"TEXT_IMG\", \"TEXTXXXXX\", \"IMGXXXXX.png\"],
+[\"VIDEO\", \"YOUTUBEIDXXXXX\", \"TEXTXXXXX\"],
+[\"LINK\", \"URLXXXXX.html\", \"TEXTXXXXX\"],
+[\"MQL\", \"TEXTXXXXX\", \"MQLXXXXX\"],
+]")
+  ;) 
+  "Add a new section ..." 
+{
+
+	-> "[lines]" "";
+	json load "section" [li];
+	json parse_array "section" "/" "line" {
+
+		case
+			(equal (json select "line" "/[0]") "LINK") {
+				concat_var "[lines]" "
+            <li><a href=\"" (json select "line" "/[1]") "\" style=\"color:#d70000;font-weight: bold;text-decoration: underline;\">" (json select "line" "/[2]") "</a></li>";
+			}
+			(equal (json select "line" "/[0]") "VIDEO") {
+				concat_var "[lines]" "
+            <li><a href=\"https://youtu.be/" (json select "line" "/[1]") "?list=PLn4aw_h7C96uxzZVMyBS-_6DeIURc6KtL\" target=\"_blank\" style=\"color:#d70000;font-weight: bold;text-decoration: underline;\"><img src=\"../imgs/youtube.png\"> " (json select "line" "/[2]") "</a></li>";
+			}
+			(equal (json select "line" "/[0]") "TEXT") {
+				concat_var "[lines]" "
+            <li>" (json select "line" "/[1]") "</li>";
+			}
+			(equal (json select "line" "/[0]") "TEXT_IMG") {
+				if (== 4 (json count "line" /)) {
+					-> "[width_img]" (json select "line" "/[3]");
+				} {
+					-> "[width_img]" 100;
+				};
+				concat_var "[lines]" "<li>" (json select "line" "/[1]") "<br>
+            <img src=\"imgs/" (json select "line" "/[2]") "\" style=\"width:" [width_img] "%;margin-top: 20px;margin-bottom: 20px\"></li>";
+			}
+			(equal (json select "line" "/[0]") "MQL") {
+				concat_var "[lines]" "<li>" (json select "line" "/[1]") "<br>
+            <pre style=\"white-space:pre-wrap\">" (json select "line" "/[2]") "</pre></li>";
+			}
+		;
+		
+	};
+
+	-> "[page]" (string replace [page] "[dlkjdnpagesdjhkjdhfdkjhdkjh]" (concat "<div style='background-color: #e2e2e2;border: 0px;padding: 8px 15px 8px 15px;margin-bottom: 8px;'>
+            <b>" [section] "</b>
+        </div>
+        <ul>" [lines] "
+        </ul>" (if (not [is_last]) {"
+        <hr>
+        
+        [dlkjdnpagesdjhkjdhfdkjhdkjh]"})));
+	
+;} "Return ...";
+script set delay "doc.lib.add_li.exe" 0 day {1;};

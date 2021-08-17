@@ -1,0 +1,80 @@
+###########################################;
+# Create a REST web service (method POST) #;
+###########################################;
+
+script create post "demo_cm_mysql.products.insert" false 1
+  (param
+  	(var "[id]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[name]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[quantity]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[cat]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[desc]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[dtcreate]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[type]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[subtype]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[price]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[sale]" {true} "description ..." is_null:false is_empty:false "example ...")
+  	(var "[weight]" {true} "description ..." is_null:false is_empty:false "example ...")
+  )
+  "Insert a new element into the table 'products'."
+{
+	
+	try {
+		
+		#Connection ...;
+		sql connect "session1" {cm get "demo_cm_mysql"};
+		
+		-> "[result]" (sql dml "session1" (concat 
+			"INSERT INTO `products` (
+				`id`,
+				`name`,
+				`quantity`,
+				`cat`,
+				`desc`,
+				`dtcreate`,
+				`type`,
+				`subtype`,
+				`price`,
+				`sale`,
+				`weight`
+			) VALUES (
+				" (sql encode [id]) " ,
+				" (sql encode [name]) " ,
+				" (sql encode [quantity]) " ,
+				" (sql encode [cat]) " ,
+				" (sql encode [desc]) " ,
+				" (sql encode [dtcreate]) " ,
+				" (sql encode [type]) " ,
+				" (sql encode [subtype]) " ,
+				" (sql encode [price]) " ,
+				" (sql encode [sale]) " ,
+				" (sql encode [weight]) "
+			);"
+		));
+		
+		#Disconnection ...;
+		sql disconnect "session1";
+		
+		# Return the json;
+		[result]
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+		
+	} "[err]";
+	
+} "Return the number of impacted lines.";
+
+#Your web-service is ready!;
+
+#Connect to your local api manager: ;
+#https://localhost:9999/docs/;
+#user: admin;
+#pwd: pwd;
+
+#Click on your web service and try it... ;

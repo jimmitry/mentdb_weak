@@ -1,0 +1,45 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.groups.update_reopen_form" false 1 
+  (param
+  	(var "[container_id]" {true} "" is_null:false is_empty:false "container1")
+  ;) 
+  "Reopen an update form ..." 
+{
+
+	json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "groups_update_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_update_title_re")
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+			
+		# id -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.hidden.exe"
+				"[control_id]" "id"
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+		# name -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_update_field_name") "[description]" "" "[maxlength]" "120" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "groups_update_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.user_manager.actions.MENTDB.groups.update.exe"
+		"[data_eval]" "$('#groups_update_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_update_close_button")
+		"[submitTitle]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_update_update_button")
+		"[submitType]" "warning";
+	
+} "Return the form";
+script set delay "app.100.template.user_manager.actions.MENTDB.groups.update_reopen_form.exe" 0 day {1;};

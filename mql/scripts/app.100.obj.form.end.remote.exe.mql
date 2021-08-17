@@ -1,0 +1,69 @@
+script create exe "app.100.obj.form.end.remote" false 1 
+  (param
+  	(var "[form_id]" {true} "The form id" is_null:false is_empty:false "form_1")
+  	(var "[modal]" {type is_bool [modal] 1 0;} "Is modal ?" is_null:false is_empty:false "1")
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  	(var "[container_id]" {true} "The container id" is_null:true is_empty:true "container01")
+  	(var "[mql_script]" {true} "The MQL script ([data] in parameter)" is_null:true is_empty:true "app.100.template.default.actions.demo.hello_word.exe")
+  	(var "[data_eval]" {true} "The Javascript data eval" is_null:false is_empty:false "")
+  	(var "[closeTitle]" {true} "Close title" is_null:false is_empty:false "Close")
+  	(var "[submitTitle]" {true} "Submit title" is_null:false is_empty:false "Submit")
+  	(var "[submitType]" {type is_enum [submitType] "default,primary,success,info,warning,danger,link"} "Submit type" is_null:false is_empty:false "primary")
+  ;) 
+  "Form object" 
+{
+	
+	concat_var "[object]" 
+	"
+					 	<br>
+						" (if ([modal]) {
+						
+							concat "<div class='modal-footer' style='padding-bottom: 0px;'>
+									<span style='color:#fff;margin-left:20px'>&lt;" [form_id] "&gt;</span>
+									<button type='button' class='btn btn-default' data-dismiss='modal'>" [closeTitle] "</button>
+									" (if (is not empty [submitTitle]) {
+								concat "<button type='submit' class='btn btn-" [submitType] "' onClick=" (include "app.100.obj.sajax.client_form.exe" "[form_id]" [form_id] "[scriptname]" [mql_script] "[OBJ_OVERWRITE_B64]" [OBJ_OVERWRITE_B64] "[getElementById]" "" "[data]" [data_eval]) ">" [submitTitle] "</button>";
+							}) "</div></form>";
+						
+						} {
+
+							if (is not empty [submitTitle]) {
+								concat "<button type='submit' class='btn btn-" [submitType] "' onClick=" (include "app.100.obj.sajax.client_form.exe" "[form_id]" [form_id] "[scriptname]" [mql_script] "[OBJ_OVERWRITE_B64]" [OBJ_OVERWRITE_B64] "[getElementById]" "" "[data]" [data_eval]) ">" [submitTitle] "</button>
+								<span style='color:#fff;margin-left:20px'>&lt;" [form_id] "&gt;</span>
+							</form>";
+							} {
+								concat "
+								<span style='color:#fff;margin-left:20px'>&lt;" [form_id] "&gt;</span>
+							</form>";
+							}
+							
+						});
+
+	if ([modal]) {
+
+		#Initialize the object id;
+		++ "[app_object_id]";
+
+		concat_var "[object]" "			
+					</div>
+				</div>
+			</div>
+		<script type='text/javascript'>
+			function object_onload" [app_object_id] "() {
+				$('#modal_" [form_id] "').on('shown.bs.modal', function() {$(this).find('form:first *:input[type!=hidden]:first').focus();});
+				$('#modal_" [form_id] "').modal('show');
+			};
+		</script>";
+
+		[app_object_id];
+	
+	} {
+		
+		concat_var "[object]" 
+			"
+			</div>";
+		
+	};
+
+;} "html";
+script set delay "app.100.obj.form.end.remote.exe" 0 day {1;};

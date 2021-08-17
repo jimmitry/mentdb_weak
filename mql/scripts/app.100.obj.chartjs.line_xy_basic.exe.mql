@@ -1,0 +1,58 @@
+script create exe "app.100.obj.chartjs.line_xy_basic" false 1 
+  (param
+  	(var "[title]" {true} "Title" is_null:false is_empty:true "Chart")
+  	(var "[data]" {true} "Data" is_null:false is_empty:true "[{x: 0,y: 5}, {x: 1,y: 8}]")
+  ;) 
+  "Chart JS bar object" 
+{
+
+	#Initialize the object id;
+	++ "[app_object_id]";
+
+	json load "data_fill" [data];
+	
+	-> "[nb_dataset]" (json count "data_fill" /);
+	for (-> "[i]" 0) (< [i] [nb_dataset]) (++ "[i]") {
+
+		json iobject "data_fill" (concat "/[" [i] "]") "fill" false BOOL2;
+		json iobject "data_fill" (concat "/[" [i] "]") "lineTension" 0 NUM;
+	
+	};
+	
+	concat_var "[page]" "<div style='border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;border-radius: 3px;
+		margin-top: 8px;margin-bottom: 8px;padding:16px;background-color:#fff;color:#313131'>
+		<div id='container' style='width: 100%;'>
+			<canvas id='object_canvas" [app_object_id] "'></canvas>
+		</div>
+		<script>
+	        var object_color" [app_object_id] " = Chart.helpers.color;
+	        var object_data" [app_object_id] " = {
+	            datasets: " (json doc "data_fill") "
+	        };
+	
+	        function object_onload" [app_object_id] "() {
+	        	
+	            var object_ctx" [app_object_id] " = document.getElementById(\"object_canvas" [app_object_id] "\").getContext(\"2d\");
+	            window.object_js" [app_object_id] " = new Chart(object_ctx" [app_object_id] ", {
+	                type: 'scatter',
+	                showLine: true,
+	                data: object_data" [app_object_id] ",
+	                options: {
+	                    responsive: true,
+	                    legend: {
+	                        position: 'top',
+	                    },
+	                    title: {
+	                        display: true,
+	                        text: '" [title] "'
+	                    }
+	                }
+	            });
+	
+	        };
+	     </script>
+	</div>";
+
+;} "html";
+script set delay "app.100.obj.chartjs.line_xy_basic.exe" 0 day {1;};

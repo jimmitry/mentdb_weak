@@ -1,0 +1,43 @@
+##############################;
+# Manage commit and rollback #;
+##############################;
+
+#Create a connection 'demo_cm_mysql' to a MySQL Server;
+#Do not add this into your code, this is a configuration;
+cm set "demo_cm_mysql" {execute "db.mysql.config.get"
+	"[hostname]" "localhost"
+	"[port]" "3306"
+	"[database]" "test_db"
+	"[user]" "bob"
+	"[password]" "pwd"
+;};
+
+try {
+
+	#Connect with the connection;
+	sql connect "session1" {cm get "demo_cm_mysql";};
+	
+	#Mark the connection as auto commit = false;
+	sql auto_commit "session1" false;
+	
+	#Execute an insert/update/delete SQL request;
+	sql dml "session1" (concat "insert into products (id, name, quantity) values (4582, 'other', '4567');");
+	sql dml "session1" (concat "insert into products (id, name, quantity) values (3, 'other', '4567');");
+	sql dml "session1" (concat "insert into products (id, name, quantity) values (4, 'other', '4567');");
+	sql dml "session1" (concat "insert into products (id, name, quantity) values (5, 'other', '4567');");
+	sql dml "session1" (concat "insert into products (id, name, quantity) values (4582, 'other', '4567');");
+	
+	#Commit the transaction;
+	sql commit "session1";
+	
+	#Disconnect a connection;
+	sql disconnect "session1";
+
+} {
+
+	#Rollback the transaction;
+	sql rollback "session1";
+
+	try {sql disconnect "session1";} {} "[err_f]";
+
+} "[err]";

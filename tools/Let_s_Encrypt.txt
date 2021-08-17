@@ -1,0 +1,16 @@
+Let’s Encrypt:
+
+MQL :
+
+app create "http" "demo" "default" "100";
+
+Linux/OSX :
+
+cd MentDB_Server
+
+sudo certbot certonly --webroot --preferred-challenges http -d www.mentdb.org -d mentdb.org
+> give webroot web/http/demo
+
+sudo cat /etc/letsencrypt/live/www.mentdb.org/*.pem > fullcert.pem
+
+openssl pkcs12 -export -out cert/cu.p12 -in fullcert.pem -password pass:pwdKS

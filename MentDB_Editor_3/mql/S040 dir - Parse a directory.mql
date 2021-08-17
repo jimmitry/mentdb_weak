@@ -1,0 +1,29 @@
+#####################;
+# Parse a directory #;
+#####################;
+
+#Load the directory;
+-> "[localDir]" "/Users/jimmitry/Desktop";
+
+#Get file list;
+json load "files" (file dir_list [localDir]);
+
+#Parse the file list (method 1);
+json parse_array "files" "/" "[cur_filename]" {
+
+	#Here your action;
+	log trace [cur_filename];
+
+};
+
+#Parse the file list (method 2);
+-> "[nb_files]" (json count "files" /);
+for (-> "[i]" 0) (< [i] [nb_files]) (++ "[i]") {
+
+	#Get the current filename;
+	-> "[cur_filename]" (json select "files" (concat "/[" [i] "]"));
+
+	#Here your action;
+	log trace [cur_filename];
+	
+};

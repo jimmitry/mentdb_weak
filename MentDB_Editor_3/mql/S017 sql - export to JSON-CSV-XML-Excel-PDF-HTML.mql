@@ -1,0 +1,75 @@
+##################################################################;
+# Export data to many formats json,xml,csv,excel,excelx,html,pdf #;
+##################################################################;
+
+script create exe "demo_cm_mysql.products.export" false 1
+  (param
+  	(var "[directory]" {true} "The directory" is_null:false is_empty:false "/Users/jimmitry/Desktop")
+  	(var "[filename]" {true} "The file name" is_null:false is_empty:false "test")
+	(var "[format]" {type is_enum [format] "json,xml,csv,excel,excelx,html,pdf"} "the format (json|xml|csv|excel|excelx|html|pdf)" is_null:false is_empty:false "json")
+  	(var "[id]" {true} "description ..." is_null:false is_empty:false "example ...")
+  )
+  "Export the table 'products'."
+{
+	
+	try {
+		
+		#Connection ...;
+		sql connect "session1" {cm get "demo_cm_mysql"};
+		
+		-> "[query]" (concat "SELECT  
+				`id`,
+				`name`,
+				`quantity`,
+				`cat`,
+				`desc`,
+				`dtcreate`,
+				`type`,
+				`subtype`,
+				`price`,
+				`sale`,
+				`weight`
+			 FROM `products` 
+			 WHERE 
+				`id`=" (sql encode [id]) "
+			 LIMIT 0, 100;");
+		
+		switch ([format])
+			("json") {
+				file create (concat [directory] "/" [filename] ".json") (sql to json "session1" "products" (concat [query]));
+			}
+			("xml") {
+				file create (concat [directory] "/" [filename] ".xml") (sql to xml "session1" "products" (concat [query]));
+			}
+			("csv") {
+				file create (concat [directory] "/" [filename] ".csv") (sql to csv "session1" "products" (concat [query]) "," "'");
+			}
+			("excel") {
+				sql to excel "session1" "products" (concat [query]) (concat [directory] "/" [filename] ".xls");
+			}
+			("excelx") {
+				sql to excelx "session1" "products" (concat [query]) (concat [directory] "/" [filename] ".xlsx");
+			}
+			("html") {
+				file create (concat [directory] "/" [filename] ".html") (sql to html "session1" "products" (concat [query]));
+			}
+			("pdf") {
+				sql to pdf "session1" "products" (concat [query]) (concat [directory] "/" [filename] ".pdf");
+			}
+			{exception (1) ("Sorry, the export format must be 'json|xml|csv|excel|excelx|html|pdf'.");}
+		;
+		
+		#Disconnection ...;
+		sql disconnect "session1";
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		#Generate an error;
+		exception (1) ([err]);
+		
+	} "[err]";
+	
+} "Return nothing";

@@ -1,0 +1,19 @@
+script create exe "app.100.template.index_ai.page.conf_zone" false 1 
+  (param
+  ;) 
+  "Show the conf zone page" 
+{
+
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_top.exe");
+
+	#____________________________________________________________;
+
+	#Your container code here;
+	include "app.100.template.index_ai.actions.MENTDB.se_zone.skeleton.exe";
+	
+	#____________________________________________________________;
+	
+	include (concat "app." [app_version] ".template." [app_template] ".html.body_bottom.exe");
+
+;} "The 'conf zone' page";
+script set delay "app.100.template.index_ai.page.conf_zone.exe" 0 day {1;};

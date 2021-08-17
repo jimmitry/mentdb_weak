@@ -1,0 +1,14 @@
+script create exe "index_ai.process" false 1 
+  (param
+  ;) 
+  "Process index-ai." 
+{
+	
+	while (> (index_ai process) 0) {
+	
+		
+	
+	};
+	
+} "Return nothing";
+script set delay "index_ai.process.exe" 0 day {1;};

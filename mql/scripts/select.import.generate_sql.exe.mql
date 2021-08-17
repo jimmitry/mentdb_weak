@@ -1,0 +1,95 @@
+script create exe "select.import.generate_sql" false 1 
+  (param
+  	(var "[tunnel_id]" {true} "The tunel id" is_null:true is_empty:true "")
+  	(var "[connection_id]" {true} "The CM" is_null:false is_empty:false "demo_cm_mysql")
+  	(var "[sql_request]" {true} "The SQL request" is_null:false is_empty:false "select * from products")
+  	(var "[local_table_name]" {true} "The local table name" is_null:false is_empty:false "table_name")
+  	(var "[nb_line_by_block]" {true} "The number of line by block" is_null:false is_empty:false "500")
+  ;) 
+  "Import data into the local mysql database" 
+{
+
+	json load "columns" "{}";
+
+	if (is null or empty [tunnel_id]) {
+
+		sql connect "session1" {cm get [connection_id]};
+		sql block open "session1" "table" [sql_request];
+		json load "data" (sql block to_json [nb_line_by_block]);
+		sql block close;
+		sql disconnect "session1";
+		
+	} {
+
+		tunnel connect "session1" {cm get [tunnel_id]};
+		json load "data" (tunnel execute "session1" (concat 
+			"-> \"[connection_id]\" \"" (mql encode [connection_id]) "\";"
+			"-> \"[sql_request]\" \"" (mql encode [sql_request]) "\";"
+			"-> \"[nb_line_by_block]\" \"" (mql encode [nb_line_by_block]) "\";"
+			(mql {
+				sql connect "session1" {cm get [connection_id]};
+				sql block open "session1" "table" [sql_request];
+				-> "[result]" (sql block to_json [nb_line_by_block]);
+				sql block close;
+				sql disconnect "session1";
+				[result];
+			})
+		));
+		tunnel disconnect "session1";
+	};
+
+	#Get column name;
+	json parse_array "data" "/columns" "[col]" {
+	
+		json iobject "columns" / [col] 0 INT;
+	
+	};
+
+	#Get max char by column;
+	json parse_array "data" "/data" "row" {
+	
+		json parse_obj "row" "/" "[key]" "[val]" {
+
+			-> "[nb]" (string length [val]);
+			
+			if (> [nb] (json select "columns" (concat "/" [key]))) {
+
+				json iobject "columns" / [key] [nb] INT;
+
+			};
+		
+		};
+	
+	};
+
+	#CREATE TABLE in SQL;
+	-> "[TABLE]" (concat "DROP TABLE IF EXISTS `" [local_table_name] "`;CREATE TABLE `" [local_table_name] "` (");
+	json parse_array "data" "/columns" "[col]" {
+	
+		concat_var "[TABLE]" "
+	`" [col] "` varchar(" (json select "columns" (concat "/" [col])) ") NULL DEFAULT NULL,";
+	
+	};
+	if (string ends_with [TABLE] ",") {
+		-> "[TABLE]" (string substring [TABLE] 0 (- (string length [TABLE]) 1));
+	};
+	concat_var "[TABLE]" "
+);";
+	
+	[TABLE];
+
+	json load "config" "{}";
+	json iobject "config" / "tunnel_id" [tunnel_id] STR;
+	json iobject "config" / "connection_id" [connection_id] STR;
+	json iobject "config" / "sql_request" [sql_request] STR;
+	json iobject "config" / "local_table_name" [local_table_name] STR;
+	json iobject "config" / "nb_line_by_block" [nb_line_by_block] STR;
+
+	in editor {concat "execute \"select.import.handle.exe\"
+	\"[destination_db_id]\" \"MENTDB\"
+	\"[create_table]\" \"" (mql encode [TABLE]) "\"
+	\"[configuration]\" \"" (mql encode (json doc "config")) "\"
+;"};
+	
+} "Return a SQL proposition";
+script set delay "select.import.generate_sql.exe" 0 day {1;};

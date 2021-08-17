@@ -1,0 +1,14 @@
+script create exe "app.100.template.default.page.home.onload" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Show the home page" 
+{
+
+	include "app.100.obj.sajax.refresh.exe"
+		"[target]" "container_id_1"
+		"[innerHtml]" "<div style='background-color:#313131;color:#fff'>Hello!</div>"
+	;
+
+;} "The 'home' page";
+script set delay "app.100.template.default.page.home.onload.exe" 0 day {1;};

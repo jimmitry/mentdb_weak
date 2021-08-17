@@ -1,0 +1,40 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.groups.search" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Insert a new element ..." 
+{
+
+	try {
+		
+		json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+		json load "filter_sql" "{\"filter_sql\":{}}";
+
+		
+
+		if (not (is null or empty (json select "data" "/client_data/name"))) {
+			json iobject "filter_sql" "/filter_sql" "name" (json select "data" "/client_data/name") STR;
+			json iobject "filter_sql" "/filter_sql" "type:name" "LIKE_LR" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		};
+		
+		include "app.100.obj.sajax.server.exe"
+			"[scriptname]" "app.100.template.user_manager.actions.MENTDB.groups.list.exe"
+			"[OBJ_OVERWRITE_B64]" (string encode_b64 (json doc "filter_sql"))
+		;
+		
+	} {
+
+		#Close the connection;
+		try {sql disconnect "session1"} {} "[sub_err]";
+
+		include "app.100.obj.sajax.alert.exe"
+			"[type]" "ALERT_DANGER"
+			"[strong]" "ERR :"
+			"[msg]" [err]
+		;
+		
+	} "[err]";
+	
+} "Return OK or KO";
+script set delay "app.100.template.user_manager.actions.MENTDB.groups.search.exe" 0 day {1;};

@@ -1,0 +1,47 @@
+script create exe "app.100.template.user_manager.page.login" false 1 
+  (param
+  	(var "[err]" {true} "The error message" is_null:true is_empty:true "Bad password.")
+  ;) 
+  "Show the login page" 
+{
+
+	-> "[page]" "";
+
+	concat_var "[page]" "<!doctype html>
+		<html lang=\"fr\">
+		<head>
+		  <meta charset=\"utf-8\">
+		  <title>" (json select "app" "/title") "</title>
+		  <link  href=\"css/style.css\" rel=\"stylesheet\">
+		  <link href=\"dist/css/bootstrap.css\" rel=\"stylesheet\">
+		  <link rel=\"icon\" type=\"image/png\" href=\"images/" (json select "app" "/bar_icon") "\" />
+		</head>
+		<body id=\"body\" style='background-image: url(images/bg.png);background-size: contain;margin:0px;color:#333;font-family: " (json select "app" "/font_family") ";font-size: 12px;'>
+		<div id=\"login\">
+		  <div id='divSignInCenter'>
+		      <div id='divSignIn' style='border: 5px #4e4e4e solid;background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7d7d7d), color-stop(100%, #1b1b1b)), #1b1b1b;
+			      background: -webkit-linear-gradient(#7d7d7d, #1b1b1b), #3F3F3F;
+			      background: -moz-linear-gradient(#7d7d7d, #1b1b1b), #3F3F3F;
+			      background: -o-linear-gradient(#7d7d7d, #1b1b1b), #3F3F3F;
+			      background: linear-gradient(#7d7d7d, #1b1b1b), #3F3F3F;box-shadow: 2px 0px 15px 1px #888888;'>
+			     <a class='btn btn-primary' style='background-color: #D70000;border: 0px;-webkit-border-bottom-right-radius: 0px;-webkit-border-bottom-left-radius: 0px;-moz-border-radius-bottomright: 0px;-moz-border-radius-bottomleft: 0px;border-bottom-right-radius: 0px;border-bottom-left-radius: 0px;color: #484848;display: block;width: 100%;height: 16px;line-height: 5px;' href='https://" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_HOST") ":" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_PORT_HTTPS") "'><img style='margin-top:-3px;height:10px' src='images/mt.png'></a>
+		          <div id='divSignInImg' style='padding-top: 35px;'><a href='index.jsp'><img src='images/" (json select "app" "/login_logo") "' height='70px' alt=''></a></div>
+		          <div style='padding:5px;font-size: 16px;color:#fff;border-bottom: 1px #696969 solid;'><b>" (json select "app" "/title") "</b><br>&nbsp;</div>
+		          <div id='connectError' style=\"color:#F00;min-height:25px\">" [err] "</div>
+		          <form action='index.jsp' method='post'>
+		              <input class='style-1' type='text' placeholder='" (json select "app" "/login_placeholder_user") "' name='x-user' id='x-user' autofocus><br>
+		              <input class='style-1' type='password' placeholder='" (json select "app" "/login_placeholder_password") "' name='x-password' id='x-password'>
+		              <input type=\"submit\" class='btn btn-light' style='padding: 5px 30px 5px 30px;margin-top: 10px;width: 200px;height: 35px;' value=\"" (json select "app" "/login_submit_title") "\">
+		              <div style='height:25px'></div>
+		          </form>
+		      </div>
+		      <div style='margin-top: 10px;color:#FFF'>&copy; " (json select "app" "/copyright_years") " - " (json select "app" "/copyright_link") "</div>
+		  </div>
+		</div>
+		</body>
+		</html>";
+
+	[page];
+
+;} "The 'login' page";
+script set delay "app.100.template.user_manager.page.login.exe" 0 day {1;};

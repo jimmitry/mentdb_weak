@@ -1,0 +1,40 @@
+script create exe "app.100.obj.progress_bar" false 1 
+  (param
+  	(var "[container_id]" {true} "" is_null:false is_empty:true "container1")
+  ;) 
+  "Chart JS progress bar object" 
+{
+
+	-> "[title]" "Progress bar";
+	-> "[color]" "#1867c0";
+	-> "[value]" "40";
+	-> "[max]" "100";
+
+	#Initialize the object id;
+	++ "[app_object_id_no_load]";
+	-> "[object]" "";
+	concat_var "[object]" "<div style='height: 81px;border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;border-radius: 3px;
+		margin-top: 8px;margin-bottom: 8px;padding:16px;background-color:#fff;color:#313131;text-align: left;font-size: 13px;'>
+
+		<div>" [title] " <span style='float:right'>" [value] "/" [max] "</span></div>
+		<div class='progress' id='html_id_" [app_object_id_no_load] "_no_load'></div>
+		<script>
+			var progressBar" [app_object_id_no_load] "_no_load = new ProgressBar.Line('#html_id_" [app_object_id_no_load] "_no_load', {
+				duration: 1200, 
+				easing: 'easeInOut',
+				strokeWidth: 2,
+				color: '" [color] "'
+			});
+			progressBar" [app_object_id_no_load] "_no_load.animate(" (/ [value] [max]) ");
+		</script>
+		
+	</div>";
+
+	include "app.100.obj.sajax.refresh.exe"
+		"[target]" [container_id]
+		"[innerHtml]" [object]
+	;
+
+;} "html";
+script set delay "app.100.obj.progress_bar.exe" 0 day {1;};

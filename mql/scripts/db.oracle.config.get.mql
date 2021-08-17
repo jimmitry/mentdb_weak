@@ -1,0 +1,34 @@
+script create get "db.oracle.config" false 1 
+  (param
+  	(var "[hostname]" {true} "The hostname" is_null:false is_empty:false "localhost, 127.0.0.1")
+  	(var "[port]" {type is_int [port]} "The port" is_null:false is_empty:false "1521")
+  	(var "[database]" {true} "The database" is_null:false is_empty:false "test_db")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "sys")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "pwd")
+  ;) 
+  "Get a Oracle config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "db" STR;
+	json iobject "config_obj" / "subType" "Oracle" STR;
+	json iobject "config_obj" / "driver" "oracle.jdbc.driver.OracleDriver" STR;
+	json iobject "config_obj" / "loginTimeout" "10000" STR;
+
+	json iobject "config_obj" / "jdbc" (
+		concat "jdbc:oracle:thin:@" [hostname] ":" [port] ":" [database];
+	) STR;
+
+	json iobject "config_obj" / "defaultSchema" [user] STR;
+	json iobject "config_obj" / "properties" "{}" OBJ;
+	json iobject "config_obj" /properties "user" [user] STR;
+	json iobject "config_obj" /properties "password" [password] STR;
+	json iobject "config_obj" /properties "internal_logon" "sysdba" STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a Oracle config connection in JSON";
+script set delay "db.oracle.config.get" 0 day {1;};

@@ -1,0 +1,28 @@
+script create exe "app.100.scrud.overwrite_config" false 1 
+  (param
+  	(var "[OBJ_PARAM_LIST]" {true} "The parameter list" is_null:true is_empty:true "[container_id],[page],[nb_by_page],[nb_lr_pagination],[order_by]")
+  ;) 
+  "SCRUD OVERWRITE CONFIG" 
+{
+	
+	if (is null (json select "app" (concat "/objects/" [OBJECT_ID]))) {
+		json iobject "app" "/objects" [OBJECT_ID] "{}" OBJ;
+	};
+	
+	json load "OBJ_OVERWRITE" (string decode_b64 [OBJ_OVERWRITE_B64]);
+	json parse_obj "OBJ_OVERWRITE" "/" "[key]" "[val]" {
+		json iobject "app" (concat "/objects/" [OBJECT_ID]) [key] [val] STR;
+	};
+	
+	if (is not empty [OBJ_PARAM_LIST]) {
+		-> "[obj_param_nb]" (atom size [OBJ_PARAM_LIST] ",");
+		for (-> "[obj_i]" 1) (<= [obj_i] [obj_param_nb]) (++ "[obj_i]") {
+
+			-> "[obj_param]" (atom get [OBJ_PARAM_LIST] [obj_i] ",");
+			env set var (concat "[" [obj_param] "]") (json select "app" (concat "/objects/" [OBJECT_ID] "/" [obj_param]));
+	
+		};
+	};
+	
+;} "Return nothing";
+script set delay "app.100.scrud.overwrite_config.exe" 0 day {1;};

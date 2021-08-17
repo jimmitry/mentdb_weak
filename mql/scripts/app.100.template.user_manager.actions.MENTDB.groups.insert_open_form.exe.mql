@@ -1,0 +1,36 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.groups.insert_open_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open an insert form ..." 
+{
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "groups_insert_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_insert_title")
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+			
+		# name -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "120" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" ""
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "groups_insert_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.user_manager.actions.MENTDB.groups.insert.exe"
+		"[data_eval]" "$('#groups_insert_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_insert_close_button")
+		"[submitTitle]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_insert_insert_button")
+		"[submitType]" "primary";
+	
+} "Return the form";
+script set delay "app.100.template.user_manager.actions.MENTDB.groups.insert_open_form.exe" 0 day {1;};

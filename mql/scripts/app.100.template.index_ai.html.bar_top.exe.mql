@@ -1,0 +1,28 @@
+script create exe "app.100.template.index_ai.html.bar_top" false 1 
+  (param
+  ;) 
+  "Bar top" 
+{
+
+	concat_var "[page]" "<div style='box-shadow: 0px 0px 8px " (json select "app" "/top_background_color") ";z-index: 999;position: fixed;width:100%;height:65px;line-height:63px;
+		background-color: " (json select "app" "/top_background_color") ";
+		color: " (json select "app" "/top_color") ";
+		font-size: 22px;'>
+		<img src='images/refresh.gif' style='display:none'>
+	     <a class='btn btn-primary' style='background-color: #D70000;border: 0px;-webkit-border-radius: 0px;-moz-border-radius: 0px;border-radius: 0px;color: #484848;display: inline-block;width: 16px;height: 100%;line-height: 15px;padding-left: 1px;padding-right: 12px;margin-top: -1px;' href='https://" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_HOST") ":" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_PORT_HTTPS") "'><img style='margin-left: 1px;width:10px;margin-top: 2px;' src='images/ml.png'></a>
+	     <a href='index.jsp'><img id='top_refresh_icon' src='images/" (json select "app" "/top_logo") "' 
+			style='vertical-align:middle;
+		     width:" (json select "app" "/top_logo_width") ";
+			margin-top:" (json select "app" "/top_logo_top") ";
+			margin-left:" (json select "app" "/top_logo_left") ";'></a> &nbsp; " (json select "app" "/top_title") "
+
+		<div style='float:right'>
+			<span class='hidden-xs' style='font-size:18px'>" (json select "app" "/user") "</span> &nbsp;
+			<a style='margin-right: 20px;color:#fff' href='index.jsp?app_action=menu_toggle'><i class='fa fa-bars' style='vertical-align: middle;'></i></a>
+			<a style='margin-right: 20px;color:#fff' href='index.jsp?app_action=logout'><i class='fa fa-power-off' style='vertical-align: middle;'></i></a>
+		</div>
+	
+	</div>";
+
+;} "html";
+script set delay "app.100.template.index_ai.html.bar_top.exe" 0 day {1;};

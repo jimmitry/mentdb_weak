@@ -1,0 +1,59 @@
+script create exe "app.100.obj.form.control.radio_inline" false 1 
+  (param
+  	(var "[control_id]" {true} "The control id" is_null:false is_empty:false "control_1")
+  	(var "[class]" {true} "The class" is_null:false is_empty:false "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12")
+  	(var "[label]" {true} "The label of the control" is_null:false is_empty:true "Name")
+  	(var "[description]" {true} "The description of the control" is_null:false is_empty:true "")
+  	(var "[readonly]" {type is_bool [readonly] 1 0;} "Read only ?" is_null:false is_empty:false "0")
+  	(var "[required]" {type is_bool [required] 1 0;} "Required ?" is_null:false is_empty:false "0")
+  	(var "[disabled]" {type is_bool [disabled] 1 0;} "Disabled ?" is_null:false is_empty:false "0")
+  	(var "[html]" {true} "Custom HTML" is_null:false is_empty:true "")
+  	(var "[inValues]" {true} "The values of the control" is_null:false is_empty:false "[]")
+  	(var "[optionValues]" {true} "The option values of the control" is_null:true is_empty:false "[]")
+  	(var "[value]" {true} "The selected value in the control" is_null:false is_empty:true "")
+  ;) 
+  "Control object" 
+{
+	
+	concat_var "[object]" 
+		"<fieldset class='form-group " [class] "' style='padding-left:0px;padding-right: 0px;'>
+		<label>" [label] "</label>&nbsp; &nbsp; 
+		";
+
+	json load "inValues" [inValues];
+	if (is not null [optionValues]) {
+	
+		json load "optionValues" [optionValues];
+	
+	};
+	-> "[nbInValues]" (json count "inValues" /);
+	for (-> "[i]" 0) (< [i] [nbInValues]) (++ "[i]") {
+
+		-> "[val]" (json select "inValues" (concat "/[" [i] "]"));
+		concat_var "[object]" "<div class='form-check form-check-inline'><input class='form-check-input' type='radio' name='" [control_id] "' " [html] "
+		" (if ([readonly]) {"readonly"}) " " (if ([required]) {"required"}) " " (if ([disabled]) {"disabled"}) "
+		value='" (string replace [val] "'" "&#39") "' ";
+		if (and (is not null [value]) (equal [val] [value])) {
+		
+			concat_var "[object]" "checked";
+		
+		};
+
+		if (is null [optionValues]) {
+		
+			concat_var "[object]" "><label class='form-check-label'>" [val] "</label></div>";
+		
+		} {
+		
+			concat_var "[object]" "><label class='form-check-label'>" (json select "optionValues" (concat "/[" [i] "]")) "</label></div>";
+		
+		};
+	
+	};
+		 
+	concat_var "[object]" "
+		<small class='text-muted'>" [description] "</small>
+		</fieldset>";
+
+;} "html";
+script set delay "app.100.obj.form.control.radio_inline.exe" 0 day {1;};

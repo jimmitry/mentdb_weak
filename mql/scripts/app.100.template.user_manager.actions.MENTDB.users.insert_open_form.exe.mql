@@ -1,0 +1,113 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.users.insert_open_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open an insert form ..." 
+{
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "users_insert_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_title")
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+			
+		# login -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "login" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_field_login") "[description]" "" "[maxlength]" "150" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" ""
+			;
+		
+		# password -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.password.exe" "[control_id]" "password" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_field_password") "[description]" "" "[maxlength]" "32" "[placeholder]" ""
+				"[readonly]" false "[required]" true "[disabled]" false "[html]" ""
+				"[value]" ""
+			;
+		
+		# firstname -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "firstname" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_field_firstname") "[description]" "" "[maxlength]" "60" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" ""
+			;
+		
+		# lastname -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "lastname" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_field_lastname") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" ""
+			;
+		
+		# activate -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.radio_inline.exe" "[control_id]" "activate" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_field_activate") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[\"Y\", \"N\"]"
+				"[optionValues]" "[\"Y\", \"N\"]"
+				"[value]" "Y"
+			;
+
+			sql connect "session1" {cm get "MENTDB";};
+			json load "inValues" "[]";
+			json load "optionValues" "[]";
+			sql parse "session1" "T" (concat "select id, `name` from `groups` order by `name`") {
+			
+				json iarray "inValues" / [T_id] STR;
+				json iarray "optionValues" / [T_name] STR;
+			
+			};
+			include "app.100.obj.form.control.select_multiple.exe" "[control_id]" "groups" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" "Groups" "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" (json doc "inValues")
+				"[optionValues]" (json doc "optionValues")
+				"[values]" "{}"
+			;
+
+			json load "inValues" "[]";
+			json load "optionValues" "[]";
+			sql parse "session1" "T" (concat "select `app_id`, `title` from apps order by `title`") {
+			
+				json iarray "inValues" / [T_app_id] STR;
+				json iarray "optionValues" / [T_title] STR;
+			
+			};
+			include "app.100.obj.form.control.select_multiple.exe" "[control_id]" "apps" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" "Applications" "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" (json doc "inValues")
+				"[optionValues]" (json doc "optionValues")
+				"[values]" "{}"
+			;
+			
+			sql disconnect "session1";
+		
+		# JSONCONF -------- TO DELETE ...;
+
+			include "app.100.obj.form.control.textarea.exe" "[control_id]" "jsonconf" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" "JSON CONF" "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" true "[disabled]" false "[html]" ""
+				"[value]" "{}"
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "users_insert_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.user_manager.actions.MENTDB.users.insert.exe"
+		"[data_eval]" "$('#users_insert_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_close_button")
+		"[submitTitle]" (include "app.100.template.user_manager.actions.MENTDB.users.lang.exe" "[key_lang]" "form_insert_insert_button")
+		"[submitType]" "primary";
+	
+} "Return the form";
+script set delay "app.100.template.user_manager.actions.MENTDB.users.insert_open_form.exe" 0 day {1;};

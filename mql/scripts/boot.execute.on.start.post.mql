@@ -1,0 +1,48 @@
+script create post "boot.execute.on.start" true 1 
+  (param
+  ;) 
+  "Here your MQL code to execute when the server start ..." 
+{
+
+	"You code here ...";
+
+	#Create the user application if not exist;
+	if (not (app exist "https" "user_manager")) {
+
+		parameter add "User Manager_LANG" "en" 0;
+		app create "https" "user_manager" "user_manager" "100";
+		execute "app.100.template.user_manager.create_images.exe";
+		sql connect "session1" {cm get "MENTDB";};
+		sql dml "session1" (concat 
+			"INSERT IGNORE INTO `apps` (
+				`app_id`,
+				`title`
+			) VALUES (
+				" (sql encode "user_manager") " ,
+				" (sql encode "User Manager") "
+			);"
+		);
+		sql disconnect "session1";
+	
+	};
+
+	#Create the demo application if not exist;
+	if (not (app exist "http" "demo")) {
+
+		app create "http" "demo" "default" "100";
+		sql connect "session1" {cm get "MENTDB";};
+		sql dml "session1" (concat 
+			"INSERT IGNORE INTO `apps` (
+				`app_id`,
+				`title`
+			) VALUES (
+				" (sql encode "demo") " ,
+				" (sql encode "Demonstration") "
+			);"
+		);
+		sql disconnect "session1";
+	
+	};
+
+;} "Nothing";
+script set delay "boot.execute.on.start.post" 0 day {1;};

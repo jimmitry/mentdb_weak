@@ -1,0 +1,130 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.groups.lang" false 1 
+  (param
+  	(var "[key_lang]" {true} "" is_null:false is_empty:true "")
+  ;) 
+  "Get a label from the language" 
+{
+
+	if (not (json exist "MENTDB_groups_lang")) {
+
+		json load "MENTDB_groups_lang" "{
+			\"insert_ok\": {
+				\"en\": \"Group added with successfull.\",
+				\"fr\": \"Groupe(s) ajout&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"update_ok\": {
+				\"en\": \"Group updated with successfull.\",
+				\"fr\": \"Groupe(s) modifi&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"delete_ok\": {
+				\"en\": \"Group deleted with successfull.\",
+				\"fr\": \"Group(s) suprim&eacute;(s) avec succ&egrave;s.\"
+			},
+			\"list_title\": {
+				\"en\": \"groups\",
+				\"fr\": \"groups\"
+			},
+			\"list_filter\": {
+				\"en\": \"Filter\",
+				\"fr\": \"Filtre\"
+			},
+			\"list_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"list_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"form_search_title\": {
+				\"en\": \"Search a group\",
+				\"fr\": \"Recherche d'un &eacute;l&eacute;ment\"
+			},
+			\"form_search_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_search_search_button\": {
+				\"en\": \"Search\",
+				\"fr\": \"Rechercher\"
+			},
+			\"form_search_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"form_search_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"form_insert_title\": {
+				\"en\": \"Insert a group\",
+				\"fr\": \"Ajout d'un groupe\"
+			},
+			\"form_insert_title_re\": {
+				\"en\": \"Insert a group (Correction)\",
+				\"fr\": \"Ajout d'un groupe (Correction)\"
+			},
+			\"form_insert_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_insert_insert_button\": {
+				\"en\": \"Add\",
+				\"fr\": \"Ajouter\"
+			},
+			\"form_insert_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"form_insert_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"form_update_title\": {
+				\"en\": \"Update a group\",
+				\"fr\": \"Modification d'un group\"
+			},
+			\"form_update_title_re\": {
+				\"en\": \"Update a group (Correction)\",
+				\"fr\": \"Modification d'un groupe (Correction)\"
+			},
+			\"form_update_close_button\": {
+				\"en\": \"Close\",
+				\"fr\": \"Fermer\"
+			},
+			\"form_update_update_button\": {
+				\"en\": \"Update\",
+				\"fr\": \"Modifier\"
+			},
+			\"form_update_field_id\": {
+				\"en\": \"id\",
+				\"fr\": \"id\"
+			},
+			\"form_update_field_name\": {
+				\"en\": \"name\",
+				\"fr\": \"name\"
+			},
+			\"form_delete_title_1\": {
+				\"en\": \"Delete of \",
+				\"fr\": \"Suppression de \"
+			},
+			\"form_delete_title_2\": {
+				\"en\": \" group(s)\",
+				\"fr\": \" groupe(s)\"
+			},
+			\"form_delete_cancel_button\": {
+				\"en\": \"Cancel\",
+				\"fr\": \"Annuler\"
+			},
+			\"form_delete_delete_button\": {
+				\"en\": \"Delete\",
+				\"fr\": \"Supprimer\"
+			},
+		}";
+
+	};
+
+	json select "MENTDB_groups_lang" (concat "/" [key_lang] "/" (parameter get value "User Manager_LANG"));
+	
+} "Return the translation";
+script set delay "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" 0 day {1;};

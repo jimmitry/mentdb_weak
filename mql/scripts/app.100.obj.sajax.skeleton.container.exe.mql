@@ -1,0 +1,18 @@
+script create exe "app.100.obj.sajax.skeleton.container" false 1 
+  (param
+  	(var "[id]" {true} "the object id" is_null:true is_empty:true "")
+  	(var "[name]" {true} "the object name" is_null:true is_empty:true "")
+  	(var "[class]" {true} "the object class" is_null:false is_empty:false "")
+  	(var "[style]" {true} "the object style" is_null:false is_empty:false "")
+  ;) 
+  "Bootstrap container object" 
+{
+
+	concat_var "[page]" "<div" 
+		(if (not (is null or empty [id])) {concat " id='" [id] "'"};) 
+		(if (not (is null or empty [name])) {concat " name='" [name] "'"};) 
+		(if (not (is null or empty [class])) {concat " class='container-fluid " [class] "'"} {concat " class='container-fluid'"};) 
+		(if (not (is null or empty [style])) {concat " style='" [style] "'"};) ">";
+
+;} "html";
+script set delay "app.100.obj.sajax.skeleton.container.exe" 0 day {1;};

@@ -1,0 +1,471 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_city.insert_reopen_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Reopen an insert form ..." 
+{
+
+	json load "data" (string decode_b64 [OBJ_OVERWRITE_B64]);
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "se_city_insert_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_title_re")
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+			
+		# id -------- TO DELETE ...;
+			
+			#include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.number.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" ""
+				"[min]" "" "[max]" "" "[step]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.range.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" ""
+				"[min]" 0 "[max]" 100 "[step]" 1 "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.mail.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.tel.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.time.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.date_en.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.date_fr.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.datetime_en.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.datetime_fr.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+			
+			#include "app.100.obj.form.control.textbox.color.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.password.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.textbox.file.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+			
+			#include "app.100.obj.form.control.textarea.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+			
+			#include "app.100.obj.form.control.textarea_cke.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" "" "[maxlength]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.select_mono.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.select_multiple.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.radio_line.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.radio_inline.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.checkbox_line.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.checkbox_inline.exe" "[control_id]" "id" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_id") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/id")
+			;
+		
+			#include "app.100.obj.form.control.hidden.exe"
+				"[control_id]" "id"
+				"[value]" (json select "data" "/client_data/id")
+			;
+		
+		# name -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.number.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" ""
+				"[min]" "" "[max]" "" "[step]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.range.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" ""
+				"[min]" 0 "[max]" 100 "[step]" 1 "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.mail.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.tel.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.time.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.date_en.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.date_fr.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.datetime_en.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.datetime_fr.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+			
+			#include "app.100.obj.form.control.textbox.color.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.password.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.textbox.file.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+			
+			#include "app.100.obj.form.control.textarea.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+			
+			#include "app.100.obj.form.control.textarea_cke.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" "" "[maxlength]" "200" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.select_mono.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.select_multiple.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.radio_line.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.radio_inline.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.checkbox_line.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.checkbox_inline.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_name") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/name")
+			;
+		
+			#include "app.100.obj.form.control.hidden.exe"
+				"[control_id]" "name"
+				"[value]" (json select "data" "/client_data/name")
+			;
+		
+		# db -------- TO DELETE ...;
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.number.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" ""
+				"[min]" "" "[max]" "" "[step]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.range.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" ""
+				"[min]" 0 "[max]" 100 "[step]" 1 "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.mail.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.tel.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.time.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.date_en.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.date_fr.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.datetime_en.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.datetime_fr.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+			
+			#include "app.100.obj.form.control.textbox.color.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.password.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.textbox.file.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+			
+			#include "app.100.obj.form.control.textarea.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+			
+			#include "app.100.obj.form.control.textarea_cke.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" "" "[maxlength]" "45" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.select_mono.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.select_multiple.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.radio_line.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.radio_inline.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, \"\", 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.checkbox_line.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.checkbox_inline.exe" "[control_id]" "db" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_field_db") "[description]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[inValues]" "[1, 2, 3, 4, 5]"
+				"[optionValues]" "[\"A\", \"B\", \"C\", \"D\", \"E\", \"F\"]"
+				"[values]" (json select "data" "/client_data/db")
+			;
+		
+			#include "app.100.obj.form.control.hidden.exe"
+				"[control_id]" "db"
+				"[value]" (json select "data" "/client_data/db")
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "se_city_insert_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.index_ai.actions.MENTDB.se_city.insert.exe"
+		"[data_eval]" "$('#se_city_insert_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_close_button")
+		"[submitTitle]" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "form_insert_insert_button")
+		"[submitType]" "primary";
+	
+} "Return the form";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_city.insert_reopen_form.exe" 0 day {1;};

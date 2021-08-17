@@ -1,0 +1,228 @@
+script create exe "app.100.template.index_ai.actions.MENTDB.se_city.list" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Get data from a database into a list ..." 
+{
+	
+	#Load the current object id and his configuration;
+	-> "[OBJECT_ID]" "MENTDB_se_city_list";
+	include "app.100.scrud.overwrite_config.exe"
+		"[OBJ_PARAM_LIST]" "container_id,page,nb_by_page,nb_lr_pagination,order_by,filter_sql"
+	;
+	
+	if (equal [nb_by_page] "*") {-> "[nb_by_page]" 999999999};
+	if (is empty [order_by]) {
+		-> "[asc_desc]" "ASC|";
+		-> "[cur_asc_desc]" "";
+		-> "[cur_order_by]" "";
+	} {
+		-> "[cur_asc_desc]" (atom get [order_by] 1 "|");
+		-> "[cur_order_by]" (atom get [order_by] 2 "|");
+		if (string starts_with [order_by] "ASC|") {
+			-> "[asc_desc]" "DESC|";
+		} {
+			-> "[asc_desc]" "";
+		};
+	};
+
+	#Initialization;
+	-> "[object]" "<div style='border: 1px solid rgba(0,0,0,.12);-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;border-radius: 3px;
+		margin-top: 2px;margin-bottom: 2px;padding:5px;background-color:#fff;color:#313131'>";
+
+	if (app is_granted_a "MENTDB.se_city.list.delete") {concat_var "[object]" "<span style='float:right'><button type='button' class='btn btn-danger btn-sm' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.delete_confirm.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{}")) "[getElementById]" "" "[data]" "get_all_checked('se_city_keys_checkbox')") "><span class='fa fa-remove fa-sm' aria-hidden='true'></span></button></span>";};
+	if (app is_granted_a "MENTDB.se_city.list.insert") {concat_var "[object]" "<span style='float:right'><button type='button' style='margin-right:6px' class='btn btn-success btn-sm' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.insert_open_form.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{}")) "[getElementById]" "" "[data]" "") "><span class='fa fa-plus fa-sm' aria-hidden='true'></span></button></span>";};
+	if (app is_granted_a "MENTDB.se_city.list.search") {concat_var "[object]" "<span style='float:right'><button type='button' style='margin-right:6px' class='btn btn-dark btn-sm' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.search_open_form.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{}")) "[getElementById]" "" "[data]" "") "><span class='fa fa-search fa-sm' aria-hidden='true'></span></button></span>";};
+
+	concat_var "[object]" "
+	<span style='font-size:16px'><b>&nbsp; " (string first_letter_upper (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "list_title")) "</b></span>
+	
+	<div style='height:10px;'></div>
+	
+	<table class='table table-striped table-hover table-bordered' style='margin-bottom: 0px;'>
+  <thead>
+    <tr>";
+	
+	#Connect to the database;
+	sql connect "session1" {cm get "MENTDB";};
+
+	try {
+
+		#concat the row title counter;
+		concat_var "[object]" "
+      <th style='width:44px;padding: 0px 0px 0px 12px;'><div class='form-check form-check-inline form-control-lg' style='margin-right: 0px;padding-right: 0px;margin-left: 3px;'><input style='margin-right: 0px;' class='form-check-input' type='checkbox' id='se_city_main_checkbox' onchange='check_all(\"se_city_keys_checkbox\", this);'></div></th>
+      <th scope='col' style='padding: 0px;'><a style='border:0px' class='page-link' href='javascript:;' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"order_by\":\"" (if (equal [cur_order_by] "id") {if (is empty [asc_desc]) {""} {(concat [asc_desc] "id")}} {(concat "ASC|" "id")}) "\"}")) "[getElementById]" "" "[data]" "") " aria-label='Next'>" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "list_field_id") (if (equal [cur_order_by] "id") {(if (is empty [asc_desc]) {"<i class='fa fa-sort-down  float-right' aria-hidden='true' style='margin-top: 3px;'></i>"} {if (not equal "ASC|" [asc_desc]) {"<i class='fa fa-sort-up  float-right' aria-hidden='true' style='margin-top: 3px;'></i>"}})}) "</a></th>
+      <th scope='col' style='padding: 0px;'><a style='border:0px' class='page-link' href='javascript:;' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"order_by\":\"" (if (equal [cur_order_by] "name") {if (is empty [asc_desc]) {""} {(concat [asc_desc] "name")}} {(concat "ASC|" "name")}) "\"}")) "[getElementById]" "" "[data]" "") " aria-label='Next'>" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "list_field_name") (if (equal [cur_order_by] "name") {(if (is empty [asc_desc]) {"<i class='fa fa-sort-down  float-right' aria-hidden='true' style='margin-top: 3px;'></i>"} {if (not equal "ASC|" [asc_desc]) {"<i class='fa fa-sort-up  float-right' aria-hidden='true' style='margin-top: 3px;'></i>"}})}) "</a></th>
+      <th scope='col' style='padding: 0px;'><a style='border:0px' class='page-link' href='javascript:;' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"order_by\":\"" (if (equal [cur_order_by] "db") {if (is empty [asc_desc]) {""} {(concat [asc_desc] "db")}} {(concat "ASC|" "db")}) "\"}")) "[getElementById]" "" "[data]" "") " aria-label='Next'>" (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "list_field_db") (if (equal [cur_order_by] "db") {(if (is empty [asc_desc]) {"<i class='fa fa-sort-down  float-right' aria-hidden='true' style='margin-top: 3px;'></i>"} {if (not equal "ASC|" [asc_desc]) {"<i class='fa fa-sort-up  float-right' aria-hidden='true' style='margin-top: 3px;'></i>"}})}) "</a></th>
+      <th scope='col' style='width:20px;padding: 0px;'></th>
+	</tr>
+  </thead>
+  <tbody>";
+		
+		-> "[sql_filter]" "";
+		-> "[sql_filter_keys]" "";
+		if (not (is null or empty [filter_sql])) {
+			json load "filter_sql" [filter_sql];
+			json parse_obj "filter_sql" "/" "[key]" "[val]" {
+
+				if (not (string starts_with [key] "type:")) {
+					switch (json select "filter_sql" (concat "/type:" [key]))
+						("EQUAL") {concat_var "[sql_filter]" " and `" [key] "`=" (sql encode [val]);}
+						("LIKE_L") {concat_var "[sql_filter]" " and `" [key] "` like '%" (string sublrchar (sql encode [val]) 1) "'";}
+						("LIKE_R") {concat_var "[sql_filter]" " and `" [key] "` like '" (string sublrchar (sql encode [val]) 1) "%'";}
+						("LIKE_LR") {concat_var "[sql_filter]" " and `" [key] "` like '%" (string sublrchar (sql encode [val]) 1) "%'";}
+						{concat_var "[sql_filter]" " and `" [key] "`=" (sql encode [val]);}
+					;
+					concat_var "[sql_filter_keys]" "<span class='badge badge-light'>" [key] "</span> ";
+				};
+			
+			};
+	
+			if (> (json count "filter_sql" "/") 0) {
+				-> "[sql_filter]" (concat " WHERE " (string substring [sql_filter] 5));
+				-> "[sql_filter_keys]" (concat "<h5 style='margin-top: 1px;margin-bottom:0px'><button type='button' style='margin-left: 10px;' class='btn btn-outline-dark btn-sm' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"filter_sql\":{}}")) "[getElementById]" "" "[data]" "") "><span class='fa fa-remove fa-xs' aria-hidden='true'></span> " (include "app.100.template.index_ai.actions.MENTDB.se_city.lang.exe" "[key_lang]" "list_filter") "(s)</button></h5>");
+			};
+		};
+
+		-> "[iline]" (+ 1 (- (* [page] [nb_by_page]) [nb_by_page]));
+		-> "[nb_elements]" (sql value "session1" (concat "select count(*) from `se_city` " [sql_filter] ";"));
+		-> "[nb_page]" (math ceil (/ [nb_elements] [nb_by_page]));
+		if (is empty [cur_order_by]) {
+			-> "[sql_order_by]" "";
+		} {
+			-> "[sql_order_by]" (concat "order by `" [cur_order_by] "` " [cur_asc_desc]);
+		};
+
+		-> "[app_is_granted_update]" (app is_granted_a "MENTDB.se_city.list.update");
+		
+		sql parse "session1" "T" (concat "select 
+			`id`, 
+			`name`, 
+			`db` from `se_city` " [sql_filter] " " [sql_order_by] " limit " (- (* [page] [nb_by_page]) [nb_by_page]) ", " [nb_by_page] ";") {
+			
+			json load "primary_key" "{}";
+			json iobject "primary_key" / "client_data" "{}" OBJ;
+			json iobject "primary_key" "/client_data" "id" [T_id] STR;
+			
+      		
+			concat_var "[object]" "
+      <tr><th style='width:44px;padding: 0px 2px 0px 12px;'><div class='form-check form-check-inline form-control-lg' style='margin-right: 0px;padding-right: 0px;margin-left: 3px;'><input style='margin-right: 0px;' class='form-check-input' type='checkbox' name='se_city_keys_checkbox' value='" (string encode_b64 (json doc "primary_key")) "'></div></th>
+      <td style='padding: 6px 2px 0px 2px;'>" (string replace [T_id] "<" "&lt;") "</td>
+      <td style='padding: 6px 2px 0px 2px;'>" (string replace [T_name] "<" "&lt;") "</td>
+      <td style='padding: 6px 2px 0px 2px;'>" (string replace [T_db] "<" "&lt;") "</td>";
+
+			if ([app_is_granted_update]) {
+				concat_var "[object]" "<td style='padding: 0px 2px 0px 2px;'><button type='button' class='btn btn-warning btn-sm' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.update_open_form.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (json doc "primary_key")) "[getElementById]" "" "[data]" "") "><span class='fa fa-pencil fa-sm' aria-hidden='true'></span></button></td>";
+			} {
+				concat_var "[object]" "<td style='padding: 0px 2px 0px 2px;'></td>";
+			};
+			concat_var "[object]" "</tr>";
+
+      		++ "[iline]";
+		
+		};
+    
+		concat_var "[object]" "
+	</tbody>
+</table>
+
+";
+
+	concat_var "[object]" "<nav aria-label='Page navigation' style='display:inline-block'>
+  <ul class='pagination' style='margin-bottom:0px'>
+    <li class='page-item'>
+      <a class='page-link' href='javascript:;' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"page\":\"" 1 "\"}")) "[getElementById]" "" "[data]" "") " aria-label='Previous'>
+        <span aria-hidden='true'>&laquo;</span>
+        <span class='sr-only'>Previous</span>
+      </a>
+    </li>";
+
+	for (-> "[i_page]" (- [page] [nb_lr_pagination])) (< [i_page] [page]) (++ "[i_page]") {
+
+		if (> [i_page] 0) {
+			if (== [page] [i_page]) {
+				concat_var "[object]" "<li class='page-item active'>
+		      <span class='page-link'>
+		        " [i_page] "
+		        <span class='sr-only'>(current)</span>
+		      </span>
+		    </li>";
+			} {
+				concat_var "[object]" "<li class='page-item'><a class='page-link' href='javascript:;' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"page\":\"" [i_page] "\"}")) "[getElementById]" "" "[data]" "") ">" [i_page] "</a></li>";
+			};
+		};
+
+	};
+
+	for (-> "[i_page]" [page]) (<= [i_page] (+ [page] [nb_lr_pagination])) (++ "[i_page]") {
+
+		if (<= [i_page] [nb_page]) {
+			if (== [page] [i_page]) {
+				concat_var "[object]" "<li class='page-item active'>
+		      <span class='page-link'>
+		        " [i_page] "
+		        <span class='sr-only'>(current)</span>
+		      </span>
+		    </li>";
+			} {
+				concat_var "[object]" "<li class='page-item'><a class='page-link' href='javascript:;' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"page\":\"" [i_page] "\"}")) "[getElementById]" "" "[data]" "") ">" [i_page] "</a></li>";
+			};
+		};
+
+	};
+    
+    concat_var "[object]" "<li class='page-item'>
+      <a class='page-link' href='javascript:;' onClick=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 (concat "{\"page\":\"" [nb_page] "\"}")) "[getElementById]" "" "[data]" "") " aria-label='Next'>
+        <span aria-hidden='true'>&raquo;</span>
+        <span class='sr-only'>Next</span>
+      </a>
+    </li>
+  </ul>
+</nav> &nbsp; " (+ 1 (- (* [page] [nb_by_page]) [nb_by_page])) " - " (if (> (* [page] [nb_by_page]) [nb_elements]) {[nb_elements]} {* [page] [nb_by_page]}) " / " [nb_elements] "
+  <div style='float: right;display: inline-block;'><select id='app.100.template.index_ai.actions.MENTDB.se_city.list.key.nb_by_page' style='height: 33px;color: #007bff;' class='form-control' onChange=" (include "app.100.obj.sajax.client.exe" "[scriptname]" "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" "[OBJ_OVERWRITE_B64]" (string encode_b64 "{\"order_by\":\"\", \"page\":\"1\"}") "[getElementById]" "nb_by_page=app.100.template.index_ai.actions.MENTDB.se_city.list.key.nb_by_page" "[data]" "") ">
+      <option " (if (== [nb_by_page] 1) {"selected"}) ">1</option>
+      <option " (if (== [nb_by_page] 2) {"selected"}) ">2</option>
+      <option " (if (== [nb_by_page] 3) {"selected"}) ">3</option>
+      <option " (if (== [nb_by_page] 4) {"selected"}) ">4</option>
+      <option " (if (== [nb_by_page] 5) {"selected"}) ">5</option>
+      <option " (if (== [nb_by_page] 10) {"selected"}) ">10</option>
+      <option " (if (== [nb_by_page] 12) {"selected"}) ">12</option>
+      <option " (if (== [nb_by_page] 14) {"selected"}) ">14</option>
+      <option " (if (== [nb_by_page] 16) {"selected"}) ">16</option>
+      <option " (if (== [nb_by_page] 18) {"selected"}) ">18</option>
+      <option " (if (== [nb_by_page] 20) {"selected"}) ">20</option>
+      <option " (if (== [nb_by_page] 25) {"selected"}) ">25</option>
+      <option " (if (== [nb_by_page] 50) {"selected"}) ">50</option>
+      <option " (if (== [nb_by_page] 100) {"selected"}) ">100</option>
+      <option " (if (== [nb_by_page] 250) {"selected"}) ">250</option>
+      <option " (if (== [nb_by_page] 500) {"selected"}) ">500</option>
+      <option " (if (== [nb_by_page] 1000) {"selected"}) ">1000</option>
+      <option " (if (== [nb_by_page] 2500) {"selected"}) ">2500</option>
+      <option " (if (== [nb_by_page] 5000) {"selected"}) ">5000</option>
+      <option " (if (== [nb_by_page] 999999999) {"selected"}) ">*</option>
+    </select></div><div style='float: right;display: inline-block;line-height: 32px;margin-right: 20px;'>" [sql_filter_keys] "</div>
+
+</div>";
+
+		sql disconnect "session1";
+
+		include "app.100.obj.sajax.refresh.exe"
+			"[target]" [container_id]
+			"[innerHtml]" [object]
+		;
+
+	} {
+
+		#Save the error;
+		log trace [err]; 
+		
+		#Close all objects;
+		try {sql disconnect "session1";} {} "[e]";
+
+		exception (1) (concat "ERR/APP/LIST: " [err]);
+
+	} "[err]";
+	
+} "Return the list";
+script set delay "app.100.template.index_ai.actions.MENTDB.se_city.list.exe" 0 day {1;};

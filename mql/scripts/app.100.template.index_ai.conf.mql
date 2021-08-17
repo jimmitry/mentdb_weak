@@ -1,0 +1,48 @@
+script create conf "app.100.template.index_ai" false 1 
+  (param
+  ;) 
+  "Configuration" 
+{
+
+	json load "configuration" "{}";
+
+	#All;
+	json iobject "configuration" / title "Index-AI" STR;
+	json iobject "configuration" / bar_icon "innov-ai.png" STR;
+	json iobject "configuration" / font_family "Roboto,Helvetica Neue,Helvetica,Arial,sans-serif;" STR;
+	json iobject "configuration" / copyright_years (concat "2012 - " (date year (date sysdate))) STR;
+	json iobject "configuration" / copyright_link "<a href='https://www.mentdb.org' style='color:#fff' target='_blank'><b>MentDB</b></a>" STR;
+	
+	#login;
+	json iobject "configuration" / login_logo "innov-ai.png" STR;
+	json iobject "configuration" / login_placeholder_user "User" STR;
+	json iobject "configuration" / login_placeholder_password "Password" STR;
+	json iobject "configuration" / login_submit_title "Login" STR;
+	json iobject "configuration" / login_error_msg "Bad user or password." STR;
+
+	#default page;
+	json iobject "configuration" / default_page "home" STR;
+
+	#top;
+	json iobject "configuration" / top_background_color "#313131" STR;
+	json iobject "configuration" / top_color "#fff" STR;
+	json iobject "configuration" / top_logo "innov-ai.png" STR;
+	json iobject "configuration" / top_logo_width "50px" STR;
+	json iobject "configuration" / top_logo_top "-2px" STR;
+	json iobject "configuration" / top_logo_left "10px" STR;
+	json iobject "configuration" / top_title "Index-AI" STR;
+
+	#menu;
+	json iobject "configuration" / menu_background_color "#fff" STR;
+	json iobject "configuration" / menu_default_show true STR;
+	json iobject "configuration" / menu "[]" ARRAY;
+	
+	app menu "/menu" "home" "Company" "fa-building" "index.jsp?app_page=home" post "home" "menu_index_ai_home" "*-";
+	app menu "/menu" "conf_city" "City" "fa-flag" "index.jsp?app_page=conf_city" post "conf_city" "menu_index_ai_conf_city" "*-";
+	app menu "/menu" "conf_zone" "Zone" "fa-star" "index.jsp?app_page=conf_zone" post "conf_zone" "menu_index_ai_conf_zone" "*-";
+	app menu "/menu" "conf_db" "DB" "fa-wrench" "index.jsp?app_page=conf_db" post "conf_db" "menu_index_ai_conf_db" "*-";
+
+	json doc "configuration";
+
+} "";
+script set delay "app.100.template.index_ai.conf" 0 day {1;};

@@ -1,0 +1,72 @@
+script create exe "app.100.scrud.generate.get_columns" false 1 
+  (param
+  	(var "[prefix]" {true} "The prefix" is_null:true is_empty:true "folder.sub_folder.")
+  	(var "[database]" {true} "The database" is_null:true is_empty:true "demo_cm_mysql")
+  	(var "[table]" {true} "The table" is_null:true is_empty:true "products")
+  ;) 
+  "SCRUD OPERATIONS" 
+{
+
+	-> "[result]" "";
+
+	concat_var "[result]" "script create exe \"" [prefix] [database] "." [table] ".list\" false 1
+  (param
+  )
+  \"Get data from a database into a list ...\"
+{
+
+	#Initialization;
+	-> \"[object]\" \"<table class='table table-striped table-hover'>
+  <thead>
+    <tr>\";
+	
+	#Connect to the database;
+	sql connect \"session1\" {cm get \"" [database] "\";};
+
+	try {
+
+		concat_var \"[object]\" \"
+      <th scope='col'>#</th>
+      <th scope='col'>First</th>
+      <th scope='col'>Last</th>
+      <th scope='col'>Handle</th>\";
+      
+		concat_var \"[object]\" \"    </tr>
+  </thead>
+  <tbody>\";
+  
+		concat_var \"[object]\" \"    <tr>
+      <th scope='row'>1</th>
+      <td>Mark</td>
+      <td>Otto</td>
+      <td>@mdo</td>
+    </tr>\";
+    
+		concat_var \"[object]\" \"  </tbody>
+</table>\";
+
+
+		sql disconnect \"session1\";
+
+	} {
+
+		#Save the error;
+		log trace [err]; 
+		
+		#Close all objects;
+		try {sql disconnect \"session1\";} {} \"[e]\";
+
+		exception (1) (concat \"ERR/APP/LIST: \" [err]);
+
+	} \"[err]\";
+
+	[object];
+	
+} \"Return the list\";";
+
+	
+
+	[result];
+
+;} "html";
+script set delay "app.100.scrud.generate.get_columns.exe" 0 day {1;};

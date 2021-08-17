@@ -1,0 +1,33 @@
+script create get "db.h2.embedded.config" false 1 
+  (param
+  	(var "[database]" {true} "The database" is_null:false is_empty:false "demo/db/h2/test_db")
+  	(var "[user]" {true} "The user" is_null:false is_empty:false "sa")
+  	(var "[password]" {true} "The password" is_null:false is_empty:true "sa")
+  ;) 
+  "Get a H2 config connection" 
+{
+
+	#Initialization;
+	json load "config_obj" "{}";
+
+	json iobject "config_obj" / "type" "db" STR;
+	json iobject "config_obj" / "subType" "H2" STR;
+	json iobject "config_obj" / "driver" "org.h2.Driver" STR;
+	json iobject "config_obj" / "loginTimeout" "10000" STR;
+
+	json iobject "config_obj" / "jdbc" (
+		concat "jdbc:h2:" [database];
+	) STR;
+
+	json iobject "config_obj" / "defaultSchema" "public" STR;
+	json iobject "config_obj" / "properties" "{}" OBJ;
+	json iobject "config_obj" /properties "user" [user] STR;
+	json iobject "config_obj" /properties "password" [password] STR;
+	json iobject "config_obj" /properties "MODE" "MYSQL" STR;
+	json iobject "config_obj" /properties "DATABASE_TO_LOWER" "TRUE" STR;
+
+	#Return the json object;
+	json doc "config_obj";
+
+} "Return a H2 config connection in JSON";
+script set delay "db.h2.embedded.config.get" 0 day {1;};

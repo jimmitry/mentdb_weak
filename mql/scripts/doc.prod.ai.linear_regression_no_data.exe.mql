@@ -1,0 +1,135 @@
+script create exe "doc.prod.ai.linear_regression_no_data" false 1 
+  (param
+  ;) 
+  "Create documentation page" 
+{
+
+	-> "[page]" (execute "doc.lib.init.exe"
+		"[description]" "Linear regression"
+		"[keywords]" "Linear, regression"
+		"[return_link]" "artificial_intelligence"
+	);
+
+	include "doc.lib.add_li.exe"
+		"[section]" "Goal"
+		"[is_last]" "0"
+		"[li]" (concat "[
+			[\"TEXT\", \"Simple linear regression is useful for finding relationship between two continuous variables.\"],
+			[\"TEXT\", \"We are going to give to a linear regression algorithm data from zero, <br> and then we are going to make predictions.\"],
+			[\"TEXT\", \"Reminder, to execute an order, you can click on <img src='imgs/play0.png' style='width: 60px;'> or <img src='imgs/play.png' style='width: 60px;'> or [CTRL]+E or [Apple]+E on OSX.\"],
+	]");
+
+	include "doc.lib.add_li.exe"
+		"[section]" "Let's start by giving data to the algorithm."
+		"[is_last]" "0"
+		"[li]" (concat "[
+			[\"MQL\", \"Here some data:\", \"" (string replace (string mql_to_html (mql {
+json load "data" "[]";
+json load "row" "[]";json iarray "row" / 1 NUM;json iarray "row" / 1 NUM;json iarray "data" / (json doc "row") ARRAY;
+json load "row" "[]";json iarray "row" / 3 NUM;json iarray "row" / 2 NUM;json iarray "data" / (json doc "row") ARRAY;
+json load "row" "[]";json iarray "row" / 5 NUM;json iarray "row" / 3 NUM;json iarray "data" / (json doc "row") ARRAY;
+json load "row" "[]";json iarray "row" / 7 NUM;json iarray "row" / 4 NUM;json iarray "data" / (json doc "row") ARRAY;
+json load "row" "[]";json iarray "row" / 9 NUM;json iarray "row" / 7 NUM;json iarray "data" / (json doc "row") ARRAY;
+json load "row" "[]";json iarray "row" / 11 NUM;json iarray "row" / 8 NUM;json iarray "data" / (json doc "row") ARRAY;
+json load "row" "[]";json iarray "row" / 13 NUM;json iarray "row" / 9 NUM;json iarray "data" / (json doc "row") ARRAY;
+json load "row" "[]";json iarray "row" / 15 NUM;json iarray "row" / 10 NUM;json iarray "data" / (json doc "row") ARRAY;
+json doc "data";
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Result:\", \"" (string replace (string mql_to_html (mql {
+"[
+  [
+    1.0,
+    1.0
+  ],
+  [
+    3.0,
+    2.0
+  ],
+  [
+    5.0,
+    3.0
+  ],
+  [
+    7.0,
+    4.0
+  ],
+  [
+    9.0,
+    7.0
+  ],
+  [
+    11.0,
+    8.0
+  ],
+  [
+    13.0,
+    9.0
+  ],
+  [
+    15.0,
+    10.0
+  ]
+]"
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Let's see data. To do this, simply execute the command:\", \"" (string replace (string mql_to_html (mql {
+pa xy_scatter (json doc "data") "x, y";
+})) "\"" (concat \ "\"")) "\"],
+			[\"TEXT_IMG\", \"Here the scatter:\", \"rl01.png\"],
+			[\"MQL\", \"Initialize the algorithm:\", \"" (string replace (string mql_to_html (mql {
+pa rl load_empty "reg1";
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Now, let's add data to it:\", \"" (string replace (string mql_to_html (mql {
+json parse_array "data" "/" "row" {
+
+	pa rl add_data "reg1" (json select "row" "/[0]") (json select "row" "/[1]");
+
+};
+})) "\"" (concat \ "\"")) "\"],
+			[\"TEXT\", \"Data has been added.\"],
+	]");
+
+	include "doc.lib.add_li.exe"
+		"[section]" "Make predictions."
+		"[is_last]" "1"
+		"[li]" (concat "[
+			[\"MQL\", \"To see how much data is saved:\", \"" (string replace (string mql_to_html (mql {
+pa rl count "reg1";
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Result:\", \"" (string replace (string mql_to_html (mql {
+8;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"To get R:\", \"" (string replace (string mql_to_html (mql {
+pa rl r "reg1";
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Result:\", \"" (string replace (string mql_to_html (mql {
+0.9883173560569456;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Make prediction with data from 1 to 15 (increment 0.1):\", \"" (string replace (string mql_to_html (mql {
+json load "new_data" "[]";
+for (-> "[x]" 1) (< [x] 15) (-> "[x]" (+ [x] 0.1)) {
+
+	json load "new_row" "[]";
+	json iarray "new_row" / [x] NUM;
+	json iarray "new_row" / (pa rl predict "reg1" [x]) NUM;
+	json iarray "new_data" / (json doc "new_row") ARRAY;
+
+};
+pa xy_scatter (json doc "new_data") "X, Y";
+})) "\"" (concat \ "\"")) "\"],
+			[\"TEXT_IMG\", \"Here the line:\", \"rl02.png\"],
+			[\"MQL\", \"Make simple prediction:\", \"" (string replace (string mql_to_html (mql {
+pa rl predict "reg1" 25;
+})) "\"" (concat \ "\"")) "\"],
+			[\"MQL\", \"Result:\", \"" (string replace (string mql_to_html (mql {
+17.23809523809524;
+})) "\"" (concat \ "\"")) "\"],
+			[\"TEXT\", \"Now you can do linear regression by adding data as you go.\"],
+	]");
+
+	include "doc.lib.write.exe"
+		"[page_html]" "linear_regression_no_data.html"
+		"[title_link]" "Linear regression with no data"
+	;
+	
+} "Return nothing";
+script set delay "doc.prod.ai.linear_regression_no_data.exe" 0 day {1;};

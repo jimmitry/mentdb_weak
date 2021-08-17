@@ -1,0 +1,10 @@
+script create post "boot.execute.on.shutdown" true 1 
+  (param
+  ;) 
+  "Here your MQL code to execute when the server shutdown ..." 
+{
+
+	"You code here ...";
+
+} "Nothing";
+script set delay "boot.execute.on.shutdown.post" 0 day {1;};

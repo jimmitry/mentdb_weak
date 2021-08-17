@@ -1,0 +1,70 @@
+####################################################;
+# Copy a remote file to remote file (in text mode) #;
+####################################################;
+
+#Initialization;
+-> "[source]" "/Users/jimmitry/Desktop/test.txt";
+-> "[destination]" "/Users/jimmitry/Desktop/copy.txt";
+
+try {
+
+    #Connect the remote MentDB servers;
+    tunnel connect "session1" {cm get "demo_cm_mentdb1";};
+    tunnel connect "session2" {cm get "demo_cm_mentdb2";};
+
+    #Open a remote reader;
+    tunnel execute "session1" (concat 
+        "-> \"[source]\" \"" (mql encode [source]) "\";"
+        (mql {
+            file reader_open "r1" [source] TEXT "utf-8";
+        })
+    );
+
+    #Open a remote file;
+    tunnel execute "session2" (concat 
+        "-> \"[destination]\" \"" (mql encode [destination]) "\";"
+        (mql {
+            file writer_open "w1" [destination] false TEXT "utf-8";
+        })
+    );
+
+    #Parse the file;
+    while (is not null (-> "[line]" (tunnel execute "session1" "file reader_get_line \"r1\""))) {
+
+        #Send the line to the remote server;
+        tunnel execute "session2" (concat 
+            "-> \"[line]\" \"" (mql encode [line]) "\";"
+            (mql {
+                file writer_add_line "w1" (concat [line] [_n_]);
+            })
+        );
+
+    };
+
+    #Force to write and close the remote writer;
+    tunnel execute "session2" (concat 
+        (mql {
+            file writer_flush "w1";
+            file writer_close "w1";
+        })
+    );
+
+    #Close the remote reader;
+    tunnel execute "session1" "file reader_close \"r1\";";
+
+    #Disconnect from the remote MentDB servers;
+    tunnel disconnect "session1";
+    tunnel disconnect "session2";
+
+} {
+
+    #Close objects;
+    try {tunnel disconnect "session1";} {} "[sub_err]";
+    try {tunnel disconnect "session2";} {} "[sub_err]";
+    try {file reader_close "r1";} {} "[sub_err]";
+    try {file writer_close "w1";} {} "[sub_err]";
+
+    #Generate an error;
+    exception (1) ([err]);
+
+} "[err]";

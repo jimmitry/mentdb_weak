@@ -1,0 +1,25 @@
+###############################;
+# Download files throught SCP #;
+###############################;
+
+#Connect to the SSH server;
+ssh connect "session1" {cm get "demo_cm_ssh";};
+
+#Get the file list from a directory;
+-> "[list]" (ssh execute_1_cmd "session1" "ls /Users/jimmitry/Desktop");
+
+#Create a CSV file;
+file create "tmp/file.csv" (concat "FILENAME" [_n_] [list]);
+
+#Parse the CSV file;
+csv parse (mql "T") (mql "tmp/file.csv") (mql ",") (mql "'") (mql "") {
+
+	#Download with SCP;
+	ssh scp from "session1" 
+		(concat "/Users/jimmitry/Desktop/" [T_FILENAME]) 
+		(concat "tmp/" [T_FILENAME]);
+
+};
+
+#Disconnection;
+ssh disconnect "session1";

@@ -1,0 +1,34 @@
+script create post "demo.file.xml.parse" false 1 
+  (param
+  	(var "[fileName]" {true} "The file name" is_null:false is_empty:false "test.xml")
+  ;) 
+  "Parse a XML" 
+{
+
+	#Initialization;
+	-> "[targetPath]" "/data/item";
+
+	#Load the connection id;
+	json load "cm" (cm get "demo_cm_file");
+	-> "[localDir]" (json select "cm" /localDir);
+
+	#Load the file;
+	xml load "xmlId1" (file load (concat [localDir] "/" [fileName]));
+
+	-> "[nb]" (xml count "xmlId1" [targetPath]);
+	
+	#Parse the tab;
+	for (-> "[i]" 1) (<= [i] [nb]) (++ "[i]") {
+
+		#Get value;
+		-> "[to_use]" (xml select text "xmlId1" (concat [targetPath] "[" [i] "]"));
+
+		#Your action here ...;
+		log trace (concat "[to_use]=" [to_use]);
+
+		
+	
+	};
+	
+} "Return nothing";
+script set delay "demo.file.xml.parse.post" 0 day {1;};

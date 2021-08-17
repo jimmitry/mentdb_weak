@@ -1,0 +1,47 @@
+script create exe "app.100.template.user_manager.actions.MENTDB.groups.search_open_form" false 1 
+  (param
+  	(var "[OBJ_OVERWRITE_B64]" {true} "" is_null:false is_empty:true "{}")
+  ;) 
+  "Open a search form ..." 
+{
+
+	-> "[object]" "";
+	include "app.100.obj.form.begin.exe" "[form_id]" "groups_search_form_id" "[modal]" true
+				"[action]" "index.jsp"
+				"[enctype]" false
+				"[title]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_search_title") 
+				"[subTitle]" ""
+				"[method]" "post"
+				"[widthIfModal]" "modal-lg"
+				"[html]" "style='font-size:14px'";
+
+	-> "[filter_sql]" (json select "app" (concat "/objects/MENTDB_groups_list/filter_sql"));
+	if (not (is null or empty [filter_sql])) {
+		json load "filter_sql" [filter_sql];
+	} {
+		json load "filter_sql" "{}";
+	};
+			
+		# name -------- TO DELETE ...;
+
+			if (is null (json select "filter_sql" "/name")) {
+				json iobject "filter_sql" / "name" "" STR;
+			};
+			
+			include "app.100.obj.form.control.textbox.text.exe" "[control_id]" "name" "[class]" "col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"
+				"[label]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_search_field_name") "[description]" "" "[maxlength]" "120" "[placeholder]" ""
+				"[readonly]" false "[required]" false "[disabled]" false "[html]" ""
+				"[value]" (json select "filter_sql" "/name")
+			;
+		
+		include "app.100.obj.form.end.exe" "[form_id]" "groups_search_form_id" "[modal]" true
+		"[OBJ_OVERWRITE_B64]" (string encode_b64 "{}")
+		"[container_id]" ""
+		"[mql_script]" "app.100.template.user_manager.actions.MENTDB.groups.search.exe"
+		"[data_eval]" "$('#groups_search_form_id').serializeObject()"
+		"[closeTitle]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_search_close_button")
+		"[submitTitle]" (include "app.100.template.user_manager.actions.MENTDB.groups.lang.exe" "[key_lang]" "form_search_search_button")
+		"[submitType]" "primary";
+	
+} "Return the form";
+script set delay "app.100.template.user_manager.actions.MENTDB.groups.search_open_form.exe" 0 day {1;};
