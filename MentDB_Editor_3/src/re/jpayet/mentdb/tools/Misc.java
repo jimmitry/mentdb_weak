@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import difflib.Chunk;
@@ -476,6 +477,13 @@ public class Misc {
 	    value = value * factor;
 	    long tmp = Math.round(value);
 	    return (double) tmp / factor;
+	}
+	
+	//Load a JSON string
+	public static JSONObject loadObject(String json) {
+		
+		return (JSONObject) JSONValue.parse(json);
+		
 	}
 	
 	//Load a JSON string

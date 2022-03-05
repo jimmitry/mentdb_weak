@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS `stack_var` (
 
 CREATE TABLE IF NOT EXISTS `stack_wait` (
   `pid` varchar(20) NOT NULL,
+  `parent_id` varchar(20) NULL DEFAULT NULL,
   `priority` int(11) NOT NULL,
   `nb_in_thread` int(11) NOT NULL,
   `state` enum('W','E') NOT NULL DEFAULT 'W',
@@ -121,12 +122,19 @@ CREATE TABLE IF NOT EXISTS `stack_wait` (
   `lasterrormsg` longtext DEFAULT NULL,
   `dtclosed` datetime DEFAULT NULL,
   `dterror` datetime DEFAULT NULL,
+  `flowname` varchar(1024) DEFAULT NULL,
+  `json` longtext DEFAULT NULL,
+  `pos` int DEFAULT 0,
+  `posname` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`pid`),
-  KEY `fk_stack_idx_dtexe_stack_wait` (`dtexe`)
+  KEY `fk_stack_idx_dtexe_stack_wait` (`dtexe`),
+  KEY `fk_stack_wait_idx_flowname` (`flowname`),
+  KEY `fk_stack_wait_idx_pos` (`pos`)
 );
 
 CREATE TABLE IF NOT EXISTS `stack_closed` (
   `pid` varchar(20) NOT NULL,
+  `parent_id` varchar(20) NULL DEFAULT NULL,
   `priority` int(11) NOT NULL,
   `nb_in_thread` int(11) NOT NULL,
   `script` varchar(1024) NOT NULL,
@@ -141,12 +149,19 @@ CREATE TABLE IF NOT EXISTS `stack_closed` (
   `dterror` datetime DEFAULT NULL,
   `nodename` varchar(100) NOT NULL,
   `centralization_date` datetime DEFAULT NULL,
+  `flowname` varchar(1024) DEFAULT NULL,
+  `json` longtext DEFAULT NULL,
+  `pos` int DEFAULT 0,
+  `posname` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`nodename`, `pid`),
-  KEY `fk_stack_idx_dtexe_stack_closed` (`dtexe`)
+  KEY `fk_stack_idx_dtexe_stack_closed` (`dtexe`),
+  KEY `fk_stack_closed_idx_flowname` (`flowname`),
+  KEY `fk_stack_closed_idx_pos` (`pos`)
 );
 
 CREATE TABLE IF NOT EXISTS `stack_error` (
   `pid` varchar(20) NOT NULL,
+  `parent_id` varchar(20) NULL DEFAULT NULL,
   `priority` int(11) NOT NULL,
   `nb_in_thread` int(11) NOT NULL,
   `script` varchar(1024) NOT NULL,
@@ -161,8 +176,27 @@ CREATE TABLE IF NOT EXISTS `stack_error` (
   `dterror` datetime DEFAULT NULL,
   `nodename` varchar(100) NOT NULL,
   `centralization_date` datetime DEFAULT NULL,
+  `flowname` varchar(1024) DEFAULT NULL,
+  `json` longtext DEFAULT NULL,
+  `pos` int DEFAULT 0,
+  `posname` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`nodename`, `pid`),
-  KEY `fk_stack_idx_dtexe_stack_error` (`dtexe`)
+  KEY `fk_stack_idx_dtexe_stack_error` (`dtexe`),
+  KEY `fk_stack_error_idx_flowname` (`flowname`),
+  KEY `fk_stack_error_idx_pos` (`pos`)
+);
+
+CREATE TABLE IF NOT EXISTS `history` (
+	`dt_insert` datetime NOT NULL ,
+	`client_host_name` varchar(512) NULL , 
+	`client_host_ip` varchar(255) NULL , 
+	`client_port` int NULL , 
+	`mql_user` varchar(50) NOT NULL , 
+	`mql_script` varchar(600) NOT NULL ,
+	`mql` longtext NOT NULL , 
+  	KEY `fk_history_idx_dt_insert` (`dt_insert`),
+  	KEY `fk_history_idx_mql_user` (`mql_user`),
+  	KEY `fk_history_idx_mql_script` (`mql_script`)
 );
 
 CREATE TABLE IF NOT EXISTS `users` (
@@ -245,6 +279,7 @@ DELETE FROM `group_tag`;
 DELETE FROM `apps`;
 DELETE FROM `app_user`;
 DELETE FROM `record`;
+DELETE FROM `history`;
 ALTER TABLE `logs` AUTO_INCREMENT = 1;
 ALTER TABLE `mails` AUTO_INCREMENT = 1;
 ALTER TABLE `mail_files` AUTO_INCREMENT = 1;

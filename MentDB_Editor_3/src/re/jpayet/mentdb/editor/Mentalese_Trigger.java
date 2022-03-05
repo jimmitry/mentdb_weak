@@ -137,7 +137,7 @@ public class Mentalese_Trigger {
 		
 		// Create and set up a frame window
 		JFrame.setDefaultLookAndFeelDecorated(true);
-		JFrame frame = new JFrame("Mentalese Trigger");
+		JFrame frame = new JFrame("CONNECTION LIST");
 		frame.setSize(600, 600);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);

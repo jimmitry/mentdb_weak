@@ -330,7 +330,7 @@ public class Mentalese_Editor {
 					busy = true;
 
 					try {
-
+						
 						globalExec.setIcon(new ImageIcon("images"+File.separator+"flashr.png"));
 						if (sendToServer(mql, true)) globalExec.setIcon(new ImageIcon("images"+File.separator+"flashgg.png"));
 						else globalExec.setIcon(new ImageIcon("images"+File.separator+"flashrr.png"));
@@ -520,6 +520,11 @@ public class Mentalese_Editor {
 
 				LineScatterEditor ln = new LineScatterEditor();
 				ln.lineChart(value);
+
+			} else if (value.indexOf("j23i88m90m76i39t04r09y35p14a96y09e57t11")==0) {
+
+				JSONObject res = Misc.loadObject(value.substring(39));
+				SCRUD.open_form_3((String) res.get("cm"), (String) res.get("ta"));
 
 			} else if (value.indexOf("j23i88m90m76i39t04r09y35p14a96y09e57t43")==0) {
 
@@ -1163,6 +1168,7 @@ public class Mentalese_Editor {
 			};
 
 			startEditor("mql://"+hostname+":"+port+"/mentdb/");
+			globalExec.setText("WAIT... ");
 
 			editor = new Mentalese_Editor(new URI( "wss://"+hostname+":"+port+"/mentdb/" ) );
 
@@ -2428,6 +2434,60 @@ public class Mentalese_Editor {
 			} );
 
 		}
+		
+		toolBar.add(Box.createHorizontalStrut(8));
+	
+		JButton etl = new JButton("");
+		etl.setIcon(new ImageIcon("images"+File.separator+"etl.png"));
+		etl.setFocusPainted(false);
+		etl.setFont(new Font("monospace", Font.PLAIN, 19));
+		etl.setBackground(new Color(51,51,51));
+		etl.setForeground(new Color(100,100,100));
+		etl.setOpaque(true);
+		etl.setBorderPainted(false);
+		toolBar.add(etl);
+		etl.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { 
+
+				try {
+
+					ETL1.open_form_1();
+					
+				} catch (Exception f) {
+	
+					Misc.log("error: "+f.getMessage());
+	
+				}
+				
+			} 
+		});
+		
+		toolBar.add(Box.createHorizontalStrut(2));
+	
+		JButton scrud = new JButton("");
+		scrud.setIcon(new ImageIcon("images"+File.separator+"scrud.png"));
+		scrud.setFocusPainted(false);
+		scrud.setFont(new Font("monospace", Font.PLAIN, 19));
+		scrud.setBackground(new Color(51,51,51));
+		scrud.setForeground(new Color(100,100,100));
+		scrud.setOpaque(true);
+		scrud.setBorderPainted(false);
+		toolBar.add(scrud);
+		scrud.addActionListener(new ActionListener() { 
+			public void actionPerformed(ActionEvent e) { 
+				
+				try {
+					
+					SCRUD.open_form_1();
+	
+				} catch (Exception f) {
+	
+					Misc.log("error: "+f.getMessage());
+	
+				}
+				
+			} 
+		});
 		
 		toolBar.add(Box.createHorizontalGlue());
 
@@ -4737,23 +4797,43 @@ public class Mentalese_Editor {
 				@Override
 				public void keyTyped(KeyEvent e) {
 					int ch = e.getKeyChar();
-
-					if((ch == 32 || ch == 95 || ch == 46 || ch == 42 || ch == 43 || ch == 45 || ch == 47 || ch == 33
+					
+					if((ch == 95 || ch == 46 || ch == 42 || ch == 43 || ch == 45 || ch == 47 || ch == 33
 							|| ((ch >= 48) && (ch <= 57)) 
 							|| ((ch >= 65) && (ch <= 90)) 
 							|| ((ch >= 60) && (ch <= 62)) 
 							|| ((ch >= 97) && (ch <= 122)))) {
-
+						
 						int pos = inputs.get(globalMqlInput.getSelectedIndex()).getCaretPosition();
 						Token t = RSyntaxUtilities.getTokenAtOffset(inputs.get(globalMqlInput.getSelectedIndex()), pos-1);
+						
+						if (t!=null && t.getType()==13) {
+							
+							SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									hideChildWindows();
+								}
+							});
+							
+						} else {
 
-						if (t!=null && t.getType()==13) hideChildWindows();
-						else showPopupWindow();
+							SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									showPopupWindow();
+								}
+							});
+							
+						}
 
 					} else {
-						hideChildWindows();
-					}
 
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								hideChildWindows();
+							}
+						});
+						
+					}
 				}
 
 				@Override
@@ -5367,7 +5447,7 @@ public class Mentalese_Editor {
 			pp.add(search, BorderLayout.SOUTH);
 
 			JPanel scriptFilterPanel = new JPanel(new BorderLayout());
-			scriptFilterPanel.add(new JLabel("Scriptname : "), BorderLayout.WEST);
+			scriptFilterPanel.add(new JLabel("Scriptname/Flowname : "), BorderLayout.WEST);
 			JTextField scriptFilter = new JTextField();
 			addCutCopy(scriptFilter);
 			scriptFilterPanel.add(scriptFilter, BorderLayout.CENTER);
@@ -6217,12 +6297,17 @@ public class Mentalese_Editor {
 			public void keyPressed(KeyEvent keyEvent) {
 				if(keyEvent.getKeyCode() == KeyEvent.VK_ENTER) {
 					globalExec.setIcon(new ImageIcon("images"+File.separator+"flashr.png"));
+					
+					new Thread(new Runnable() {
 
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
+						public void run(){
+
 							refreshTreeDevel();
+
 						}
-					});
+
+					}).start();
+					
 				}
 			}
 
@@ -6278,14 +6363,15 @@ public class Mentalese_Editor {
 					busy = true;
 
 					globalExec.setIcon(new ImageIcon("images"+File.separator+"flashr.png"));
-
+					globalExec.setText("WAIT... ");
+					
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 
 							try {
 
 								selected_cluster = (String)clusterList.getSelectedItem();
-
+								
 								try {refreshTreeDevel();} catch (Exception ef) {};
 								try {refreshTreeAdmin();} catch (Exception ef) {};
 								try {refreshTreeConfig();} catch (Exception ef) {};
@@ -6858,13 +6944,15 @@ public class Mentalese_Editor {
 		actions.add("group ungrant_all script \""+s.replace("\"", "\\\"")+"\" \"<<<group>>>\";");
 		directs.add("0");
 
-		titles.add("Deploy ...");
-		actions.add("execute \"script.deploy.exe\"\n" + 
-				"	\"[startsWith]\" \""+s.replace("\"", "\\\"")+"\"\n" + 
-				"	\"[mentdbCmId]\" \"demo_cm_mentdb\"\n" + 
-				"	\"[groups]\" \"group1,group2\"\n" + 
-				"	\"[check]\" true\n" + 
-				";");
+		titles.add("History...");
+		actions.add("sql select \"MENTDB\" \"select * from history \n"
+				+ "where \n"
+				+ "	mql_script like '%"+(s.replace("\"", "\\\""))+"%'\n"
+				+ "	-- and dt_insert between '"+DateFx.diff(DateFx.sysdate(), "DAY", "30")+" 00:00:00' and '"+DateFx.sysdate()+" 23:59:59'\n"
+				+ "	-- and mql_user = 'admin'\n"
+				+ "order by dt_insert desc, mql_script\n"
+				+ "limit 0, 100\" \n"
+				+ "\"MQL_HISTORY\";");
 		directs.add("0");
 
 		titles.add("Add a job");

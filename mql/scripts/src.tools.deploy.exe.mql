@@ -1,18 +1,14 @@
 script create exe "src.tools.deploy" false 1 
   (param
   	(var "[startsWith]" {true} "Scripts starts with" is_null:false is_empty:false "cnt.")
-  	(var "[mentdbCmId]" {type is_enum [mentdbCmId] "PREPROD,PROD"} "The MentDB server" is_null:false is_empty:false "PREPROD|PROD")
+  	(var "[mentdbCmId]" {true} "The MentDB server CM" is_null:false is_empty:false "MENTDB_CM")
   	(var "[groups]" {true} "The group" is_null:false is_empty:false "cnt")
   	(var "[check]" {type is_bool [check] 1 0;} "Check or deploy" is_null:false is_empty:false "1")
   ;) 
   "Check or Deploy scripts to a remote MentDB server" 
 {
 
-	if (equal [mentdbCmId] "PROD") {
-		tunnel connect "session1" {cm get "MK_DISTRI_PROD"};
-	} {
-		tunnel connect "session1" {cm get "MK_DISTRI_PREPROD"};
-	};
+	tunnel connect "session1" {cm get [mentdbCmId]};
 	
 	-> "[result]" "";
 

@@ -4,15 +4,15 @@ script create exe "app.100.scrud.generate" false 1
   	(var "[prefix]" {true} "The prefix" is_null:true is_empty:true "folder.sub_folder.")
   	(var "[database]" {true} "The database" is_null:true is_empty:true "demo_cm_mysql")
   	(var "[table]" {true} "The table" is_null:true is_empty:true "products")
+  	(var "[confjson]" {true} "The JSON config in base 64" is_null:true is_empty:true "{}b64")
   ;) 
   "SCRUD OPERATIONS" 
 {
 
+	-> "[dbsubtype]" (node select (concat "CM[" [database] "]") /subType);
+	json load "CONFJSON" (string decode_b64 [confjson]);
 	json load "cm" (cm get [database]);
-	if (and (not equal (json select "cm" "/subType") "MySQL") (not equal (json select "cm" "/subType") "H2")) {
-		exception (1) ("Sorry, the database type must be 'MySQL'.");
-	};
-
+	
 	-> "[result]" "";
 
 	concat_var "[result]" "script create exe \"" [prefix] [database] "." [table] ".list\" false 1
@@ -62,7 +62,13 @@ script create exe "app.100.scrud.generate" false 1
     <tr>\";
 	
 	#Connect to the database;
-	sql connect \"session1\" {cm get \"" [database] "\";};
+	sql connect \"session1\" {cm get \"" [database] "\";};";
+
+	if (equal [dbsubtype] "Oracle") {
+		concat_var "[result]" (mql {sql dml "session1" (concat "ALTER SESSION SET CURRENT_SCHEMA=\"RUNCEN\"");};);
+	};
+
+	concat_var "[result]" "
 
 	try {
 
@@ -71,8 +77,11 @@ script create exe "app.100.scrud.generate" false 1
       <th style='width:44px;padding: 0px 0px 0px 12px;'><div class='form-check form-check-inline form-control-lg' style='margin-right: 0px;padding-right: 0px;margin-left: 3px;'><input style='margin-right: 0px;' class='form-check-input' type='checkbox' id='" [table] "_main_checkbox' onchange='check_all(\\"" [table] "_keys_checkbox\\", this);'></div></th>";
 
       	#Build columns;
+      	-> "[firstColNames]" "";
       	-> "[colNames]" "";
       	-> "[colVars]" "";
+      	-> "[insert_colNames]" "";
+      	-> "[insert_colVars]" "";
       	-> "[updateColVars]" "";
       	-> "[wherePri]" "";
       	-> "[lang_list_fields]" "";
@@ -84,29 +93,48 @@ script create exe "app.100.scrud.generate" false 1
 		
 			json load "o" [o];
 
+			if (is empty [firstColNames]) {
+				-> "[firstColNames]" (json select "o" "/FIELD");
+			};
+
 			concat_var "[lang_list_fields]" "
-			\\"list_field_" (json select "o" "/Field") "\\": {
-				\\"en\\": \\"" (json select "o" "/Field") "\\",
-				\\"fr\\": \\"" (json select "o" "/Field") "\\"
+			\\"list_field_" (json select "o" "/FIELD") "\\": {
+				\\"en\\": \\"" (json select "o" "/FIELD") "\\",
+				\\"fr\\": \\"" (json select "o" "/FIELD") "\\"
 			},";
 
-			concat_var "[result]" "
-      <th scope='col' style='padding: 0px;'><a style='border:0px' class='page-link' href='javascript:;' onClick=\" (include \"app.100.obj.sajax.client.exe\" \"[scriptname]\" \"" [prefix] [database] "." [table] ".list.exe\" \"[OBJ_OVERWRITE_B64]\" (string encode_b64 (concat \"{\\"order_by\\":\\"\" (if (equal [cur_order_by] \"" (json select "o" "/Field") "\") {if (is empty [asc_desc]) {\"\"} {(concat [asc_desc] \"" (json select "o" "/Field") "\")}} {(concat \"ASC|\" \"" (json select "o" "/Field") "\")}) \"\\"}\")) \"[getElementById]\" \"\" \"[data]\" \"\") \" aria-label='Next'>"
+			if (json select "CONFJSON" (concat "/SELECT/" (json select "o" "/FIELD"))) {
+				concat_var "[result]" "
+      <th scope='col' style='padding: 0px;'><a style='border:0px' class='page-link' href='javascript:;' onClick=\" (include \"app.100.obj.sajax.client.exe\" \"[scriptname]\" \"" [prefix] [database] "." [table] ".list.exe\" \"[OBJ_OVERWRITE_B64]\" (string encode_b64 (concat \"{\\"order_by\\":\\"\" (if (equal [cur_order_by] \"" (json select "o" "/FIELD") "\") {if (is empty [asc_desc]) {\"\"} {(concat [asc_desc] \"" (json select "o" "/FIELD") "\")}} {(concat \"ASC|\" \"" (json select "o" "/FIELD") "\")}) \"\\"}\")) \"[getElementById]\" \"\" \"[data]\" \"\") \" aria-label='Next'>"
       		
-      		"\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"list_field_" (json select "o" "/Field") "\") (if (equal [cur_order_by] \"" (json select "o" "/Field") "\") {(if (is empty [asc_desc]) {\"<i class='fa fa-sort-down  float-right' aria-hidden='true' style='margin-top: 3px;'></i>\"} {if (not equal \"ASC|\" [asc_desc]) {\"<i class='fa fa-sort-up  float-right' aria-hidden='true' style='margin-top: 3px;'></i>\"}})}) \"</a></th>";
-
-			concat_var "[colNames]" ", 
-			`" (json select "o" "/Field") "`";
-			concat_var "[colVars]" ", 
-			\" (sql encode (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")) \"";
-			
-			if (not equal (json select "o" "/Key") "PRI") {
-				concat_var "[updateColVars]" ", 
-			`" (json select "o" "/Field") "`=\" (sql encode (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")) \"";
+      		"\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"list_field_" (json select "o" "/FIELD") "\") (if (equal [cur_order_by] \"" (json select "o" "/FIELD") "\") {(if (is empty [asc_desc]) {\"<i class='fa fa-sort-down  float-right' aria-hidden='true' style='margin-top: 3px;'></i>\"} {if (not equal \"ASC|\" [asc_desc]) {\"<i class='fa fa-sort-up  float-right' aria-hidden='true' style='margin-top: 3px;'></i>\"}})}) \"</a></th>";
 			};
 			
-			if (equal (json select "o" "/Key") "PRI") {
-				concat_var "[wherePri]" " and `" (json select "o" "/Field") "`= \" (sql encode (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")) \" ";
+			concat_var "[colNames]" ", 
+			" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" (json select "o" "/FIELD") "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) "";
+
+			if (not equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "NOT_USED") {
+				concat_var "[insert_colNames]" ", 
+			" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" (json select "o" "/FIELD") "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) "";
+			};
+			
+			concat_var "[colVars]" ", 
+			\" (sql encode (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")) \"";
+			
+			if (not equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "NOT_USED") {
+				concat_var "[insert_colVars]" ", 
+			\" (sql encode (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")) \"";
+			};
+			
+			if (not equal (json select "o" "/KEY") "PRI") {
+				if (not equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "NOT_USED") {
+				concat_var "[updateColVars]" ", 
+			" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" (json select "o" "/FIELD") "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) "=\" (sql encode (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")) \"";
+				};
+			};
+			
+			if (equal (json select "o" "/KEY") "PRI") {
+				concat_var "[wherePri]" " and " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" (json select "o" "/FIELD") "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) "= \" (sql encode (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")) \" ";
 			};
 		
 		};
@@ -114,6 +142,8 @@ script create exe "app.100.scrud.generate" false 1
 		if (is not empty [wherePri]) {-> "[wherePri]" (string substring [wherePri] 5);};
 		-> "[colNames]" (string substring [colNames] 2);
 		-> "[colVars]" (string substring [colVars] 2);
+		-> "[insert_colNames]" (string substring [insert_colNames] 2);
+		-> "[insert_colVars]" (string substring [insert_colVars] 2);
 		-> "[updateColVars]" (string substring [updateColVars] 2);
 
       	#End of columns;
@@ -131,11 +161,11 @@ script create exe "app.100.scrud.generate" false 1
 
 				if (not (string starts_with [key] \"type:\")) {
 					switch (json select \"filter_sql\" (concat \"/type:\" [key]))
-						(\"EQUAL\") {concat_var \"[sql_filter]\" \" and `\" [key] \"`=\" (sql encode [val]);}
-						(\"LIKE_L\") {concat_var \"[sql_filter]\" \" and `\" [key] \"` like '%\" (string sublrchar (sql encode [val]) 1) \"'\";}
-						(\"LIKE_R\") {concat_var \"[sql_filter]\" \" and `\" [key] \"` like '\" (string sublrchar (sql encode [val]) 1) \"%'\";}
-						(\"LIKE_LR\") {concat_var \"[sql_filter]\" \" and `\" [key] \"` like '%\" (string sublrchar (sql encode [val]) 1) \"%'\";}
-						{concat_var \"[sql_filter]\" \" and `\" [key] \"`=\" (sql encode [val]);}
+						(\"EQUAL\") {concat_var \"[sql_filter]\" \" and " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "\" [key] \"" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) "=\" (sql encode [val]);}
+						(\"LIKE_L\") {concat_var \"[sql_filter]\" \" and " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "\" [key] \"" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " like '%\" (string sublrchar (sql encode [val]) 1) \"'\";}
+						(\"LIKE_R\") {concat_var \"[sql_filter]\" \" and " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "\" [key] \"" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " like '\" (string sublrchar (sql encode [val]) 1) \"%'\";}
+						(\"LIKE_LR\") {concat_var \"[sql_filter]\" \" and " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "\" [key] \"" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " like '%\" (string sublrchar (sql encode [val]) 1) \"%'\";}
+						{concat_var \"[sql_filter]\" \" and " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "\" [key] \"" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) "=\" (sql encode [val]);}
 					;
 					concat_var \"[sql_filter_keys]\" \"<span class='badge badge-light'>\" [key] \"</span> \";
 				};
@@ -149,27 +179,80 @@ script create exe "app.100.scrud.generate" false 1
 		};
 
 		-> \"[iline]\" (+ 1 (- (* [page] [nb_by_page]) [nb_by_page]));
-		-> \"[nb_elements]\" (sql value \"session1\" (concat \"select count(*) from `" [table] "` \" [sql_filter] \";\"));
+		-> \"[nb_elements]\" (sql value \"session1\" (concat \"select count(*) from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \"\"));
 		-> \"[nb_page]\" (math ceil (/ [nb_elements] [nb_by_page]));
-		if (is empty [cur_order_by]) {
-			-> \"[sql_order_by]\" \"\";
+		if (is empty [cur_order_by]) {";
+
+		if (equal [dbsubtype] "SQLServer") {
+		concat_var "[result]" "
+			-> \"[sql_order_by]\" \"order by [" [firstColNames] "]\";";
 		} {
-			-> \"[sql_order_by]\" (concat \"order by `\" [cur_order_by] \"` \" [cur_asc_desc]);
+		concat_var "[result]" "
+			-> \"[sql_order_by]\" \"\";";
 		};
 
-		-> \"[app_is_granted_update]\" (app is_granted_a \"" [database] "." [table] ".list.update\");
+		concat_var "[result]" "
+		} {
+			-> \"[sql_order_by]\" (concat \"order by " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "\" [cur_order_by] \"" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [cur_asc_desc]);
+		};
+
+		-> \"[app_is_granted_update]\" (app is_granted_a \"" [database] "." [table] ".list.update\");";
+
+		switch ([dbsubtype])
+			("SQLServer") {concat_var "[result]" "
 		
-		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from `" [table] "` \" [sql_filter] \" \" [sql_order_by] \" limit \" (- (* [page] [nb_by_page]) [nb_by_page]) \", \" [nb_by_page] \";\") {
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" offset \" (- (* [page] [nb_by_page]) [nb_by_page]) \" ROWS FETCH NEXT \" [nb_by_page] \" ROWS ONLY\") {
 			
-			";
+			";}
+			("MySQL") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" limit \" (- (* [page] [nb_by_page]) [nb_by_page]) \", \" [nb_by_page] \"\") {
+			
+			";}
+			("H2") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" limit \" (- (* [page] [nb_by_page]) [nb_by_page]) \", \" [nb_by_page] \"\") {
+			
+			";}
+			("PostgreSQL") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" limit \" [nb_by_page] \" offset \" (- (* [page] [nb_by_page]) [nb_by_page]) \"\") {
+			
+			";}
+			("Oracle") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" offset \" (- (* [page] [nb_by_page]) [nb_by_page]) \" ROWS FETCH NEXT \" [nb_by_page] \" ROWS ONLY\") {
+			
+			";}
+			("Derby") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" offset \" (- (* [page] [nb_by_page]) [nb_by_page]) \" ROWS FETCH NEXT \" [nb_by_page] \" ROWS ONLY\") {
+			
+			";}
+			("HSQL") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" limit \" [nb_by_page] \" offset \" (- (* [page] [nb_by_page]) [nb_by_page]) \"\") {
+			
+			";}
+			("DB2") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \" limit \" [nb_by_page] \" offset \" (- (* [page] [nb_by_page]) [nb_by_page]) \"\") {
+			
+			";}
+			("Firebird") {concat_var "[result]" "
+		
+		sql parse \"session1\" \"T\" (concat \"select FIRST \" [nb_by_page] \" SKIP \" (- (* [page] [nb_by_page]) [nb_by_page]) \" " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " \" [sql_filter] \" \" [sql_order_by] \"\") {
+			
+			";}		
+		;
 
 			-> "[update_pk]" "";
       		json parse_array "desc" "/data" "[o]" {
 		
 				json load "o" [o];
 
-      			if (equal (json select "o" "/Key") "PRI") {
-					concat_var "[update_pk]" "json iobject \"primary_key\" \"/client_data\" \"" (json select "o" "/Field") "\" " (concat "[T_" (json select "o" "/Field") "]") " STR;
+      			if (equal (json select "o" "/KEY") "PRI") {
+					concat_var "[update_pk]" "json iobject \"primary_key\" \"/client_data\" \"" (json select "o" "/FIELD") "\" " (concat "[T_" (json select "o" "/FIELD") "]") " STR;
 			";
 				}
 
@@ -186,8 +269,10 @@ script create exe "app.100.scrud.generate" false 1
 		
 				json load "o" [o];
 
-				concat_var "[result]" "
-      <td style='padding: 6px 2px 0px 2px;'>\" (string replace " (concat "[T_" (json select "o" "/Field") "]") " \"<\" \"&lt;\") \"</td>";
+				if (json select "CONFJSON" (concat "/SELECT/" (json select "o" "/FIELD"))) {
+					concat_var "[result]" "
+      <td style='padding: 6px 2px 0px 2px;'>\" (string replace " (concat "[T_" (json select "o" "/FIELD") "]") " \"<\" \"&lt;\") \"</td>";
+      			};
 
       		};
 
@@ -345,168 +430,428 @@ script create exe \"" [prefix] [database] "." [table] ".search_open_form\" false
 
 			-> "[tmp_maxlength]" "";
 
-			if (string starts_with (json select "o" "/Type") "varchar(") {
+			if (string starts_with (json select "o" "/TYPE") "varchar(") {
 
-				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/Type") 2 "(") 1 ")");
+				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/TYPE") 2 "(") 1 ")");
 
 			};
 
 			concat_var "[lang_search_fields]" "
-			\\"form_search_field_" (json select "o" "/Field") "\\": {
-				\\"en\\": \\"" (json select "o" "/Field") "\\",
-				\\"fr\\": \\"" (json select "o" "/Field") "\\"
+			\\"form_search_field_" (json select "o" "/FIELD") "\\": {
+				\\"en\\": \\"" (json select "o" "/FIELD") "\\",
+				\\"fr\\": \\"" (json select "o" "/FIELD") "\\"
 			},";
-			
-			concat_var "[result]" "# " (json select "o" "/Field") " -------- TO DELETE ...;
 
-			if (is null (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")) {
-				json iobject \"filter_sql\" / \"" (json select "o" "/Field") "\" \"\" STR;
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.text") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
 			};
 			
-			include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+			include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.number") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
+			include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
 				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.range") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.mail") {
 			
-			#include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+			include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.tel") {
 			
-			#include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.time") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.date_en") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.date_fr") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.datetime_en") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.datetime_fr") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.color") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+			
+			include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.password") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textbox.file") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textarea") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+			
+			include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "textarea_cke") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+			
+			include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "select_mono") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
+		
+			include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "select_multiple") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[values]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "radio_line") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "radio_inline") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "checkbox_line") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[values]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "checkbox_inline") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_search_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+				\"[values]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "hidden") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+
+			if (is null (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")) {
+				json iobject \"filter_sql\" / \"" (json select "o" "/FIELD") "\" \"\" STR;
+			};
 		
-			#include \"app.100.obj.form.control.hidden.exe\"
-				\"[control_id]\" \"" (json select "o" "/Field") "\"
-				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/Field") "\")
-			;
+			include \"app.100.obj.form.control.hidden.exe\"
+				\"[control_id]\" \"" (json select "o" "/FIELD") "\"
+				\"[value]\" (json select \"filter_sql\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			concat_var "[result]" "
 		
 		";
 
@@ -540,31 +885,33 @@ script create exe \"" [prefix] [database] "." [table] ".search\" false 1
 		
 		json load \"data\" (string decode_b64 [OBJ_OVERWRITE_B64]);
 
-		json load \"filter_sql\" \"{\\"filter_sql\\":{}}\";
-
-		";
+		json load \"filter_sql\" \"{\\"filter_sql\\":{}}\";";
 
 	json parse_array "desc" "/data" "[o]" {
 		
 			json load "o" [o];
+
+			if (not equal (json select "CONFJSON" (concat "/SEARCH/" (json select "o" "/FIELD"))) "NOT_USED") {
 			
-			if (string starts_with (json select "o" "/Type") "varchar") {
+			if (string starts_with (json select "o" "/TYPE") "varchar") {
 
 				concat_var "[result]" "
 
-		if (not (is null or empty (json select \"data\" \"/client_data/" (json select "o" "/Field") "\"))) {
-			json iobject \"filter_sql\" \"/filter_sql\" \"" (json select "o" "/Field") "\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\") STR;
-			json iobject \"filter_sql\" \"/filter_sql\" \"type:" (json select "o" "/Field") "\" \"LIKE_LR\" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		if (not (is null or empty (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\"))) {
+			json iobject \"filter_sql\" \"/filter_sql\" \"" (json select "o" "/FIELD") "\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\") STR;
+			json iobject \"filter_sql\" \"/filter_sql\" \"type:" (json select "o" "/FIELD") "\" \"LIKE_LR\" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
 		};";
 
 			} {
 
 				concat_var "[result]" "
 
-		if (not (is null or empty (json select \"data\" \"/client_data/" (json select "o" "/Field") "\"))) {
-			json iobject \"filter_sql\" \"/filter_sql\" \"" (json select "o" "/Field") "\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\") STR;
-			json iobject \"filter_sql\" \"/filter_sql\" \"type:" (json select "o" "/Field") "\" \"EQUAL\" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
+		if (not (is null or empty (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\"))) {
+			json iobject \"filter_sql\" \"/filter_sql\" \"" (json select "o" "/FIELD") "\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\") STR;
+			json iobject \"filter_sql\" \"/filter_sql\" \"type:" (json select "o" "/FIELD") "\" \"EQUAL\" STR; #EQUAL|LIKE_L|LIKE_LR|LIKE_R;
 		};";
+
+			};
 
 			};
 
@@ -623,172 +970,340 @@ script create exe \"" [prefix] [database] "." [table] ".insert_open_form\" false
 
 			-> "[tmp_maxlength]" "";
 
-			if (string starts_with (json select "o" "/Type") "varchar(") {
+			if (string starts_with (json select "o" "/TYPE") "varchar(") {
 
-				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/Type") 2 "(") 1 ")");
+				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/TYPE") 2 "(") 1 ")");
 
 			};
 
 			concat_var "[lang_insert_fields]" "
-			\\"form_insert_field_" (json select "o" "/Field") "\\": {
-				\\"en\\": \\"" (json select "o" "/Field") "\\",
-				\\"fr\\": \\"" (json select "o" "/Field") "\\"
+			\\"form_insert_field_" (json select "o" "/FIELD") "\\": {
+				\\"en\\": \\"" (json select "o" "/FIELD") "\\",
+				\\"fr\\": \\"" (json select "o" "/FIELD") "\\"
 			},";
 			
-			concat_var "[result]" "# " (json select "o" "/Field") " -------- TO DELETE ...;
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.text") {
 			
-			";
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
 
-			if (equal (json select "o" "/Extra") "auto_increment") {
-
-				concat_var "[result]" "#";
-
-			};
-			
-			concat_var "[result]" "include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				concat_var "[result]" "
+				
+			include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.number") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
+			include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
 				\"[min]\" \"\" \"[max]\" \"\" \"[step]\" \"\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[value]\" 0
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.range") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[value]\" 0
-			;
-		
-			#include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.mail") {
 			
-			#include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.tel") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.time") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.date_en") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.date_fr") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.datetime_en") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.datetime_fr") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.color") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[value]\" \"#1867c0\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
-		
-			#include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.password") {
 			
-			#include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.file") {
 			
-			#include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textarea") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textarea_cke") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" \"\"
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "select_mono") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
 				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "select_multiple") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
 				\"[values]\" \"{\\"2\\":\\"0\\", \\"3\\":\\"0\\"}\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "radio_line") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
 				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "radio_inline") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
 				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "checkbox_line") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
 				\"[values]\" \"{\\"2\\":\\"0\\", \\"3\\":\\"0\\"}\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "checkbox_inline") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
 				\"[values]\" \"{\\"2\\":\\"0\\", \\"3\\":\\"0\\"}\"
-			;
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "hidden") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.hidden.exe\"
-				\"[control_id]\" \"" (json select "o" "/Field") "\"
+			include \"app.100.obj.form.control.hidden.exe\"
+				\"[control_id]\" \"" (json select "o" "/FIELD") "\"
 				\"[value]\" \"\"
-			;
+			;";
+
+			};
+
+			concat_var "[result]" "
 		
 		";
 
@@ -838,166 +1353,334 @@ script create exe \"" [prefix] [database] "." [table] ".insert_reopen_form\" fal
 
 			-> "[tmp_maxlength]" "";
 
-			if (string starts_with (json select "o" "/Type") "varchar(") {
+			if (string starts_with (json select "o" "/TYPE") "varchar(") {
 
-				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/Type") 2 "(") 1 ")");
-
-			};
-			
-			concat_var "[result]" "# " (json select "o" "/Field") " -------- TO DELETE ...;
-			
-			";
-
-			if (equal (json select "o" "/Extra") "auto_increment") {
-
-				concat_var "[result]" "#";
+				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/TYPE") 2 "(") 1 ")");
 
 			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.text") {
 			
-			concat_var "[result]" "include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+				
+			include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.number") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
+			include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
 				\"[min]\" \"\" \"[max]\" \"\" \"[step]\" \"\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.range") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.mail") {
 			
-			#include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+			include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.tel") {
 			
-			#include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.time") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.date_en") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.date_fr") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.datetime_en") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.datetime_fr") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.color") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.password") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textbox.file") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textarea") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "textarea_cke") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "select_mono") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "select_multiple") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "radio_line") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "radio_inline") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "checkbox_line") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "checkbox_inline") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
+			include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_insert_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
 				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
 				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/INSERT/" (json select "o" "/FIELD"))) "hidden") {
+			
+				concat_var "[result]" "# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.hidden.exe\"
-				\"[control_id]\" \"" (json select "o" "/Field") "\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+			include \"app.100.obj.form.control.hidden.exe\"
+				\"[control_id]\" \"" (json select "o" "/FIELD") "\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			concat_var "[result]" "
 		
 		";
 
@@ -1030,14 +1713,20 @@ script create exe \"" [prefix] [database] "." [table] ".insert\" false 1
 	try {
 		
 		#Connection ...;
-		sql connect \"session1\" {cm get \"" [database] "\"};
+		sql connect \"session1\" {cm get \"" [database] "\"};";
+
+	if (equal [dbsubtype] "Oracle") {
+		concat_var "[result]" (mql {sql dml "session1" (concat "ALTER SESSION SET CURRENT_SCHEMA=\"RUNCEN\"");};);
+	};
+
+	concat_var "[result]" "
 
 		json load \"data\" (string decode_b64 [OBJ_OVERWRITE_B64]);
 		
 		-> \"[result]\" (sql dml \"session1\" (concat 
-			\"INSERT INTO `" [table] "` (" [colNames] "
-			) VALUES (" [colVars] "
-			);\"
+			\"INSERT INTO " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " (" [insert_colNames] "
+			) VALUES (" [insert_colVars] "
+			)\"
 		));
 		
 		#Disconnection ...;
@@ -1093,8 +1782,14 @@ script create exe \"" [prefix] [database] "." [table] ".update_open_form\" false
 	try {
 		
 		#Connect to the database;
-		sql connect \"session1\" {cm get \"" [database] "\";};
-		json load \"row\" (sql row \"session1\" (concat \"select " [colNames] " from `" [table] "` where " [wherePri] "\"));
+		sql connect \"session1\" {cm get \"" [database] "\";};";
+
+	if (equal [dbsubtype] "Oracle") {
+		concat_var "[result]" (mql {sql dml "session1" (concat "ALTER SESSION SET CURRENT_SCHEMA=\"RUNCEN\"");};);
+	};
+
+	concat_var "[result]" "
+		json load \"row\" (sql row \"session1\" (concat \"select " [colNames] " from " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " where " [wherePri] "\"));
 	
 		#Disconnection ...;
 		sql disconnect \"session1\";
@@ -1116,9 +1811,7 @@ script create exe \"" [prefix] [database] "." [table] ".update_open_form\" false
 				\"[subTitle]\" \"\"
 				\"[method]\" \"post\"
 				\"[widthIfModal]\" \"modal-lg\"
-				\"[html]\" \"style='font-size:14px'\";
-			
-		";
+				\"[html]\" \"style='font-size:14px'\";";
 
 		json parse_array "desc" "/data" "[o]" {
 		
@@ -1126,186 +1819,390 @@ script create exe \"" [prefix] [database] "." [table] ".update_open_form\" false
 
 			-> "[tmp_maxlength]" "";
 
-			if (string starts_with (json select "o" "/Type") "varchar(") {
+			if (string starts_with (json select "o" "/TYPE") "varchar(") {
 
-				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/Type") 2 "(") 1 ")");
+				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/TYPE") 2 "(") 1 ")");
 
 			};
 
 			concat_var "[lang_update_fields]" "
-			\\"form_update_field_" (json select "o" "/Field") "\\": {
-				\\"en\\": \\"" (json select "o" "/Field") "\\",
-				\\"fr\\": \\"" (json select "o" "/Field") "\\"
+			\\"form_update_field_" (json select "o" "/FIELD") "\\": {
+				\\"en\\": \\"" (json select "o" "/FIELD") "\\",
+				\\"fr\\": \\"" (json select "o" "/FIELD") "\\"
 			},";
-			
-			concat_var "[result]" "# " (json select "o" "/Field") " -------- TO DELETE ...;
-			
-			";
 
-			if (equal (json select "o" "/Key") "PRI") {
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.text") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
 
-				concat_var "[result]" "#";
+				concat_var "[result]" "
+				
+			include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
 
 			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.number") {
 			
-			concat_var "[result]" "include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
+			include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
 				\"[min]\" \"\" \"[max]\" \"\" \"[step]\" \"\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"row\" \"/" (json select "o" "/Field") "\")
-			;
-			
-			";
-
-			if (not equal (json select "o" "/Key") "PRI") {
-
-				concat_var "[result]" "#";
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
 
 			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.range") {
 			
-			concat_var "[result]" "include \"app.100.obj.form.control.hidden.exe\"
-				\"[control_id]\" \"" (json select "o" "/Field") "\"
-				\"[value]\"(json select \"row\" \"/" (json select "o" "/Field") "\")
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.mail") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.tel") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.time") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.date_en") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.date_fr") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.datetime_en") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.datetime_fr") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.color") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.password") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.file") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textarea") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textarea_cke") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "select_mono") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "select_multiple") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[values]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "radio_line") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "radio_inline") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[value]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "checkbox_line") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[values]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "checkbox_inline") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[values]\" (json select \"row\" \"/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "hidden") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.hidden.exe\"
+				\"[control_id]\" \"" (json select "o" "/FIELD") "\"
+				\"[value]\"(json select \"row\" \"/" (json select "o" "/FIELD") "\")
 			;
 		
 		";
 
+			};
+
  		};
 	
-	concat_var "[result]" "include \"app.100.obj.form.end.exe\" \"[form_id]\" \"" [table] "_update_form_id\" \"[modal]\" true
+	concat_var "[result]" "
+	
+	include \"app.100.obj.form.end.exe\" \"[form_id]\" \"" [table] "_update_form_id\" \"[modal]\" true
 		\"[OBJ_OVERWRITE_B64]\" (string encode_b64 \"{}\")
 		\"[container_id]\" \"\"
 		\"[mql_script]\" \"" [prefix] [database] "." [table] ".update.exe\"
@@ -1339,9 +2236,7 @@ script create exe \"" [prefix] [database] "." [table] ".update_reopen_form\" fal
 				\"[subTitle]\" \"\"
 				\"[method]\" \"post\"
 				\"[widthIfModal]\" \"modal-lg\"
-				\"[html]\" \"style='font-size:14px'\";
-			
-		";
+				\"[html]\" \"style='font-size:14px'\";";
 
 		json parse_array "desc" "/data" "[o]" {
 		
@@ -1349,180 +2244,384 @@ script create exe \"" [prefix] [database] "." [table] ".update_reopen_form\" fal
 
 			-> "[tmp_maxlength]" "";
 
-			if (string starts_with (json select "o" "/Type") "varchar(") {
+			if (string starts_with (json select "o" "/TYPE") "varchar(") {
 
-				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/Type") 2 "(") 1 ")");
-
-			};
-			
-			concat_var "[result]" "# " (json select "o" "/Field") " -------- TO DELETE ...;
-			
-			";
-
-			if (equal (json select "o" "/Key") "PRI") {
-
-				concat_var "[result]" "#";
+				-> "[tmp_maxlength]" (atom get (atom get (json select "o" "/TYPE") 2 "(") 1 ")");
 
 			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.text") {
 			
-			concat_var "[result]" "include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+				
+			include \"app.100.obj.form.control.textbox.text.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.number") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
 		
-			#include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
+			include \"app.100.obj.form.control.textbox.number.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"\"
 				\"[min]\" \"\" \"[max]\" \"\" \"[step]\" \"\" \"[placeholder]\" \"\"
 				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-			
-			#include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-		
-			#include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/Field") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
-				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/Field") "\") \"[description]\" \"\"
-				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
-				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
-				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
-				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
-			;
-			
-			";
-
-			if (not equal (json select "o" "/Key") "PRI") {
-
-				concat_var "[result]" "#";
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
 
 			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.textbox") {
 			
-			concat_var "[result]" "include \"app.100.obj.form.control.hidden.exe\"
-				\"[control_id]\" \"" (json select "o" "/Field") "\"
-				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/Field") "\")
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.range.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[min]\" 0 \"[max]\" 100 \"[step]\" 1 \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.mail") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.mail.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.tel") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.tel.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.time") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.time.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.date_en") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.date_fr") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.date_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.datetime_en") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_en.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.datetime_fr") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.datetime_fr.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.color") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textbox.color.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.password") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.password.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textbox.file") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.textbox.file.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textarea") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "textarea_cke") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.textarea_cke.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\" \"[maxlength]\" \"" [tmp_maxlength] "\" \"[placeholder]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "select_mono") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.select_mono.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "select_multiple") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.select_multiple.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "radio_line") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.radio_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "radio_inline") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.radio_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, \\"\\", 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "checkbox_line") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.checkbox_line.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "checkbox_inline") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+		
+			include \"app.100.obj.form.control.checkbox_inline.exe\" \"[control_id]\" \"" (json select "o" "/FIELD") "\" \"[class]\" \"col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12\"
+				\"[label]\" (include \"" (concat [prefix] [database] "." [table] ".lang.exe") "\" \"[key_lang]\" \"form_update_field_" (json select "o" "/FIELD") "\") \"[description]\" \"\"
+				\"[readonly]\" false \"[required]\" false \"[disabled]\" false \"[html]\" \"\"
+				\"[inValues]\" \"[1, 2, 3, 4, 5]\"
+				\"[optionValues]\" \"[\\"A\\", \\"B\\", \\"C\\", \\"D\\", \\"E\\", \\"F\\"]\"
+				\"[values]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
+			;";
+
+			};
+
+			if (equal (json select "CONFJSON" (concat "/UPDATE/" (json select "o" "/FIELD"))) "hidden") {
+			
+				concat_var "[result]" "
+			
+			# -------- " (json select "o" "/FIELD") " --------;";
+
+				concat_var "[result]" "
+			
+			include \"app.100.obj.form.control.hidden.exe\"
+				\"[control_id]\" \"" (json select "o" "/FIELD") "\"
+				\"[value]\" (json select \"data\" \"/client_data/" (json select "o" "/FIELD") "\")
 			;
 		
 		";
 
+			};
+
  		};
 	
-	concat_var "[result]" "include \"app.100.obj.form.end.exe\" \"[form_id]\" \"" [table] "_update_form_id\" \"[modal]\" true
+	concat_var "[result]" "
+	
+	include \"app.100.obj.form.end.exe\" \"[form_id]\" \"" [table] "_update_form_id\" \"[modal]\" true
 		\"[OBJ_OVERWRITE_B64]\" (string encode_b64 \"{}\")
 		\"[container_id]\" \"\"
 		\"[mql_script]\" \"" [prefix] [database] "." [table] ".update.exe\"
@@ -1549,14 +2648,20 @@ script create exe \"" [prefix] [database] "." [table] ".update\" false 1
 	try {
 		
 		#Connection ...;
-		sql connect \"session1\" {cm get \"" [database] "\"};
+		sql connect \"session1\" {cm get \"" [database] "\"};";
+
+	if (equal [dbsubtype] "Oracle") {
+		concat_var "[result]" (mql {sql dml "session1" (concat "ALTER SESSION SET CURRENT_SCHEMA=\"RUNCEN\"");};);
+	};
+
+	concat_var "[result]" "
 
 		json load \"data\" (string decode_b64 [OBJ_OVERWRITE_B64]);
 		
 		-> \"[result]\" (sql dml \"session1\" (concat 
-			\"UPDATE `" [table] "` SET " [updateColVars] "
+			\"UPDATE " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " SET " [updateColVars] "
 			WHERE " [wherePri] "
-			;\"
+			\"
 		));
 		
 		#Disconnection ...;
@@ -1652,16 +2757,22 @@ script create exe \"" [prefix] [database] "." [table] ".delete\" false 1
 	try {
 
 		#Connection ...;
-		sql connect \"session1\" {cm get \"" [database] "\"};
+		sql connect \"session1\" {cm get \"" [database] "\"};";
+
+	if (equal [dbsubtype] "Oracle") {
+		concat_var "[result]" (mql {sql dml "session1" (concat "ALTER SESSION SET CURRENT_SCHEMA=\"RUNCEN\"");};);
+	};
+
+	concat_var "[result]" "
 	
 		json parse_array \"client_data\" \"/client_data\" \"[o]\" {
 		
 			json load \"data\" [o];
 	
 			-> \"[result]\" (sql dml \"session1\" (concat 
-				\"DELETE FROM `" [table] "` 
+				\"DELETE FROM " (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 1) "" [table] "" (execute "db.table.quote.get" "[type]" [dbsubtype] "[begin]" 0) " 
 				WHERE " [wherePri] "
-				;\"
+				\"
 			));
 		
 		};
@@ -1742,7 +2853,7 @@ script create exe \"" [prefix] [database] "." [table] ".onload\" false 1
 
 	include \"app.100.obj.sajax.server.exe\"
 		\"[scriptname]\" \"" [prefix] [database] "." [table] ".list.exe\"
-		\"[OBJ_OVERWRITE_B64]\" (string encode_b64 \"{\\"container_id\\":\\"" [database] "_" [table] "\\", \\"page\\":\\"1\\", \\"nb_by_page\\":\\"3\\", \\"nb_lr_pagination\\":\\"4\\", \\"order_by\\":\\"\\"}\")
+		\"[OBJ_OVERWRITE_B64]\" (string encode_b64 \"{\\"container_id\\":\\"" [database] "_" [table] "\\", \\"page\\":\\"1\\", \\"nb_by_page\\":\\"10\\", \\"nb_lr_pagination\\":\\"4\\", \\"order_by\\":\\"\\"}\")
 	;
 	
 } \"Reload all blocs\";";
