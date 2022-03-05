@@ -1,0 +1,328 @@
+if (not (group exist "0001_folder1_folder2_folder3")) {
+	group add "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_1_source_connect.exe" true 5
+  (param
+  )
+  "Connect to the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_NAME_OF_THE_FLOW]" "name_of_the_flow";
+	-> "[CONF_SOURCE_CM]" "demo_cm";
+
+	# INITIALIZATION ;
+	-> "[FLOW_PID]" [PID];
+	
+	# HANDLE ;
+	try {
+	
+		# Flow initialization;
+		stack flow_init [FLOW_PID] [CONF_NAME_OF_THE_FLOW] "{}";
+		stack flow_step [FLOW_PID] 1 "source_connect...";
+
+		tunnel connect "session_remote" {cm get [CONF_SOURCE_CM];};
+		
+		#Step 1 is valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_ok";
+		
+		include "folder1.folder2.folder3.step_2_extract.exe";
+	
+	} {
+
+		try {tunnel disconnect "session_remote";} {} "[err]";
+
+		#Step 1 is not valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_2_extract.exe" true 1
+  (param
+  )
+  "Extract files from the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_DIR_SOURCE]" "tmp/source";
+	-> "[CONF_SOURCE_FILTER]" ".*json";
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 2;
+		stack flow_step [FLOW_PID] 2 "extract...";
+
+		# Create the local directory PID;
+		file mkdir (concat "home/" [FLOW_PID]);
+
+		# Get files into PID directory;
+		log write (concat "Get files from '" [CONF_DIR_SOURCE] "/" [CONF_SOURCE_FILTER] "'.") OK null null;
+
+		json load "valid_files" (tunnel execute "session_remote" (concat 
+			"-> \"[CONF_DIR_SOURCE]\" \"" (mql encode [CONF_DIR_SOURCE]) "\";"
+			"-> \"[CONF_SOURCE_FILTER]\" \"" (mql encode [CONF_SOURCE_FILTER]) "\";"
+			(mql {
+				file dir_list_regex [CONF_DIR_SOURCE] [CONF_SOURCE_FILTER] true false;
+			})
+		));
+		
+		json parse_array "valid_files" "/" "[filename]" {
+
+			tunnel execute "session_remote" (concat 
+				"-> \"[CONF_DIR_SOURCE]\" \"" (mql encode [CONF_DIR_SOURCE]) "\";"
+				"-> \"[filename]\" \"" (mql encode [filename]) "\";"
+				(mql {
+					file reader_open "r1" (concat [CONF_DIR_SOURCE] "/" [filename]) BINARY null;
+				})
+			);
+
+			file writer_open "w1" (concat "home/" [FLOW_PID] "/" [filename]) true BINARY null;
+
+			#Parse the file;
+			while (is not null (-> "[bytes]" (tunnel execute "session_remote" "file reader_get_bytes \"r1\" 402400"))) {
+		
+				file writer_add_bytes "w1" [bytes];
+				file writer_flush "w1";
+		
+			};
+
+			#Close the reader and the writer;
+			tunnel execute "session_remote" "file reader_close \"r1\"";
+			file writer_close "w1";
+			
+			log write (concat "Get file 'home/" [FLOW_PID] "/" [filename] "'.") OK null null;
+		
+		};
+
+		# Delete source file;
+		json parse_array "valid_files" "/" "[filename]" {
+
+			tunnel execute "session_remote" (concat 
+				"-> \"[CONF_DIR_SOURCE]\" \"" (mql encode [CONF_DIR_SOURCE]) "\";"
+				"-> \"[filename]\" \"" (mql encode [filename]) "\";"
+				(mql {
+					file delete (concat [CONF_DIR_SOURCE] "/" [filename]);
+				})
+			);
+			log write (concat "Remove source file '" [CONF_DIR_SOURCE] "/" [filename] "'.") OK null null;
+
+		};
+		
+		tunnel disconnect "session_remote";
+	
+	} {
+
+		try {tunnel disconnect "session_remote";} {} "[err]";
+
+		#Step 2 is not valid;
+		stack flow_step [FLOW_PID] 2 "extract_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+	log write (concat (json count "valid_files" /) " file(s) to transform.") OK null null;
+
+	if (> (json count "valid_files" /) 0) {
+
+		#Step 2 is valid;
+		stack flow_step [FLOW_PID] 2 (concat "extract_ok_" (json count "valid_files" /) "_files");
+		
+		json parse_array "valid_files" "/" "obj" {
+
+			-> "[filename]" (json select "obj" /name);
+		
+			stack (date now) "folder1.folder2.folder3.step_3_transform.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" [filename];
+	
+		};
+		
+	} {
+
+		#Step 2 is valid;
+		stack flow_step [FLOW_PID] 2 "extract_ok_zero_file";
+		
+		# No file into the directory;
+		file delete (concat "home/" [FLOW_PID]);
+
+	};
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_3_transform.exe" true 1
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.csv")
+  )
+  "Transform the file"
+{
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 3;
+		stack flow_step [FLOW_PID] 3 "transform...";
+
+		# SOAP API: don't use step 3;
+		log write "SOAP API: don't use step 3" OK null null;
+
+		#Step 3 is valid;
+		stack flow_step [FLOW_PID] 3 "transform_ok";
+		
+		stack (date now) "folder1.folder2.folder3.step_4_destination_connect.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" [filename];
+		
+	} {
+
+		#Step 3 is not valid;
+		stack flow_step [FLOW_PID] 3 "transform_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_4_destination_connect.exe" true 5
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.xxx")
+  )
+  "Connect to the destination"
+{
+	
+	# HANDLE ;
+	try {
+	
+		# Flow initialization;
+		stack flow_step [FLOW_PID] 4 "destination_connect...";
+
+		# SOAP API: don't use step 4;
+		log write "SOAP API: don't use step 4" OK null null;
+
+		#Step 4 is valid;
+		stack flow_step [FLOW_PID] 4 "destination_connect_ok";
+		
+		include "folder1.folder2.folder3.step_5_load.exe";
+	
+	} {
+
+		#Step 4 is not valid;
+		stack flow_step [FLOW_PID] 4 "destination_connect_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_5_load.exe" true 1
+  (param
+  )
+  "Load file to the destination"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_SHOW_LOG_BY_NB_ROW]" 100;
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 5;
+		stack flow_step [FLOW_PID] 5 "load...";
+		
+		log write (concat "Send data from 'home/" [FLOW_PID] "/" [filename] "' to SOAP API...") OK null null;
+
+		json load "flow_source" (file load (concat "home/" [FLOW_PID] "/" [filename]));
+		
+		# BEGIN METHOD 1;
+		-> "[T_A]" "";
+		-> "[T_B]" "";
+		-> "[T_C]" "";
+		json parse_obj "flow_source" "/" "[key]" "[val]" {
+
+			-> (concat "[T_" [key] "]") [val];
+
+		};
+
+		xml load "result_from_soap_server" (soap https "https://www.dneonline.com/calculator.asmx" "{}" "" "text/xml; charset=utf-8" (concat "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:tem=\"http://tempuri.org/\">
+		   <soap:Header/>
+		   <soap:Body>
+		      <tem:Add>
+		         <tem:intA>" [T_A] "</tem:intA>
+		         <tem:intB>" [T_B] "</tem:intB>
+		      </tem:Add>
+		   </soap:Body>
+		</soap:Envelope>"));
+		# END METHOD 1;
+		
+		# BEGIN METHOD 2;
+		-> "[index]" 0;
+		-> "[index_all]" 0;
+		json parse_array "flow_source" "/" "row" {
+
+			-> "[T_A]" (json select "row" /A);
+			-> "[T_B]" (json select "row" /B);
+			-> "[T_C]" (json select "row" /C);
+
+			xml load "result_from_soap_server" (soap https "https://www.dneonline.com/calculator.asmx" "{}" "" "text/xml; charset=utf-8" (concat "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:tem=\"http://tempuri.org/\">
+			   <soap:Header/>
+			   <soap:Body>
+			      <tem:Add>
+			         <tem:intA>" [T_A] "</tem:intA>
+			         <tem:intB>" [T_B] "</tem:intB>
+			      </tem:Add>
+			   </soap:Body>
+			</soap:Envelope>"));
+			
+			++ "[index]";
+			++ "[index_all]";
+
+			if (== [index] [CONF_SHOW_LOG_BY_NB_ROW]) {
+				-> "[index]" 0;
+				log write (concat "Current row >>> " [index_all]) OK null null;
+			};
+		
+		};
+		# END METHOD 2;
+
+		log write (concat "Sended.") OK null null;
+
+		#Step 5 is valid;
+		stack flow_step [FLOW_PID] 5 "load_ok";
+		
+	} {
+
+		#Step 5 is not valid;
+		stack flow_step [FLOW_PID] 5 "load_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3";
+};
+

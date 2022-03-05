@@ -1,0 +1,279 @@
+if (not (group exist "0001_folder1_folder2_folder3")) {
+	group add "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_1_source_connect.exe" true 5
+  (param
+  )
+  "Connect to the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_NAME_OF_THE_FLOW]" "name_of_the_flow";
+
+	# INITIALIZATION ;
+	-> "[FLOW_PID]" [PID];
+	
+	# HANDLE ;
+	try {
+	
+		# Flow initialization;
+		stack flow_init [FLOW_PID] [CONF_NAME_OF_THE_FLOW] "{}";
+		stack flow_step [FLOW_PID] 1 "source_connect...";
+
+		# Local connection: don't use step 1;
+		log write "Source: Local connection" OK null null;
+		
+		#Step 1 is valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_ok";
+		
+		include "folder1.folder2.folder3.step_2_extract.exe";
+	
+	} {
+
+		#Step 1 is not valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_2_extract.exe" true 1
+  (param
+  )
+  "Extract files from the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_DIR_SOURCE]" "tmp/source";
+	-> "[CONF_SOURCE_FILTER]" ".*txt";
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 2;
+		stack flow_step [FLOW_PID] 2 "extract...";
+
+		# Create the local directory PID;
+		file mkdir (concat "home/" [FLOW_PID]);
+
+		# Get files into PID directory;
+		log write (concat "Get files from '" [CONF_DIR_SOURCE] "/" [CONF_SOURCE_FILTER] "'.") OK null null;
+		json load "valid_files" (file dir_list_regex [CONF_DIR_SOURCE] [CONF_SOURCE_FILTER] true false);
+		json parse_array "valid_files" "/" "[filename]" {
+		
+			file copy_file (concat [CONF_DIR_SOURCE] "/" [filename]) (concat "home/" [FLOW_PID] "/" [filename]);
+			log write (concat "Get file 'home/" [FLOW_PID] "/" [filename] "'.") OK null null;
+		
+		};
+
+		# Delete source file;
+		json parse_array "valid_files" "/" "[filename]" {
+		
+			file delete (concat [CONF_DIR_SOURCE] "/" [filename]);
+			log write (concat "Remove source file '" [CONF_DIR_SOURCE] "/" [filename] "'.") OK null null;
+
+		};
+	
+	} {
+
+		#Step 2 is not valid;
+		stack flow_step [FLOW_PID] 2 "extract_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+	log write (concat (json count "valid_files" /) " file(s) to transform.") OK null null;
+
+	if (> (json count "valid_files" /) 0) {
+
+		#Step 2 is valid;
+		stack flow_step [FLOW_PID] 2 (concat "extract_ok_" (json count "valid_files" /) "_files");
+		
+		json parse_array "valid_files" "/" "[filename]" {
+		
+			stack (date now) "folder1.folder2.folder3.step_3_transform.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" [filename];
+	
+		};
+		
+	} {
+
+		#Step 2 is valid;
+		stack flow_step [FLOW_PID] 2 "extract_ok_zero_file";
+		
+		# No file into the directory;
+		file delete (concat "home/" [FLOW_PID]);
+
+	};
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_3_transform.exe" true 1
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.csv")
+  )
+  "Transform the file"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_SOURCE_CSV_SEPARATOR]" ",";
+	-> "[CONF_SOURCE_CSV_QUOTE]" "'";
+	-> "[CONF_SOURCE_CSV_FORCE_COLUMN]" "A,B,C";
+	-> "[CONF_SHOW_LOG_BY_NB_ROW]" 100;
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 3;
+		stack flow_step [FLOW_PID] 3 "transform...";
+
+		# REST API: don't use step 3;
+		log write "REST API: don't use step 3" OK null null;
+
+		#Step 3 is valid;
+		stack flow_step [FLOW_PID] 3 "transform_ok";
+
+		stack (date now) "folder1.folder2.folder3.step_4_destination_connect.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" [filename];
+		
+	} {
+
+		#Step 3 is not valid;
+		stack flow_step [FLOW_PID] 3 "transform_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_4_destination_connect.exe" true 5
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.xxx")
+  )
+  "Connect to the destination"
+{
+	
+	# HANDLE ;
+	try {
+	
+		# Flow initialization;
+		stack flow_step [FLOW_PID] 4 "destination_connect...";
+
+		# REST API: don't use step 4;
+		log write "REST API: don't use step 4" OK null null;
+		
+		#Step 4 is valid;
+		stack flow_step [FLOW_PID] 4 "destination_connect_ok";
+		
+		include "folder1.folder2.folder3.step_5_load.exe";
+	
+	} {
+
+		#Step 4 is not valid;
+		stack flow_step [FLOW_PID] 4 "destination_connect_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_5_load.exe" true 1
+  (param
+  )
+  "Load file to the destination"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_SHOW_LOG_BY_NB_ROW]" 100;
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 5;
+		stack flow_step [FLOW_PID] 5 "load...";
+		
+		log write (concat "Send data from 'home/" [FLOW_PID] "/" [filename] "' to REST API...") OK null null;
+
+		file reader_open "r1_source" (concat "home/" [FLOW_PID] "/" [filename]) TEXT "utf-8";
+	
+		#Parse the file;
+		-> "[index]" 0;
+		-> "[index_all]" 0;
+		while (is not null (-> "[line_source]" (file reader_get_line "r1_source"));) {
+	
+			-> "[T_A]" (atom get [line_source] 1 "|");
+			-> "[T_B]" (atom get [line_source] 2 "|");
+			-> "[T_C]" (atom get [line_source] 3 "|");
+
+			# BEGIN METHOD 1;
+			json load "header" "{}";
+			json iobject "header" / "x-user" "admin" STR;
+			json iobject "header" / "x-password" "pwd" STR;
+			rest https post "https://localhost:9999/api/addition" (concat "v1=" [T_A] "&v2=" [T_B] "&v3="[T_C]) (json doc "header") "[]";
+			# END METHOD 1;
+			
+			# BEGIN METHOD 2;
+			json load "data" "{}";
+			json iobject "data" / "A" [T_A] STR;
+			json iobject "data" / "B" [T_B] STR;
+			json iobject "data" / "C" [T_C] STR;
+			rest https_json_post "https://localhost:9999/api/addition" "{}" "[]" (json doc "data");
+			# END METHOD 2;
+			
+			++ "[index]";
+			++ "[index_all]";
+
+			if (== [index] [CONF_SHOW_LOG_BY_NB_ROW]) {
+				-> "[index]" 0;
+				log write (concat "Current row >>> " [index_all]) OK null null;
+			};
+	
+		};
+	
+		#Close the reader;
+		file reader_close "r1_source";
+
+		log write (concat "Sended.") OK null null;
+		
+		#Step 5 is valid;
+		stack flow_step [FLOW_PID] 5 "load_ok";
+		
+	} {
+	
+		try {file reader_close "r1_source";} {} "[sub_err]";
+
+		#Step 5 is not valid;
+		stack flow_step [FLOW_PID] 5 "load_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3";
+};
+

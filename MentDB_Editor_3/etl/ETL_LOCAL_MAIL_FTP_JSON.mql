@@ -1,0 +1,282 @@
+if (not (group exist "0001_folder1_folder2_folder3")) {
+	group add "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_1_source_connect.exe" true 5
+  (param
+  )
+  "Connect to the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_NAME_OF_THE_FLOW]" "name_of_the_flow";
+
+	# INITIALIZATION ;
+	-> "[FLOW_PID]" [PID];
+	
+	# HANDLE ;
+	try {
+	
+		# Flow initialization;
+		stack flow_init [FLOW_PID] [CONF_NAME_OF_THE_FLOW] "{}";
+		stack flow_step [FLOW_PID] 1 "source_connect...";
+
+		# Local connection: don't use step 1;
+		log write "Source: Local connection" OK null null;
+		
+		#Step 1 is valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_ok";
+		
+		include "folder1.folder2.folder3.step_2_extract.exe";
+	
+	} {
+
+		#Step 1 is not valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_2_extract.exe" true 1
+  (param
+  )
+  "Extract files from the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_SOURCE_CM]" "demo_cm_imap";
+	-> "[CONF_SOURCE_RECEIVE_DIR]" (concat "home/" [FLOW_PID]);
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 2;
+		stack flow_step [FLOW_PID] 2 "extract...";
+
+		# Create the local directory PID;
+		file mkdir (concat "home/" [FLOW_PID]);
+		
+		#Get mails;
+		json load "conf_mail" (cm get [CONF_SOURCE_CM]);
+		#json iobject "conf_mail" / "alternateSubDir" "tmp/PPJ" STR;
+		json iobject "conf_mail" / "partialfetch" "true" STR;
+		json iobject "conf_mail" / "max_buffer" "16000" STR;
+		json iobject "conf_mail" / "fetchsize"  "512000" STR;
+		json iobject "conf_mail" / "sessionTimeout" "900000" STR;
+		#parameter add "0001_folder1_folder2_folder3_MAIL_MESSAGES_ORDERS" "{}";
+		json iobject "conf_mail" / "mark_msgs_order" (parameter get value "0001_folder1_folder2_folder3_MAIL_MESSAGES_ORDERS") OBJ;
+		json load "receive_state" (mail download imap_disk [CONF_SOURCE_RECEIVE_DIR]
+			3 unread "TERMINE|INBOX/atraiter" false true
+			"2018-01-01" null
+			(mql {string matches [imap_from] ".*digest-noreply@quora.com.*";})
+			(mql {string matches [imap_subject] ".*champ.*";})
+			{json doc "conf_mail"}
+		);
+		parameter update "0001_folder1_folder2_folder3_MAIL_MESSAGES_ORDERS" (json select "receive_state" /mark_msgs_order);
+
+		if (not (is null or empty (json select "receive_state" "/Error"))) {
+
+			
+
+		};
+	
+		if (> (json select "receive_state" "/NbReceived") 0) {
+	
+			-> "[sub_receive_dir]" (json select "receive_state" "/Directory");
+	
+			json load "sub_receive_dir" (file dir_list [sub_receive_dir]);
+			json parse_array "sub_receive_dir" "/" "[mail]" {
+	
+				if (string ends_with [mail] ".json") {
+	
+					json load "current_mail" (file load (concat [sub_receive_dir] "/" [mail]));
+
+					json parse_array "current_mail" "/Parts" "part" {
+					
+						if (equal (json select "part" "/type") "file") {
+							if (string ends_with (json select "part" "/content_filename") ".csv") {
+								stack (date now) "folder1.folder2.folder3.step_3_transform.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" (json select "part" "/content_filename");
+							};
+						};
+						
+					};
+	
+				};
+			
+			};
+	
+		};
+		
+		#Step 2 is valid;
+		stack flow_step [FLOW_PID] 2 "extract_ok";
+	
+	} {
+
+		#Step 2 is not valid;
+		stack flow_step [FLOW_PID] 2 "extract_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_3_transform.exe" true 1
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.xxx")
+  )
+  "Transform the file"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_SOURCE_CSV_SEPARATOR]" ",";
+	-> "[CONF_SOURCE_CSV_QUOTE]" "'";
+	-> "[CONF_SOURCE_CSV_FORCE_COLUMN]" "A,B,C";
+	-> "[CONF_DESTINATION_NEW_FILENAME]" (concat "new_filename_" (date systimestamp_min) ".json");
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 3;
+		stack flow_step [FLOW_PID] 3 "transform...";
+
+		json load "flow" "[]";
+
+		log write (concat "Build the file 'home/" [FLOW_PID] "/" [CONF_DESTINATION_NEW_FILENAME] "' from 'home/" [FLOW_PID] "/" [filename] "'...") OK null null;
+
+		csv parse (mql "T") (concat "home/" [FLOW_PID] "/" [filename]) (mql [CONF_SOURCE_CSV_SEPARATOR]) (mql [CONF_SOURCE_CSV_QUOTE]) (mql [CONF_SOURCE_CSV_FORCE_COLUMN]) {
+		
+			json load "row" "{}";
+			json iobject "row" / "A" [T_A] STR;
+			json iobject "row" / "B" [T_B] STR;
+			json iobject "row" / "C" [T_C] STR;
+			json iarray "flow" / (json doc "row") OBJ;
+		
+		};
+
+		file create (concat "home/" [FLOW_PID] "/" [CONF_DESTINATION_NEW_FILENAME]) (json doc "flow");
+
+		log write (concat "Builded.") OK null null;
+
+		#Step 3 is valid;
+		stack flow_step [FLOW_PID] 3 "transform_ok";
+		
+		stack (date now) "folder1.folder2.folder3.step_4_destination_connect.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" [CONF_DESTINATION_NEW_FILENAME];
+	
+	} {
+
+		#Step 3 is not valid;
+		stack flow_step [FLOW_PID] 3 "transform_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_4_destination_connect.exe" true 5
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.xxx")
+  )
+  "Connect to the destination"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_DESTINATION_CM]" "demo_cm";
+	
+	# HANDLE ;
+	try {
+	
+		# Flow initialization;
+		stack flow_step [FLOW_PID] 4 "destination_connect...";
+
+		ftp connect "destination_sess" {cm get [CONF_DESTINATION_CM];};
+		ftp active "destination_sess";
+		ftp passive "destination_sess";
+		ftp active compression "destination_sess" true;
+		ftp set type "destination_sess" "BINARY";
+		
+		#Step 4 is valid;
+		stack flow_step [FLOW_PID] 4 "destination_connect_ok";
+		
+		include "folder1.folder2.folder3.step_5_load.exe";
+	
+	} {
+
+		try {ftp disconnect "destination_sess";} {} "[err]";
+
+		#Step 4 is not valid;
+		stack flow_step [FLOW_PID] 4 "destination_connect_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_5_load.exe" true 1
+  (param
+  )
+  "Load file to the destination"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_DIR_DESTINATION]" "/remote/dir";
+	
+	# HANDLE ;
+	try {
+	
+		ftp cd "destination_sess" [CONF_DIR_DESTINATION];
+
+		# Mark the flow as step 5;
+		stack flow_step [FLOW_PID] 5 "load...";
+		
+		log write (concat "Send '" (concat "home/" [FLOW_PID] "/" [filename]) "' to '" (concat [CONF_DIR_DESTINATION] "/" [filename]) "' ...") OK null null;
+
+		# Send file into the destination directory;
+		ftp put "destination_sess" (concat "home/" [FLOW_PID] "/" [filename]) "RESUME";
+		
+		log write "Sended." OK null null;
+
+		ftp disconnect "destination_sess";
+		
+		#Step 5 is valid;
+		stack flow_step [FLOW_PID] 5 "load_ok";
+		
+	} {
+	
+		try {ftp disconnect "destination_sess";} {} "[err]";
+
+		#Step 5 is not valid;
+		stack flow_step [FLOW_PID] 5 "load_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3";
+};

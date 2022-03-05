@@ -1,0 +1,23 @@
+script create get "db.table.quote" false 1 
+  (param
+  	(var "[type]" {true} "The database type" is_null:false is_empty:false "")
+  	(var "[begin]" {true} "is begin of string?" is_null:false is_empty:false "")
+  ;) 
+  "get the table quote" 
+{
+	
+	switch ([type])
+		("SQLServer") {if ([begin]) {concat "["} {concat "]"}}
+		("MySQL") {"`"}
+		("H2") {"`"}
+		("PostgreSQL") {"\\""}
+		("Oracle") {"\\""}
+		("AS400") {"\\""}
+		("Derby") {"\\""}
+		("HSQL") {"\\""}
+		("DB2") {"\\""}
+		("Firebird") {"\\""}		
+	;
+
+} "Return the table quote";
+script set delay "db.table.quote.get" 0 day {1;};

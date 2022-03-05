@@ -1,0 +1,276 @@
+if (not (group exist "0001_folder1_folder2_folder3")) {
+	group add "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_1_source_connect.exe" true 5
+  (param
+  )
+  "Connect to the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_NAME_OF_THE_FLOW]" "name_of_the_flow";
+	-> "[CONF_SOURCE_CM]" "demo_cm";
+
+	# INITIALIZATION ;
+	-> "[FLOW_PID]" [PID];
+	
+	# HANDLE ;
+	try {
+	
+		# Flow initialization;
+		stack flow_init [FLOW_PID] [CONF_NAME_OF_THE_FLOW] "{}";
+		stack flow_step [FLOW_PID] 1 "source_connect...";
+
+		ftp connect "session_remote" {cm get [CONF_SOURCE_CM];};
+		
+		#Step 1 is valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_ok";
+		
+		include "folder1.folder2.folder3.step_2_extract.exe";
+	
+	} {
+
+		try {ftp disconnect "session_remote";} {} "[err]";
+
+		#Step 1 is not valid;
+		stack flow_step [FLOW_PID] 1 "source_connect_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_1_source_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_2_extract.exe" true 1
+  (param
+  )
+  "Extract files from the source"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_DIR_SOURCE]" "tmp/source";
+	-> "[CONF_SOURCE_FILTER]" "*json";
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 2;
+		stack flow_step [FLOW_PID] 2 "extract...";
+
+		# Create the local directory PID;
+		file mkdir (concat "home/" [FLOW_PID]);
+
+		# Get files into PID directory;
+		log write (concat "Get files from '" [CONF_DIR_SOURCE] "/" [CONF_SOURCE_FILTER] "'.") OK null null;
+		ftp cd "session_remote" [CONF_DIR_SOURCE];
+		json load "valid_files" (ftp ls "session_remote" [CONF_SOURCE_FILTER]);
+		json parse_array "valid_files" "/" "obj" {
+
+			-> "[filename]" (json select "obj" /name);
+			ftp get "session_remote" [filename] (concat "home/" [FLOW_PID] "/" [filename]);
+			log write (concat "Get file 'home/" [FLOW_PID] "/" [filename] "'.") OK null null;
+		
+		};
+
+		# Delete source file;
+		json parse_array "valid_files" "/" "obj" {
+
+			-> "[filename]" (json select "obj" /name);
+			ftp rm file "session_remote" [filename];
+			log write (concat "Remove source file '" [CONF_DIR_SOURCE] "/" [filename] "'.") OK null null;
+
+		};
+	
+	} {
+
+		try {ftp disconnect "session_remote";} {} "[err]";
+
+		#Step 2 is not valid;
+		stack flow_step [FLOW_PID] 2 "extract_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+	
+	log write (concat (json count "valid_files" /) " file(s) to transform.") OK null null;
+
+	if (> (json count "valid_files" /) 0) {
+
+		#Step 2 is valid;
+		stack flow_step [FLOW_PID] 2 (concat "extract_ok_" (json count "valid_files" /) "_files");
+		
+		json parse_array "valid_files" "/" "obj" {
+
+			-> "[filename]" (json select "obj" /name);
+		
+			stack (date now) "folder1.folder2.folder3.step_3_transform.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" [filename];
+	
+		};
+		
+	} {
+
+		#Step 2 is valid;
+		stack flow_step [FLOW_PID] 2 "extract_ok_zero_file";
+		
+		# No file into the directory;
+		file delete (concat "home/" [FLOW_PID]);
+
+	};
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_2_extract.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_3_transform.exe" true 1
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.xxx")
+  )
+  "Transform the file"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_DESTINATION_NEW_FILENAME]" (concat "new_filename_" (date systimestamp_min) ".csv");
+	-> "[CONF_DESTINATION_CSV_SEPARATOR]" ";";
+	-> "[CONF_DESTINATION_CSV_QUOTE]" "\"";
+	-> "[CONF_DESTINATION_CSV_FORCE_COLUMN]" "D;E;F";
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 3;
+		stack flow_step [FLOW_PID] 3 "transform...";
+
+		file writer_open "w1" (concat "home/" [FLOW_PID] "/" [CONF_DESTINATION_NEW_FILENAME]) true TEXT "utf-8";
+		file writer_add_line "w1" [CONF_DESTINATION_CSV_FORCE_COLUMN];
+		file writer_flush "w1";
+
+		log write (concat "Build the file 'home/" [FLOW_PID] "/" [CONF_DESTINATION_NEW_FILENAME] "' from 'home/" [FLOW_PID] "/" [filename] "'...") OK null null;
+
+		json load "flow_source" (file load (concat "home/" [FLOW_PID] "/" [filename]));
+		
+		# BEGIN METHOD 1;
+		-> "[T_A]" "";
+		-> "[T_B]" "";
+		-> "[T_C]" "";
+		json parse_obj "flow_source" "/" "[key]" "[val]" {
+
+			-> (concat "[T_" [key] "]") [val];
+
+		};
+
+		-> "[line]" "";
+		concat_var "[line]" [_n_];
+		concat_var "[line]" (string csv_value [T_A] [CONF_DESTINATION_CSV_SEPARATOR] [CONF_DESTINATION_CSV_QUOTE]) [CONF_DESTINATION_CSV_SEPARATOR];
+		concat_var "[line]" (string csv_value [T_B] [CONF_DESTINATION_CSV_SEPARATOR] [CONF_DESTINATION_CSV_QUOTE]) [CONF_DESTINATION_CSV_SEPARATOR];
+		concat_var "[line]" (string csv_value [T_C] [CONF_DESTINATION_CSV_SEPARATOR] [CONF_DESTINATION_CSV_QUOTE]);
+		file writer_add_line "w1" [line];
+		file writer_flush "w1";
+		# END METHOD 1;
+		
+		# BEGIN METHOD 2;
+		json parse_array "flow_source" "/" "row" {
+
+			-> "[T_A]" (json select "row" /A);
+			-> "[T_B]" (json select "row" /B);
+			-> "[T_C]" (json select "row" /C);
+
+			-> "[line]" "";
+			concat_var "[line]" [_n_];
+			concat_var "[line]" (string csv_value [T_A] [CONF_DESTINATION_CSV_SEPARATOR] [CONF_DESTINATION_CSV_QUOTE]) [CONF_DESTINATION_CSV_SEPARATOR];
+			concat_var "[line]" (string csv_value [T_B] [CONF_DESTINATION_CSV_SEPARATOR] [CONF_DESTINATION_CSV_QUOTE]) [CONF_DESTINATION_CSV_SEPARATOR];
+			concat_var "[line]" (string csv_value [T_C] [CONF_DESTINATION_CSV_SEPARATOR] [CONF_DESTINATION_CSV_QUOTE]);
+			file writer_add_line "w1" [line];
+			file writer_flush "w1";
+		
+		};
+		# END METHOD 2;
+
+		file writer_close "w1";
+
+		log write (concat "Builded.") OK null null;
+
+		#Step 3 is valid;
+		stack flow_step [FLOW_PID] 3 "transform_ok";
+		
+		stack (date now) "folder1.folder2.folder3.step_4_destination_connect.exe" "[FLOW_PID]" [FLOW_PID] "[filename]" [CONF_DESTINATION_NEW_FILENAME];
+	
+	} {
+
+		try {file writer_close "w1";} {} "[err]";
+
+		#Step 3 is not valid;
+		stack flow_step [FLOW_PID] 3 "transform_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_3_transform.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_4_destination_connect.exe" true 5
+  (param
+  	(var "[FLOW_PID]" {true} "The flow PID" is_null:true is_empty:true "1")
+  	(var "[filename]" {true} "The filename" is_null:true is_empty:true "file.xxx")
+  )
+  "Connect to the destination"
+{
+	
+	include "folder1.folder2.folder3.step_5_load.exe";
+	
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_4_destination_connect.exe" "0001_folder1_folder2_folder3";
+};
+
+script merge "folder1.folder2.folder3.step_5_load.exe" true 1
+  (param
+  )
+  "Load file to the destination"
+{
+
+	# CONFIGURATION ;
+	-> "[CONF_DESTINATION_CM]" "demo_cm_cifs";
+	-> "[CONF_DIR_DESTINATION]" "C://remote/dir";
+	
+	# HANDLE ;
+	try {
+
+		# Mark the flow as step 5;
+		stack flow_step [FLOW_PID] 5 "load...";
+		
+		log write (concat "Send '" (concat "home/" [FLOW_PID] "/" [filename]) "' to '" (concat [CONF_DIR_DESTINATION] "/" [filename]) "' ...") OK null null;
+
+		# Send file into the destination directory;
+		cifs put (concat "home/" [FLOW_PID] "/" [filename]) (concat [CONF_DIR_DESTINATION] "/" [filename]) {cm get [CONF_DESTINATION_CM];};
+		
+		log write "Sended." OK null null;
+		
+		#Step 5 is valid;
+		stack flow_step [FLOW_PID] 5 "load_ok";
+		
+	} {
+
+		#Step 5 is not valid;
+		stack flow_step [FLOW_PID] 5 "load_KO";
+		
+		# Give the error to the stack and stop the process;
+		exception (1) ([global_err]);
+	
+	} "[global_err]";
+
+} "Return nothing";
+if (not (group is granted script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3")) {
+	group grant script "folder1.folder2.folder3.step_5_load.exe" "0001_folder1_folder2_folder3";
+};
