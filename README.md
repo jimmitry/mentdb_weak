@@ -33,7 +33,7 @@ On OSX/Linux or Windows<br>
   CREATE USER 'mentdbuser'@'localhost' IDENTIFIED BY 'pwd';<br>
   GRANT ALL PRIVILEGES ON mentdb.* TO 'mentdbuser'@'localhost';<br>
   FLUSH PRIVILEGES;<br>
-4 - Open the directory 'MentDB_Server_3/conf'<br>
+4 - Open the directory 'mentdb_weak/conf'<br>
 5 - Open the file 'server.conf' and go to the '[MYSQL]' section<br>
 6 - Change in [SQL] section, set light_mode=false<br>
 7 - Update the MySQL connection 'host', 'port', 'db', 'user', 'pwd'<br>
