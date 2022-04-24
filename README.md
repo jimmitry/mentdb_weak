@@ -37,7 +37,7 @@ On OSX/Linux or Windows<br>
 5 - Open the file 'server.conf' and go to the '[MYSQL]' section<br>
 6 - Change in [SQL] section, set light_mode=false<br>
 7 - Update the MySQL connection 'host', 'port', 'db', 'user', 'pwd'<br>
-8 - Open the 'MentDB_Server_3/bin' directory<br>
+8 - Open the 'mentdb_weak/bin' directory<br>
 9 - Open the directory 'linux' or 'osx' or 'windows'<br>
 10 - Double click on 'start.sh' (or .bat on Windows)<br>
 11 - If MySQL error when create basic tables, update the script in tools/mentdb.sql, delete the 'data' directory, and restart with start.sh (or .bat on Windows)<br>
@@ -46,7 +46,7 @@ On OSX/Linux or Windows<br>
 ******* MentDB Weak Editor *******<br>
 On OSX/Linux or Windows<br>
 1 - BEGIN<br>
-2 - Open the 'MentDB_Server_3/bin' directory<br>
+2 - Open the 'mentdb_weak/bin' directory<br>
 3 - Open the directory 'linux' or 'osx' or 'windows'<br>
 4 - Double click on editor.sh (or .bat on Windows)<br>
 5 - The trigger window open ...<br>
