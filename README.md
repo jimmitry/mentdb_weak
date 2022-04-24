@@ -46,7 +46,7 @@ On OSX/Linux or Windows<br>
 ******* MentDB Weak Editor *******<br>
 On OSX/Linux or Windows<br>
 1 - BEGIN<br>
-2 - Open the 'mentdb_weak/bin' directory<br>
+2 - Open the 'mentdb_weak/MentDB_Editor_3/bin' directory<br>
 3 - Open the directory 'linux' or 'osx' or 'windows'<br>
 4 - Double click on editor.sh (or .bat on Windows)<br>
 5 - The trigger window open ...<br>
