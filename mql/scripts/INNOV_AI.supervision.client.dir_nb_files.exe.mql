@@ -1,0 +1,74 @@
+script create exe "INNOV_AI.supervision.client.dir_nb_files" false 1 
+  (param
+  	(var "[l_key]" {true} "Level key" is_null:true is_empty:true "DIR NB FILES")
+  	(var "[level]" {true} "Level" is_null:true is_empty:true "6")
+  	(var "[confs]" {true} "Dir config" is_null:true is_empty:true "tmp:200:.*.*:1:1:7;home:200:.*.*:1:1:-1")
+  ;) 
+  "" 
+{
+
+	json load "level" "{}";
+	json iobject "level" / "level" [level] STR;
+	json iobject "level" / "l_key" [l_key] STR;
+	json iobject "level" / "ts" (date systimestamp) STR;
+	json iobject "level" / "dirs" "[]" ARRAY;
+	
+	if (not (is null or empty (string lrtrim [confs]))) {
+
+		for (-> "[i]" 1) (<= [i] (atom size [confs] ";")) (++ "[i]") {
+		
+			-> "[conf]" (atom get [confs] [i] ";");
+			-> "[dir]" (atom get [conf] 1 ":");
+			-> "[max]" (atom get [conf] 2 ":");
+			-> "[filter]" (atom get [conf] 3 ":");
+			-> "[get_files]" (atom get [conf] 4 ":");
+			-> "[get_dirs]" (atom get [conf] 5 ":");
+			-> "[dir_to_delete_nb_day_retention]" (atom get [conf] 6 ":");
+
+			if (> [dir_to_delete_nb_day_retention] -1) {
+	
+				json load "files" (file dir_list_regex [dir] [filter] [get_files] [get_dirs]);
+				json parse_array "files" "/" "[file]" {
+				
+					-> "[dtsys]" (date ts_to_long (date difft (date systimestamp) "DAY" [dir_to_delete_nb_day_retention]));
+					-> "[dtfile]" (date ts_to_long (file last_modified (concat [dir] "/" [file])));
+					if (< [dtfile] [dtsys]) {
+						file delete (concat [dir] "/" [file]);
+					};
+				
+				};
+			};
+	
+			json load "files" (file dir_list_regex [dir] [filter] [get_files] [get_dirs]);
+	
+			json load "dir" "{}";
+			json iobject "dir" / "dir" [dir] STR;
+			json iobject "dir" / "max" [max] STR;
+			json iobject "dir" / "retention" [dir_to_delete_nb_day_retention] STR;
+			json iobject "dir" / "filter" [filter] STR;
+			json iobject "dir" / "get_files" [get_files] STR;
+			json iobject "dir" / "get_dirs" [get_dirs] STR;
+			json iobject "dir" / "nb" (json count "files" /) STR;
+			json iarray "level" /dirs (json doc "dir") OBJ;
+		
+		};
+
+	} {
+		json iobject "level" / "delete" 1 STR;
+	};
+	
+	json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+
+	-> "[curdate]" (json select "TO_SEND" /ts);
+	for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+
+		-> "[INCR]" (atom get [INCREMENT] [i] ",");
+		-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+	
+	};
+	
+	json iobject "level" / "dt_err" [curdate] STR;
+	json iarray "ARRAY" / (json doc "level") OBJ;
+	
+} "";
+script set delay "INNOV_AI.supervision.client.dir_nb_files.exe" 0 day {1;};

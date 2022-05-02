@@ -1,0 +1,43 @@
+script create exe "INNOV_AI.supervision.client.locker" false 1 
+  (param
+  	(var "[paramlist]" {true} "Parameter list" is_null:true is_empty:true "SERVER_NAME;SERVER_MODE")
+  ;) 
+  "" 
+{
+
+	if (not (is null or empty [paramlist])) {
+	
+		json load "level" "{}";
+		json iobject "level" / "level" 10 STR;
+		json iobject "level" / "l_key" "LOCKERS" STR;
+		json iobject "level" / "ts" (date systimestamp) STR;
+		json iobject "level" / params "[]" ARRAY;
+	
+		for (-> "[i]" 1) (<= [i] (atom size [paramlist] ";")) (++ "[i]") {
+	
+			-> "[p]" (atom get [paramlist] [i] ";");
+		
+			json load "p" "{}";
+			json iobject "p" / "name" [p] STR;
+			json iobject "p" / "value" (parameter get value [p]) STR;
+			json iarray "level" /params (json doc "p") OBJ;
+		
+		};
+		
+		json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+	
+		-> "[curdate]" (json select "TO_SEND" /ts);
+		for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+	
+			-> "[INCR]" (atom get [INCREMENT] [i] ",");
+			-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+		
+		};
+		
+		json iobject "level" / "dt_err" [curdate] STR;
+		json iarray "ARRAY" / (json doc "level") OBJ;
+
+	};
+	
+} "";
+script set delay "INNOV_AI.supervision.client.locker.exe" 0 day {1;};

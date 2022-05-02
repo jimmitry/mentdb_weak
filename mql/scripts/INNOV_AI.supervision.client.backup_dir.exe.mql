@@ -1,0 +1,67 @@
+script create exe "INNOV_AI.supervision.client.backup_dir" false 1 
+  (param
+  	(var "[l_key]" {true} "Level key" is_null:true is_empty:true "BACKUP DIR")
+  	(var "[level]" {true} "Level" is_null:true is_empty:true "5")
+  	(var "[confs]" {true} "Dir config" is_null:true is_empty:true "tmp;home")
+  ;) 
+  "" 
+{
+
+	json load "level" "{}";
+	json iobject "level" / "level" [level] STR;
+	json iobject "level" / "l_key" [l_key] STR;
+	json iobject "level" / "ts" (date systimestamp) STR;
+	json iobject "level" / "dirs" "[]" ARRAY;
+
+	if (not (is null or empty (string lrtrim [confs]))) {
+
+		if (not (sequence exist "INNOV_AI_supervision_client")) {
+			sequence add "INNOV_AI_supervision_client" 0;
+		};
+
+		for (-> "[i]" 1) (<= [i] (atom size [confs] ";")) (++ "[i]") {
+		
+			-> "[dir]" (string replace (atom get [confs] [i] ";") "\\" "/");
+			if (string ends_with [dir] "/") {
+				-> "[dir]" (string substring [dir] 0 (- (string length [dir]) 1));
+			};
+			-> "[dir_name_bkp]" (concat  (date systimestamp_min) "_" (sequence increment "INNOV_AI_supervision_client") "_" (atom get_last [dir] "/") ".zip");
+	
+			json load "dir" "{}";
+			json iobject "dir" / "dir" [dir] STR;
+			try {
+			
+				compress zip [dir] (concat (file cur_canonical_dir) "/archives/backups/" [dir_name_bkp]);
+				json iobject "dir" / "state" 1 STR;
+				json iobject "dir" / "bkp" [dir_name_bkp] STR;
+	
+			} {
+			
+				json iobject "dir" / "state" 0 STR;
+				json iobject "dir" / "err" [err_backup] STR;
+			
+			} "[err_backup]";
+	
+			json iarray "level" /dirs (json doc "dir") OBJ;
+		
+		};
+
+	} {
+		json iobject "level" / "delete" 1 STR;
+	};
+	
+	json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+
+	-> "[curdate]" (json select "TO_SEND" /ts);
+	for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+
+		-> "[INCR]" (atom get [INCREMENT] [i] ",");
+		-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+	
+	};
+	
+	json iobject "level" / "dt_err" [curdate] STR;
+	json iarray "ARRAY" / (json doc "level") OBJ;
+	
+} "";
+script set delay "INNOV_AI.supervision.client.backup_dir.exe" 0 day {1;};

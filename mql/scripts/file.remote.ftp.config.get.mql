@@ -16,6 +16,7 @@ script create get "file.remote.ftp.config" false 1
 	json iobject "config_obj" / "port" [port] STR;
 	json iobject "config_obj" / "user" [user] STR;
 	json iobject "config_obj" / "password" [password] STR;
+	json iobject "config_obj" / "target_files" "[]" ARRAY;
 
 	#Return the json object;
 	json doc "config_obj";

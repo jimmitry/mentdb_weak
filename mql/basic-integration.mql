@@ -232,7 +232,8 @@ job add "server.stack.remove_error" "stack.remove_error_with_retention.post" "0 
 job add "server.cluster.signal" "server.cluster.signal.post" "0/30 * * * * ?" true;
 job add "server.mail" "server.mail.post" "0/30 * * * * ?" true;
 job add "server.stack" "server.stack.post" "0/30 * * * * ?" true;
-job add "server.backup" "server.mysql.dump.exe" "0 0 0 * * ?" true;
+job add "innov_ai_supervision_1" "INNOV_AI.supervision.client.crons.main.exe" "0 0 1 * * ?" false;
+job add "innov_ai_supervision_2" "INNOV_AI.supervision.client.crons.main2.exe" "0 0 8,12,16 * * ?" false;
 
 $ "[OK]";
 

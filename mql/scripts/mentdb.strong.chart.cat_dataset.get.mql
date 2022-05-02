@@ -1,0 +1,73 @@
+script create get "mentdb.strong.chart.cat_dataset" false 1 
+  (param
+  ;) 
+  "Get a Pie Dataset" 
+{
+
+	json load "dataset" "{}";
+	json iobject "dataset" / "colors" "[]" ARRAY;
+	json iarray "dataset" /colors "255,0,0" STR;
+	json iarray "dataset" /colors "0,255,0" STR;
+	json iarray "dataset" /colors "0,0,255" STR;
+	
+	json load "data" "[]";
+
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 1" STR;
+	json iobject "row" / "subcat" "2000" STR;
+	json iobject "row" / "val" "120000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 1" STR;
+	json iobject "row" / "subcat" "2001" STR;
+	json iobject "row" / "val" "550000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 1" STR;
+	json iobject "row" / "subcat" "2002" STR;
+	json iobject "row" / "val" "180000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 2" STR;
+	json iobject "row" / "subcat" "2000" STR;
+	json iobject "row" / "val" "270000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 2" STR;
+	json iobject "row" / "subcat" "2001" STR;
+	json iobject "row" / "val" "600000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 2" STR;
+	json iobject "row" / "subcat" "2002" STR;
+	json iobject "row" / "val" "230000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 3" STR;
+	json iobject "row" / "subcat" "2000" STR;
+	json iobject "row" / "val" "90000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 3" STR;
+	json iobject "row" / "subcat" "2001" STR;
+	json iobject "row" / "val" "450000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "cat" "Produit 3" STR;
+	json iobject "row" / "subcat" "2002" STR;
+	json iobject "row" / "val" "170000.0" STR;
+	json iarray "data" / (json doc "row") OBJ;
+
+	json iobject "dataset" / "data" (json doc "data") ARRAY;
+	json doc "dataset";
+
+} "Return a JSON";
+script set delay "mentdb.strong.chart.cat_dataset.get" 0 day {1};

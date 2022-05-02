@@ -1,0 +1,33 @@
+script create get "mentdb.strong.chart.xy_dataset" false 1 
+  (param
+  ;) 
+  "Get a XY Dataset" 
+{
+
+	json load "dataset" "{}";
+	json iobject "dataset" / "colors" "[]" ARRAY;
+	json iarray "dataset" /colors "255,0,0" STR;
+	json iarray "dataset" /colors "0,255,0" STR;
+	
+	json iobject "dataset" / "series" "[]" ARRAY;
+	
+	json load "series" "{}";
+	json iobject "series" / "title" "Series 1" STR;
+	json iobject "series" / "data" "[]" ARRAY;
+	json iarray "series" /data (concat "[" 1.0 ", " 1.0 "]") ARRAY;
+	json iarray "series" /data (concat "[" 2.0 ", " 2.0 "]") ARRAY;
+	json iarray "series" /data (concat "[" 3.0 ", " 3.0 "]") ARRAY;
+	json iarray "dataset" /series (json doc "series") OBJ;
+	
+	json load "series" "{}";
+	json iobject "series" / "title" "Series 2" STR;
+	json iobject "series" / "data" "[]" ARRAY;
+	json iarray "series" /data (concat "[" 10.0 ", " 2.0 "]") ARRAY;
+	json iarray "series" /data (concat "[" 20.0 ", " 9.0 "]") ARRAY;
+	json iarray "series" /data (concat "[" 30.0 ", " 12.0 "]") ARRAY;
+	json iarray "dataset" /series (json doc "series") OBJ;
+
+	json doc "dataset";
+
+} "Return a JSON";
+script set delay "mentdb.strong.chart.xy_dataset.get" 0 day {1};

@@ -1,0 +1,32 @@
+script create exe "INNOV_AI.supervision.client.os" false 1 
+  (param
+  ;) 
+  "" 
+{
+	
+	json load "level" "{}";
+	json iobject "level" / "level" 1 STR;
+	json iobject "level" / "l_key" "OS - JAVA" STR;
+	json iobject "level" / "ts" (date systimestamp) STR;
+	json iobject "level" / "sys_name" (metric system name) STR;
+	json iobject "level" / "sys_version" (metric system version) STR;
+	json iobject "level" / "sys_arch" (metric system architecture) STR;
+	json iobject "level" / "sys_nb_proc" (metric system nb processor) STR;
+	json iobject "level" / "java_version" (metric java version) STR;
+	json iobject "level" / "java_vendor" (metric java vendor) STR;
+	
+	json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+
+	-> "[curdate]" (json select "TO_SEND" /ts);
+	for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+
+		-> "[INCR]" (atom get [INCREMENT] [i] ",");
+		-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+	
+	};
+	
+	json iobject "level" / "dt_err" [curdate] STR;
+	json iarray "ARRAY" / (json doc "level") OBJ;
+	
+} "";
+script set delay "INNOV_AI.supervision.client.os.exe" 0 day {1;};

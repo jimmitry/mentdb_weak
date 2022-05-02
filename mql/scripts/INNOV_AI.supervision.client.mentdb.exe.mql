@@ -1,0 +1,47 @@
+script create exe "INNOV_AI.supervision.client.mentdb" false 1 
+  (param
+  ;) 
+  "" 
+{
+	
+	json load "level" "{}";
+	json iobject "level" / "level" 3 STR;
+	json iobject "level" / "l_key" "MENTDB" STR;
+	json iobject "level" / "ts" (date systimestamp) STR;
+	json iobject "level" / "version" (version) STR;
+	json iobject "level" / "server_name" (parameter get value "SERVER_NAME") STR;
+	json iobject "level" / "server_mode" (parameter get value "SERVER_MODE") STR;
+	json iobject "level" / "nb_sessions" (count sessions) STR;
+	json iobject "level" / "max_sessions" (file ini "conf/server.conf" "DATABASE" "MAX_SESSION") STR;
+	json iobject "level" / "mysql_max_pool_size" (file ini "conf/server.conf" "DATABASE" "MAX_POOL_SIZE") STR;
+	json load "files" (file dir_list "data/transaction");
+	json iobject "level" / "nb_transactions" (json count "files" /) STR;
+	json iobject "level" / "cluster_node" (file ini "conf/server.conf" "CLUSTER" "nodename") STR;
+	json iobject "level" / "stack_process_limit" (file ini "conf/server.conf" "STACK" "process_limit") STR;
+	json iobject "level" / "mail_process_limit" (file ini "conf/server.conf" "MAIL" "process_limit") STR;
+	json iobject "level" / "ip" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_HOST") STR;
+	json iobject "level" / "session_timeout" (file ini "conf/server.conf" "DATABASE" "SESSION_TIMEOUT") STR;
+	json iobject "level" / "session_timeout_web" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_PORT_APP_TIMEOUT") STR;
+	json iobject "level" / "devel_port" (file ini "conf/server.conf" "DATABASE" "SERVER_PORT") STR;
+	json iobject "level" / "portal_port" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_PORT_HTTPS") STR;
+	json iobject "level" / "app_http_port" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_PORT_APP_HTTP") STR;
+	json iobject "level" / "app_https_port" (file ini "conf/server.conf" "WEBSERVER" "WEB_SERVER_PORT_APP_HTTPS") STR;
+	sql connect "sessionCountMail" {cm get "MENTDB";};
+	json iobject "level" / "mail_nb_err" (sql value "sessionCountMail" (concat "select count(*) from mails where state='E'")) STR;
+	sql disconnect "sessionCountMail";
+	
+	json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+
+	-> "[curdate]" (json select "TO_SEND" /ts);
+	for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+
+		-> "[INCR]" (atom get [INCREMENT] [i] ",");
+		-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+	
+	};
+	
+	json iobject "level" / "dt_err" [curdate] STR;
+	json iarray "ARRAY" / (json doc "level") OBJ;
+	
+} "";
+script set delay "INNOV_AI.supervision.client.mentdb.exe" 0 day {1;};

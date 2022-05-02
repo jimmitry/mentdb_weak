@@ -1357,7 +1357,6 @@ public class Mentalese_Editor {
 
 	}
 
-	public static boolean aAScreen_bool = false;
 	public static boolean upDownScreen_bool = false;
 	
 
@@ -2014,42 +2013,35 @@ public class Mentalese_Editor {
 
 		toolBar.add(Box.createHorizontalStrut(2));
 
-		JButton aAScreen = new JButton();
-		aAScreen.setFocusPainted(false);
-		aAScreen.setIcon(new ImageIcon("images"+File.separator+"aa.png"));
-		aAScreen.setBackground(new Color(51,51,51));
+		JTextField aAScreen = new JTextField();
+		aAScreen.setBackground(new Color(255,255,255));
 		aAScreen.setOpaque(true);
-		aAScreen.setBorderPainted(false);
+		try {
+			aAScreen.setText(Integer.parseInt(Misc.ini("conf/fontsize.conf", "CONF", "fontsize"))+"");
+		} catch (Exception ee) {
+			
+			aAScreen.setText("13");
+			
+		}
 		toolBar.add(aAScreen);
 		aAScreen.addActionListener(new ActionListener() { 
 			public void actionPerformed(ActionEvent e) { 
 
 				try {
 					
-					aAScreen_bool = !aAScreen_bool;
+					for(int i=0;i<globalMqlInput.getTabCount();i++) {
+						
+						inputs.get(i).setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(aAScreen.getText())));
+
+					}
 					
-					// if selected print selected in console 
-					if (aAScreen_bool) { 
-						
-						for(int i=0;i<globalMqlInput.getTabCount();i++) {
+					globalMentdbOutput.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(aAScreen.getText())));
 
-							inputs.get(i).setFont(new Font("MonoSpaced", Font.PLAIN, 16));
-
-						}
-						
-						globalMentdbOutput.setFont(new Font("MonoSpaced", Font.PLAIN, 16));
-						
-					} else { 
-						
-						for(int i=0;i<globalMqlInput.getTabCount();i++) {
-							
-							inputs.get(i).setFont(new Font("MonoSpaced", Font.PLAIN, 13));
-
-						}
-						
-						globalMentdbOutput.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
-						
-					} 
+					treeConfig.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(aAScreen.getText())));
+					treeAdmin.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(aAScreen.getText())));
+					treeDevel.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(aAScreen.getText())));
+					
+					Misc.create("conf/fontsize.conf", "[CONF]\nfontsize="+aAScreen.getText());
 					
 				} catch (Exception ee) {
 					
@@ -2683,7 +2675,7 @@ public class Mentalese_Editor {
 			} 
 		} );
 
-		toolBar.add(Box.createHorizontalStrut(2));
+		toolBar.add(Box.createHorizontalStrut(15));
 
 		JLabel labelInfosInput = new JLabel("Help: https://www.mentdb.org | contact@mentdb.org | contact@innov-ai.com");
 		labelInfosInput.setFont(new Font(labelInfosInput.getFont().getName(), Font.PLAIN, 12));
@@ -3144,7 +3136,11 @@ public class Mentalese_Editor {
 			ioe.printStackTrace();
 		}
 		theme.apply(mentdbOutput);
-		mentdbOutput.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
+		try {
+			mentdbOutput.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(Misc.ini("conf/fontsize.conf", "CONF", "fontsize"))));
+		} catch (Exception ee) {
+			mentdbOutput.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
+		}
 
 		outputTabbedPane.addTab("MAIN OUTPUT", spMentdbOutput);
 
@@ -3822,7 +3818,6 @@ public class Mentalese_Editor {
 		textArea.setCodeFoldingEnabled(false);
 		textArea.setMarkOccurrences(true);
 		textArea.setAutoIndentEnabled(true);
-
 		textArea.putClientProperty("SERVER_MODE", Misc.lrtrim(globalExec.getText()));
 
 		RTextScrollPane sp = new RTextScrollPane(textArea);
@@ -3886,7 +3881,12 @@ public class Mentalese_Editor {
 		new JVSAutoCompletionProvider(textArea);
 
 		theme.apply(textArea);
-		textArea.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
+
+		try {
+			textArea.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(Misc.ini("conf/fontsize.conf", "CONF", "fontsize"))));
+		} catch (Exception ee) {
+			textArea.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
+		}
 
 		inputs.addElement(textArea);
 
@@ -4936,6 +4936,7 @@ public class Mentalese_Editor {
 	}
 
 	public static int iTitle = 0;
+	public static JTree treeAdmin = null;
 
 	public static JScrollPane initJtreeAdmin() {
 
@@ -4943,7 +4944,12 @@ public class Mentalese_Editor {
 		DefaultMutableTreeNode mutableTreeNodeAdmin = new DefaultMutableTreeNode(globalFirstTreeNodeAdmin);
 		globalMutableTreeNodeAdmin = mutableTreeNodeAdmin;
 
-		JTree treeAdmin = new JTree(mutableTreeNodeAdmin);
+		treeAdmin = new JTree(mutableTreeNodeAdmin);
+		try {
+			treeAdmin.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(Misc.ini("conf/fontsize.conf", "CONF", "fontsize"))));
+		} catch (Exception ee) {
+			treeAdmin.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
+		}
 		treeAdmin.setScrollsOnExpand(true);
 		treeAdmin.setCellRenderer(new MyTreeCellRenderer());
 		treeAdmin.addMouseListener(new MouseAdapter() {
@@ -5894,6 +5900,8 @@ public class Mentalese_Editor {
 		});
 		
 	}
+	
+	public static JTree treeDevel = null;
 
 	public static JScrollPane initJtreeDevel() {
 
@@ -5901,7 +5909,12 @@ public class Mentalese_Editor {
 		DefaultMutableTreeNode mutableTreeNode = new DefaultMutableTreeNode(globalFirstTreeNodeDevel);
 		globalMutableTreeNodeDevel = mutableTreeNode;
 
-		JTree treeDevel = new JTree(mutableTreeNode);
+		treeDevel = new JTree(mutableTreeNode);
+		try {
+			treeDevel.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(Misc.ini("conf/fontsize.conf", "CONF", "fontsize"))));
+		} catch (Exception ee) {
+			treeDevel.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
+		}
 		treeDevel.setScrollsOnExpand(true);
 		treeDevel.setCellRenderer(new MyTreeCellRenderer());
 		treeDevel.addMouseListener(new MouseAdapter() {
@@ -6027,10 +6040,10 @@ public class Mentalese_Editor {
 
 				if (node == null) return;
 
-				TreeRow r = (TreeRow) node.getUserObject();
+				/*TreeRow r = (TreeRow) node.getUserObject();
 				if (r.img.equals("images/mental.png")) {
 					showPopupMenuDevel(null, treeDevel, treeDevel.getSelectionPath());
-				}
+				}*/
 
 			}
 		});
@@ -6038,6 +6051,8 @@ public class Mentalese_Editor {
 		return treeView;
 
 	}
+	
+	public static JTree treeConfig = null;
 
 	public static JScrollPane initJtreeConfig() {
 
@@ -6045,7 +6060,12 @@ public class Mentalese_Editor {
 		DefaultMutableTreeNode mutableTreeNode = new DefaultMutableTreeNode(globalFirstTreeNodeConfig);
 		globalMutableTreeNodeConfig = mutableTreeNode;
 
-		JTree treeConfig = new JTree(mutableTreeNode);
+		treeConfig = new JTree(mutableTreeNode);
+		try {
+			treeConfig.setFont(new Font("MonoSpaced", Font.PLAIN, Integer.parseInt(Misc.ini("conf/fontsize.conf", "CONF", "fontsize"))));
+		} catch (Exception ee) {
+			treeConfig.setFont(new Font("MonoSpaced", Font.PLAIN, 13));
+		}
 		treeConfig.setScrollsOnExpand(true);
 		treeConfig.setCellRenderer(new MyTreeCellRenderer());
 		treeConfig.addMouseListener(new MouseAdapter() {

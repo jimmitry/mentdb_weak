@@ -1,0 +1,57 @@
+script create exe "INNOV_AI.supervision.client.crons.main2" false 1 
+  (param
+  ;) 
+  "Insert a new element into the table 'supervision'." 
+{
+
+	#SUPERVISION;
+	json load "TO_SEND" "{}";
+	json iobject "TO_SEND" / "SERVER_KEY" "YOUR_SERVER_KEY_FROM_INNOV_AI" STR;
+	json iobject "TO_SEND" / "PRIVATE_KEY" "YOUR_PRIVATE_KEY_FROM_INNOV_AI" STR;
+	json iobject "TO_SEND" / "ts" (date curtimestamp) STR;
+	
+	json load "ARRAY" "[]";
+
+	#DEBUT des récupérations d'information ----------------------------------------;
+	-> "[INCREMENT]" "1|DAY,60|MIN";include "INNOV_AI.supervision.client.os.exe";
+	-> "[INCREMENT]" "1|DAY,60|MIN";include "INNOV_AI.supervision.client.cpu.exe";
+	-> "[INCREMENT]" "1|DAY,60|MIN";include "INNOV_AI.supervision.client.mentdb.exe";
+	-> "[INCREMENT]" "1|DAY,60|MIN";include "INNOV_AI.supervision.client.locker.exe" "[paramlist]" "";
+	-> "[INCREMENT]" "1|DAY,60|MIN";include "INNOV_AI.supervision.client.param.exe" "[paramlist]" "SERVER_NAME;SERVER_MODE";
+	-> "[INCREMENT]" "1|DAY,60|MIN";include "INNOV_AI.supervision.client.sequence.exe";
+	-> "[INCREMENT]" "1|DAY,60|MIN";include "INNOV_AI.supervision.client.dir_nb_files.exe"
+		"[l_key]" "DIR NB FILES"
+		"[level]" "6"
+		"[confs]" "tmp:200:.*.*:1:1:-1;home:200:.*.*:1:1:-1;archives/backups:200:.*.*:1:1:-1"
+	;
+	#FIN des récupérations d'information ----------------------------------------;
+
+	#Delete with retention day;
+	json load "files" (file dir_list "archives/backups");
+	json parse_array "files" "/" "[file]" {
+
+		-> "[dt_file]" (atom get [file] 1 "_");
+		-> "[dt_sys_10]" (date format (date difft (date systimestamp) "DAY" 5) "yyyy-MM-dd HH:mm:ss" "yyyyMMddHHmmss");
+		
+		if (< [dt_file] [dt_sys_10]) {
+			file delete (concat (file cur_canonical_dir) "/archives/backups/" [file]);
+		};
+	
+	};
+	
+	json iobject "TO_SEND" / "ARRAY" (json doc "ARRAY") ARRAY;
+
+	if (not (sequence exist "supervision_mentdb_reserved")) {
+		sequence add "supervision_mentdb_reserved" 0;
+	};
+
+	-> "[filename]" (concat "supervision_" (sequence increment "supervision_mentdb_reserved") ".json");
+	file create (concat "tmp/" [filename]) (json doc "TO_SEND");
+	json load "file" "[]";
+	json iarray "file" / (concat "tmp/" [filename]) STR;
+	mail send "innov-ai_smtp_supervision" "supervision@innov-ai.com" "" "" (concat (json select "TO_SEND" /SERVER_KEY) " | Supervision MentDB") 
+		"Fichier de supervision en pièce jointe..." (json doc "file");
+	file delete (concat "tmp/" [filename]);
+	
+} "Return the number of impacted lines.";
+script set delay "INNOV_AI.supervision.client.crons.main2.exe" 0 day {1;};

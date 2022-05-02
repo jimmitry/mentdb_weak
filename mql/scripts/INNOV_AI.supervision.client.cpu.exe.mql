@@ -1,0 +1,32 @@
+script create exe "INNOV_AI.supervision.client.cpu" false 1 
+  (param
+  ;) 
+  "" 
+{
+	
+	json load "level" "{}";
+	json iobject "level" / "level" 2 STR;
+	json iobject "level" / "l_key" "CPU - MEM" STR;
+	json iobject "level" / "ts" (date systimestamp) STR;
+	json iobject "level" / "cpu_jvm" (metric current cpu jvm) STR;
+	json iobject "level" / "cpu_sys" (metric current cpu system) STR;
+	json iobject "level" / "jvm_mem" (metric current mem jvm) STR;
+	json iobject "level" / "used_mem" (concat (metric current used mem) "/" (metric total mem)) STR;
+	json iobject "level" / "used_swap" (concat (metric current used swap mem) "/" (metric total swap mem)) STR;
+	json iobject "level" / "disks" (metric file system roots) ARRAY;
+	
+	json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+
+	-> "[curdate]" (json select "TO_SEND" /ts);
+	for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+
+		-> "[INCR]" (atom get [INCREMENT] [i] ",");
+		-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+	
+	};
+	
+	json iobject "level" / "dt_err" [curdate] STR;
+	json iarray "ARRAY" / (json doc "level") OBJ;
+	
+} "";
+script set delay "INNOV_AI.supervision.client.cpu.exe" 0 day {1;};

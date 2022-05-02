@@ -10,6 +10,7 @@ script create get "file.local.config" false 1
 
 	json iobject "config_obj" / "type" "file" STR;
 	json iobject "config_obj" / "localDir" [dir] STR;
+	json iobject "config_obj" / "target_files" "[]" ARRAY;
 
 	#Return the json object;
 	json doc "config_obj";

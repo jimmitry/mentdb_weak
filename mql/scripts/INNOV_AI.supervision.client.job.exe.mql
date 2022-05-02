@@ -1,0 +1,27 @@
+script create exe "INNOV_AI.supervision.client.job" false 1 
+  (param
+  ;) 
+  "" 
+{
+	
+	json load "level" "{}";
+	json iobject "level" / "level" 7 STR;
+	json iobject "level" / "l_key" "CRONS" STR;
+	json iobject "level" / "ts" (date systimestamp) STR;
+	json iobject "level" / jobs (job show) OBJ;
+
+	json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+
+	-> "[curdate]" (json select "TO_SEND" /ts);
+	for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+
+		-> "[INCR]" (atom get [INCREMENT] [i] ",");
+		-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+	
+	};
+	
+	json iobject "level" / "dt_err" [curdate] STR;
+	json iarray "ARRAY" / (json doc "level") OBJ;
+	
+} "";
+script set delay "INNOV_AI.supervision.client.job.exe" 0 day {1;};

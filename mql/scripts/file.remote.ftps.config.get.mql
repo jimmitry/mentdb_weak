@@ -26,6 +26,7 @@ script create get "file.remote.ftps.config" false 1
 	json iobject "config_obj" / "connectTimeout" [connectTimeout] STR;
 	json iobject "config_obj" / "dataTimeout" [dataTimeout] STR;
 	json iobject "config_obj" / "keepAliveTimeout" [keepAliveTimeout] STR;
+	json iobject "config_obj" / "target_files" "[]" ARRAY;
 
 	#Return the json object;
 	json doc "config_obj";

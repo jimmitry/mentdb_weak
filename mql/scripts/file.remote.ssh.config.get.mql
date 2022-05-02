@@ -18,6 +18,7 @@ script create get "file.remote.ssh.config" false 1
 	json iobject "config_obj" / "user" [user] STR;
 	json iobject "config_obj" / "password" [password] STR;
 	json iobject "config_obj" / "connectTimeout" [connectTimeout] STR;
+	json iobject "config_obj" / "target_files" "[]" ARRAY;
 
 	#Return the json object;
 	json doc "config_obj";

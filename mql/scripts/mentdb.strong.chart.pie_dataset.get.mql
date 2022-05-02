@@ -1,0 +1,36 @@
+script create get "mentdb.strong.chart.pie_dataset" false 1 
+  (param
+  ;) 
+  "Get a Pie Dataset" 
+{
+
+	json load "dataset" "[]";
+
+	json load "row" "{}";
+	json iobject "row" / "key" "Valeur1" STR;
+	json iobject "row" / "val" "27" STR;
+	json iobject "row" / "color" "255,0,0" STR;
+	json iarray "dataset" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "key" "Valeur2" STR;
+	json iobject "row" / "val" "10" STR;
+	json iobject "row" / "color" "0,255,0" STR;
+	json iarray "dataset" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "key" "Valeur3" STR;
+	json iobject "row" / "val" "50" STR;
+	json iobject "row" / "color" "0,0,255" STR;
+	json iarray "dataset" / (json doc "row") OBJ;
+	
+	json load "row" "{}";
+	json iobject "row" / "key" "Valeur4" STR;
+	json iobject "row" / "val" "5" STR;
+	json iobject "row" / "color" "255,123,0" STR;
+	json iarray "dataset" / (json doc "row") OBJ;
+
+	json doc "dataset";
+	
+} "Return a JSON";
+script set delay "mentdb.strong.chart.pie_dataset.get" 0 day {1};

@@ -1,0 +1,77 @@
+script create exe "INNOV_AI.supervision.client.backup_mysql" false 1 
+  (param
+  ;) 
+  "" 
+{
+	
+	json load "level" "{}";
+	json iobject "level" / "level" 4 STR;
+	json iobject "level" / "l_key" "BACKUP MYSQL" STR;
+	json iobject "level" / "ts" (date systimestamp) STR;
+
+	try {
+
+		if (node exist "server.conf") {
+			node uobject "server.conf" / conf (file load "conf/server.conf") STR;
+		} {
+			node create "server.conf";
+			node uobject "server.conf" / conf (file load "conf/server.conf") STR;
+		};
+	
+		-> "[timestamp]" (date systimestamp_min);
+	
+		json load "keyId" "[]";
+		json iarray "keyId" / "mysqldump" STR;
+		#json iarray "keyId" / "/usr/local/mysql/bin/mysqldump" STR;
+		json iarray "keyId" / "--single-transaction" STR;
+		json iarray "keyId" / "--user=root" STR;
+		json iarray "keyId" / "-pPASSWORD" STR;
+		json iarray "keyId" / (concat "--result-file=" (file cur_canonical_dir) "/archives/backups/" [timestamp] "_mysql.sql") STR;
+		json iarray "keyId" / (atom get (node select "CM[MENTDB]" /jdbc) 4 "/") STR;
+		
+		#Tables communs;
+		json iarray "keyId" / "app_user" STR;
+		json iarray "keyId" / "apps" STR;
+		json iarray "keyId" / "cb_botname" STR;
+		json iarray "keyId" / "cb_context" STR;
+		json iarray "keyId" / "cb_intent" STR;
+		json iarray "keyId" / "cb_response" STR;
+		json iarray "keyId" / "cb_subject" STR;
+		json iarray "keyId" / "group_tag" STR;
+		json iarray "keyId" / "groups" STR;
+		json iarray "keyId" / "record" STR;
+		json iarray "keyId" / "stack_wait" STR;
+		json iarray "keyId" / "tags" STR;
+		json iarray "keyId" / "user_group" STR;
+		json iarray "keyId" / "users" STR;
+
+		os execute (json doc "keyId") 1000;
+	
+		compress zip (concat (file cur_canonical_dir) "/archives/backups/" [timestamp] "_mysql.sql") (concat (file cur_canonical_dir) "/archives/backups/" [timestamp] "_mysql.sql.zip");
+		file delete (concat (file cur_canonical_dir) "/archives/backups/" [timestamp] "_mysql.sql");
+		
+		json iobject "level" / "state" 1 STR;
+		json iobject "level" / "bkp" (concat [timestamp] "_mysql.sql.zip") STR;
+	
+	} {
+		
+		json iobject "level" / "state" 0 STR;
+		json iobject "level" / "err" [err_bkp] STR;
+	
+	} "[err_bkp]";
+	
+	json iobject "level" / "dt_exe" (json select "TO_SEND" /ts) STR;
+
+	-> "[curdate]" (json select "TO_SEND" /ts);
+	for (-> "[i]" 1) (<= [i] (atom size [INCREMENT] ",")) (++ "[i]") {
+
+		-> "[INCR]" (atom get [INCREMENT] [i] ",");
+		-> "[curdate]" (date addt [curdate] (atom get [INCR] 2 "|") (atom get [INCR] 1 "|"));
+	
+	};
+	
+	json iobject "level" / "dt_err" [curdate] STR;
+	json iarray "ARRAY" / (json doc "level") OBJ;
+	
+} "";
+script set delay "INNOV_AI.supervision.client.backup_mysql.exe" 0 day {1;};
