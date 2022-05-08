@@ -104,6 +104,7 @@ public class JobManager implements Job {
 			node.put("pattern", pattern);
 			node.put("activate", activate);
 			node.put("login", login);
+			node.put("cluster_script", null);
 			Record2.add("mql_job","JOB["+key+"]", node.toJSONString());
 			
 		}
@@ -151,6 +152,43 @@ public class JobManager implements Job {
 			node.put("pattern", pattern);
 			node.put("activate", activate);
 			node.put("login", job.get("login"));
+			node.put("cluster_script", (String) job.get("cluster_script"));
+			Record2.update("JOB["+key+"]", node.toJSONString());
+		}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void set_cluster_script(String login, String key, String cluster_script) throws Exception {
+		
+		synchronized ("JOB["+key+"]") {
+
+			if (Record2.countRows("mql_job", "JOB["+key+"]")==0) {
+	
+				throw new Exception("Sorry, the job "+key+" does not exist.");
+				
+			}
+			
+			//Generate an error if the script does not exist
+			if (cluster_script!=null && !ScriptManager.exist(cluster_script)) {
+	
+				throw new Exception("Sorry, the cluster script "+cluster_script+" does not exist.");
+	
+			}
+			
+			if (cluster_script!=null && !ScriptManager.isGrantedToUser(login, cluster_script)) {
+				throw new Exception("Sorry, the cluster script '"+cluster_script+"' is not granted to '"+login+"'.");
+			}
+			
+			JSONObject job = Record2.getNode("JOB["+key+"]");
+			
+			JSONObject node = new JSONObject();
+			node.put("id", key);
+			node.put("scriptName", job.get("scriptName"));
+			node.put("pattern", job.get("pattern"));
+			node.put("activate", job.get("activate"));
+			node.put("login", job.get("login"));
+			node.put("cluster_script", cluster_script);
 			Record2.update("JOB["+key+"]", node.toJSONString());
 		}
 		
@@ -315,6 +353,16 @@ public class JobManager implements Job {
 
 	    String scriptName = dataMap.getString("scriptName");
 	    String user = dataMap.getString("login");
+	    String cluster_script = null;
+	    
+	    try {
+
+		    cluster_script = dataMap.getString("cluster_script");
+		    if (cluster_script!=null && cluster_script.equals("null")) {
+		    	cluster_script = null;
+		    }
+		    
+	    } catch (Exception e) {}
 		
 		if (!Start.maintenance_job) {
 			
@@ -373,12 +421,20 @@ public class JobManager implements Job {
 					
 					CommandSyncAccess.execute(0, thread, null, null, 6, null, null, null, scriptName, null, null);
 					
-					SessionThreadAgent agent = new SessionThreadAgent(thread, "JOB", "execute \""+scriptName.replace("\"", "\\\"")+"\"", "");
+					String commande = null;
+					
+					if (cluster_script!=null && !cluster_script.equals("")) {
+						commande = "execute \""+cluster_script.replace("\"", "\\\"")+"\" \"[scriptname]\" \""+scriptName.replace("\"", "\\\"")+"\"";
+					} else {
+						commande = "execute \""+scriptName.replace("\"", "\\\"")+"\"";
+					}
+					
+					SessionThreadAgent agent = new SessionThreadAgent(thread, "JOB", commande, "");
 					agent.current_function = "JOB start";
 					
 					SessionThreadAgent.allServerThread.put(thread.idConnection, agent);
 					
-					String result = CommandManager.executeAllCommands(thread, Misc.splitCommand("execute \""+scriptName.replace("\"", "\\\"")+"\""), thread.env, null, null);
+					String result = CommandManager.executeAllCommands(thread, Misc.splitCommand(commande), thread.env, null, null);
 					agent.current_function = "JOB end";
 					
 					try {SessionThreadAgent.allServerThread.get(thread.idConnection).reset_origin("JOB", "", "", result);} catch (Exception e1) {Log.trace("JOB ERROR1: "+e1.getMessage());}
@@ -616,6 +672,7 @@ public class JobManager implements Job {
 
 			String pattern = ((JSONObject) jobs.get(key)).get("pattern")+"";
 			String scriptName = ((JSONObject) jobs.get(key)).get("scriptName")+"";
+			String cluster_script = (String) (((JSONObject) jobs.get(key)).get("cluster_script"));
 			String activate = ((JSONObject) jobs.get(key)).get("activate")+"";
 			login = ((JSONObject) jobs.get(key)).get("login")+"";
 			
@@ -624,6 +681,7 @@ public class JobManager implements Job {
 				//Create the job
 				JobDetail job = newJob(JobManager.class)
 					      .withIdentity("J"+key, "Jobs")
+					      .usingJobData("cluster_script", cluster_script)
 					      .usingJobData("scriptName", scriptName)
 					      .usingJobData("pattern", pattern)
 					      .usingJobData("activate", activate)
@@ -705,10 +763,12 @@ public class JobManager implements Job {
 		String pattern = job.get("pattern")+"";
 		String activate = job.get("activate")+"";
 		String sublogin = job.get("login")+"";
+		String cluster_script = ((String) job.get("cluster_script"));
 		
 		//Create the job
 		JobDetail job_obj = newJob(JobManager.class)
 			      .withIdentity("J"+id, "Jobs")
+			      .usingJobData("cluster_script", cluster_script)
 			      .usingJobData("scriptName", scriptName)
 			      .usingJobData("pattern", pattern)
 			      .usingJobData("activate", activate)

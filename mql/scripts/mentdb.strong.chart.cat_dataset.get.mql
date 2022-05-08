@@ -70,4 +70,4 @@ script create get "mentdb.strong.chart.cat_dataset" false 1
 	json doc "dataset";
 
 } "Return a JSON";
-script set delay "mentdb.strong.chart.cat_dataset.get" 0 day {1};
+script set delay "mentdb.strong.chart.cat_dataset.get" 0 day {1;};

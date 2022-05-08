@@ -42,6 +42,7 @@ import re.jpayet.mentdb.ext.fx.OperatorFx;
 import re.jpayet.mentdb.ext.fx.StringFx;
 import re.jpayet.mentdb.ext.fx.TypeFx;
 import re.jpayet.mentdb.ext.html.HTMLManager;
+import re.jpayet.mentdb.ext.job.JobManager;
 import re.jpayet.mentdb.ext.json.JsonFormatter;
 import re.jpayet.mentdb.ext.json.JsonManager;
 import re.jpayet.mentdb.ext.ml.MLManager;
@@ -100,6 +101,17 @@ public class CommandFullAccess5 {
 			default:
 
 				switch (inputVector.get(0).value+" "+inputVector.get(1).value+" "+inputVector.get(2).value) {
+
+				
+				case "job set cluster_script":
+					
+					//Get parameters
+					String jobId = inputVector.get(3).value;
+					String cluster_script = inputVector.get(4).value;
+					
+					JobManager.set_cluster_script(session.user, jobId, cluster_script);
+					
+					return "Job updated with successful.";
 				case "concentration set depth":
 					
 					String key = inputVector.get(3).value;

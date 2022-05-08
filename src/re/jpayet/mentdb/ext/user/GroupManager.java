@@ -782,6 +782,11 @@ public class GroupManager {
 					curJobInfo4.put("icon", "images/info.png");
 					jobInfoChildrenAction.add(curJobInfo4);
 					
+					JSONObject curJobInfo5 = new JSONObject();
+					curJobInfo5.put("text", "cluster_script="+((JSONObject) jobs.get(currentJob)).get("cluster_script"));
+					curJobInfo5.put("icon", "images/info.png");
+					jobInfoChildrenAction.add(curJobInfo5);
+					
 				}
 				
 			}

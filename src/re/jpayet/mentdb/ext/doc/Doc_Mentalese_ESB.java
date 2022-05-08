@@ -170,6 +170,10 @@ public class Doc_Mentalese_ESB {
 		mql.addParam(new MQLParam("pattern", "The pattern", "string", true));
 		mql.addParam(new MQLParam("activate", "Is activate ? (true | false)", "string", true));
 		functions.get("Job").add(mql);
+		mql = new MQLDocumentation(true, "job set cluster_script", "Set the cluster script execution", "job set cluster_script \"myJobId\" \"cluster.1n.job_execution.exe\";", "Job updated with successful.", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("jobId", "The job id", "string", true));
+		mql.addParam(new MQLParam("cluster_script", "The cluster script (can be null)", "string", true));
+		functions.get("Job").add(mql);
 		mql = new MQLDocumentation(true, "job remove", "To remove a job", "job remove \"myJobId\";", "Job removed with successful.", "job show", "{<br>  \"server.reset_id\": {<br>    \"pattern\": \"0 0 0 * * ?\",<br>    \"activate\": \"1\",<br>    \"scriptName\": \"server.reset_id.post\",<br>    \"id\": \"server.reset_id\"<br>  },<br>  \"server.process_mail\": {<br>    \"pattern\": \"0/1 * * * * ?\",<br>    \"activate\": \"1\",<br>    \"scriptName\": \"mail.process_mail.post\",<br>    \"id\": \"server.process_mail\"<br>  },<br>  \"server.remove_logs\": {<br>    \"pattern\": \"0 0 0 * * ?\",<br>    \"activate\": \"1\",<br>    \"scriptName\": \"log.remove_with_retention.post\",<br>    \"id\": \"server.remove_logs\"<br>  },<br>  \"server.process_stack\": {<br>    \"pattern\": \"0/1 * * * * ?\",<br>    \"activate\": \"1\",<br>    \"scriptName\": \"stack.process_stack.post\",<br>    \"id\": \"server.process_stack\"<br>  }<br>}", null, null, false, "");
 		mql.addParam(new MQLParam("jobId", "The job id", "string", true));
 		functions.get("Job").add(mql);

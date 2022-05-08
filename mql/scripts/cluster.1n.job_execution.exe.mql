@@ -1,0 +1,20 @@
+script create exe "cluster.1n.job_execution" false 1 
+  (param
+  	(var "[scriptname]" {true} "The scriptname to execute" is_null:true is_empty:true "folder.folder.foo.exe")
+  ;) 
+  "Execute a script into a cluster ..." 
+{
+	
+	execute "cluster.1n.exe"
+		"[cluster_id]" "cluster_id_1"
+		"[method]" "LB_50_50|SIGNAL"
+		"[request]" (concat 
+			"-> \"[scriptname]\" " (mql encode [scriptname]) ";"
+			(mql {
+				execute [scriptname];
+			})
+		)
+	;
+	
+} "Return the result of the script execution";
+script set delay "cluster.1n.job_execution.exe" 0 day {1};
