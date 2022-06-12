@@ -46,7 +46,7 @@ public class PortalManager extends HttpServlet {
 
         String title1 = "MentDB Weak";
         String title2 = "Smart-Earth tool";
-        String title3 = "Download and install more applications from <a href='https://www.mentdb.org' style='color:#fff'>www.mentdb.org</a>";
+        String title3 = "Download and install more applications from the <a href='https://www.mentdb.org/mentdb_weak_sample_applications.html' style='color:#fff'>WEB APPS STORE</a>";
         
         try {title1 = FileFx.ini(null, "conf"+File.separator+"server.conf", "WEBSERVER", "WEB_PORTAL_TITLE_1");} catch (Exception e) {}
         try {title2 = FileFx.ini(null, "conf"+File.separator+"server.conf", "WEBSERVER", "WEB_PORTAL_TITLE_2");} catch (Exception e) {}
@@ -150,8 +150,10 @@ public class PortalManager extends HttpServlet {
 	              
 	    		}
 	    		
-	    		result += "<a class='portal_a' style='background-image:url(../web/images/bot128.png)' href='https://"+Start.WEB_SERVER_HOST+":"+Start.WEB_SERVER_PORT_HTTPS+"/bots' target='_blank'>Bots</a>";
-	        result += "<a class='portal_a' style='background-image:url(../web/images/apiportal.png)' href='https://"+Start.WEB_SERVER_HOST+":"+Start.WEB_SERVER_PORT_HTTPS+"/docs' target='_blank'>REST API</a>";
+	    	result += "<a class='portal_a' style='background-image:url(../web/images/bot128.png)' href='https://"+Start.WEB_SERVER_HOST+":"+Start.WEB_SERVER_PORT_HTTPS+"/bots'>Bots</a>";
+	    	result += "<a class='portal_a' style='background-image:url(../web/images/apiportal.png)' href='https://"+Start.WEB_SERVER_HOST+":"+Start.WEB_SERVER_PORT_HTTPS+"/docs'>REST API</a>";
+	    	result += "<a class='portal_a' style='background-image:url(../web/images/docportal.png)' href='https://"+Start.WEB_SERVER_HOST+":"+Start.WEB_SERVER_PORT_HTTPS+"/web'>MQL Functions</a>";
+	    	result += "<a class='portal_a' style='background-image:url(../web/images/db128x128.png)' href='https://www.mentdb.org' target='_blank'>Innov-AI</a>";
             
         } catch (Exception e) {
         	

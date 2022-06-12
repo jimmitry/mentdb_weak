@@ -59,7 +59,6 @@ import re.jpayet.mentdb.ext.app.HttpSessionCollector;
 import re.jpayet.mentdb.ext.bot.BotManager;
 import re.jpayet.mentdb.ext.cluster.ClusterManager;
 import re.jpayet.mentdb.ext.doc.MQLDocumentation;
-import re.jpayet.mentdb.ext.doc.MentDBFeature;
 import re.jpayet.mentdb.ext.fx.DateFx;
 import re.jpayet.mentdb.ext.fx.FileFx;
 import re.jpayet.mentdb.ext.fx.StringFx;
@@ -83,7 +82,7 @@ public class Start
 {
 	
 	//To change the MentDB Server version
-	static public String version = "3.1.3";
+	static public String version = "3.1.4";
 	static public String copyright = "2012 - "+thisYear();
 	static public boolean newDatabase = false;
 
@@ -592,11 +591,13 @@ public class Start
 				Misc.system_out_print("Documentation > ", false, "", "");
 				Misc.system_out_print("1 ", false, "", "");
 				MQLDocumentation.init();
-				Misc.system_out_print("2 ", false, "", "");
-				MentDBFeature.init();
 				Misc.system_out_print("\r"+StringFx.rpad("Documentation >", " ", "61"), false, "", "");
 				Misc.system_out_print("[OK]", true, "", "");
 				Log.trace("Documentation > [OK]");
+				System.out.println("-----------------------------------------------------------------");
+				Log.trace("-----------------------------------------------------------------");
+				System.out.println("Portal: https://"+Start.WEB_SERVER_HOST+":"+Start.WEB_SERVER_PORT_HTTPS);
+				Log.trace("Portal: https://"+Start.WEB_SERVER_HOST+":"+Start.WEB_SERVER_PORT_HTTPS);
 				System.out.println("-----------------------------------------------------------------");
 				Log.trace("-----------------------------------------------------------------");
 				System.out.println("[READY]");

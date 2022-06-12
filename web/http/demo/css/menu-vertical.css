@@ -1,0 +1,79 @@
+
+#menu-v li, #menu-v a {zoom:1;} /* Hacks for IE6, IE7 */
+#menu-v, #menu-v ul
+{
+    /* width: 180px; Main Menu Item widths */
+    border-top:none;
+    position: relative; font-size:0;
+    list-style: none; margin: 0; padding: 0; display:block;
+    z-index:1;
+}
+
+/* Top level menu links style
+---------------------------------------*/
+
+#menu-v li
+{
+    list-style: none; margin: 0; padding: 0;
+}
+#menu-v li a
+{
+    display: block;
+    /*overflow: auto; force hasLayout in IE7 */
+    color: #6c7177;
+    text-decoration: none;
+    height: 58px;
+    line-height: 58px;
+    font-size: 16px;
+    padding-left: 15px;
+}
+#menu-v ul li a
+{
+    height: 58px;
+    line-height: 58px;
+    padding-top: 0px;
+    text-align: left;
+    padding-left: 12px;
+}
+
+#menu-v li a.arrow:hover
+{
+  background-color: #F0F0F0;
+}
+
+/*Sub level menu items
+---------------------------------------*/
+#menu-v li ul
+{
+    position: absolute;
+    width: 500px; /*Sub Menu Items width */
+    visibility:hidden;
+}
+
+#menu-v li:hover, #menu-v li.onhover
+{
+  background-color: #F0F0F0;
+}
+#menu-v ul li
+{
+    background-color: #E0E0E0;
+    list-style: none; margin: 0; padding: 0;
+    height: 58px;
+    line-height: 58px;
+}
+#menu-v ul li:hover, #menu-v ul li.onhover
+{
+    background-color: #F0F0F0;
+}
+
+/* Holly Hack for IE \
+* html #menu-v  li
+{
+    float:left;
+    height: 1%;
+}
+* html #menu-v  li a
+{
+    height: 1%;
+}*/
+/* End */

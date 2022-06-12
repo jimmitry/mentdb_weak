@@ -125,25 +125,24 @@ public class MQLDocumentation {
 		
 		//Initialization
 		String result = "";
-		String menu = "<div style='display: inline-block;padding-top: 5px;padding-bottom: 10px;'>";
+		String menu = "<div style='display: inline-block;'>";
 	
-		int z = 0;
 		for (Entry<String, Vector<MQLDocumentation>> e : MQLDocumentation.functions.entrySet()) {
 			
 			if (!ghost_functions.containsKey(e.getKey())) {
 
-				if (z>0) result += "<div style='clear:left;height:20px'></div>";
-				
 				if (page_group.containsKey(e.getKey())) {
 					menu += "<div id='"+page_group.get(e.getKey()).replace(" ", "_").toLowerCase()+"' style='padding: 10px;\n" + 
 							"    font-size: 20px;\n" + 
-							"    background-color: #E9E9E9;float:left;display:inline-block;width:100%;margin-top: 10px;\n" + 
-							"    margin-bottom: 10px;box-sizing: border-box;'>"+page_group.get(e.getKey())+"</div>";
+							"    background-color: #4a4a4a;float:left;display:inline-block;width:100%;margin-top: 10px;\n" + 
+							"    margin-bottom: 10px;box-sizing: border-box;text-align:left;padding-left:20px;'>"+page_group.get(e.getKey())+"</div>";
 				}
-				menu += "<a style='color: #000;font-weight:bold;font-size: 18px;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;text-decoration:underline' href='#mql_"+e.getKey()+"'>"+e.getKey()+"</a>";
+				menu += "<a style='color: #000;font-weight:bold;font-size: 18px;padding:2px 8px 7px 0px;float:left;display:inline-block;width:300px;text-decoration:underline;text-align: left;' href='#mql_"+e.getKey()+"'>"+e.getKey()+"</a>";
 	
-				result += "<div style='line-height: 32px;clear:left;font-size: 17px;font-weight:bold;padding:0px 8px 4px 0px;'><a href='mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html' id='mql_"+e.getKey()+"' style='color: #000;padding: 5px 8px;border-bottom: 1px solid #D9DEE4;margin-left: -8px;width: 100%;display: block;font-size:20px;text-decoration:underline'>"+e.getKey()+"</a></div>";
-				result += "<div style='display: inline-block;padding-top: 5px;padding-bottom: 10px;'>";
+				result += "<div style='line-height: 32px;clear:left;font-size: 17px;font-weight:bold;padding:0px 8px 4px 0px;text-align:left;'><a href='mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html' id='mql_"+e.getKey()+"' style='color: #000;padding: 5px 8px;border-bottom: 1px solid #D9DEE4;margin-left: -8px;width: 100%;display: block;font-size:20px;text-decoration:underline'>"+e.getKey()+"</a></div>";
+				result += "<div style='display: inline-block;padding-top: 5px;padding-bottom: 10px;width:100%;'>";
+				boolean switch_line = false;
+				String color_line = "E0E0E0";
 				for(int i=0;i<e.getValue().size();i++) {
 				
 					//Get the current MQLDocumentation object
@@ -161,14 +160,18 @@ public class MQLDocumentation {
 						if (i==0) result += "<h3 style='clear: left;padding-top: 0px;padding-bottom: 0px;margin-bottom: 10px;margin-top: 0px;'>"+currentFunction.FX+"</h3>";
 						else result += "<h3 style='clear: left;padding-top: 15px;padding-bottom: 0px;margin-bottom: 10px;'>"+currentFunction.FX+"</h3>";
 					}
-					
-					if (currentFunction.webSocket) result += "<a title='"+currentFunction.warning.replace("'", "&#39;")+"' style='"+valid+";font-size: 16px;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;text-decoration:underline' href='mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html#fx_"+currentFunction.functionId.replace(" ", "_")+"'>@"+currentFunction.functionId+(!currentFunction.synonymous.equals("")?" <span style='font-size:8px;'>"+currentFunction.synonymous+"</span>":"")+"</a>";
-					else result += "<a title='"+currentFunction.warning.replace("'", "&#39;")+"' style='"+valid+";font-size: 16px;padding:2px 8px 7px 0px;float:left;display:inline-block;width:400px;text-decoration:underline' href='mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html#fx_"+currentFunction.functionId.replace(" ", "_")+"'>"+currentFunction.functionId+(!currentFunction.synonymous.equals("")?" <span style='font-size:12px;'>"+currentFunction.synonymous+"</span>":"")+"</a>";
+					if (switch_line) {
+						color_line = "E0E0E0";
+					} else {
+						color_line = "F0F0F0";
+					}
+					switch_line = !switch_line;
+					if (currentFunction.webSocket) result += "<a title='"+currentFunction.warning.replace("'", "&#39;")+"' style='"+valid+";font-size: 16px;padding:4px;float:left;background-color: #"+color_line+";display:inline-block;width:100%;text-decoration:underline;text-align: left;' href='mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html#fx_"+currentFunction.functionId.replace(" ", "_")+"'>@"+currentFunction.functionId+(!currentFunction.synonymous.equals("")?" <span style='font-size:8px;'>"+currentFunction.synonymous+"</span>":"")+"</a>";
+					else result += "<a title='"+currentFunction.warning.replace("'", "&#39;")+"' style='"+valid+";font-size: 16px;padding:4px;float:left;background-color: #"+color_line+";display:inline-block;width:100%;text-decoration:underline;text-align: left;' href='mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html#fx_"+currentFunction.functionId.replace(" ", "_")+"'>"+currentFunction.functionId+(!currentFunction.synonymous.equals("")?" <span style='font-size:12px;'>"+currentFunction.synonymous+"</span>":"")+"</a>";
 				
 				}
 				
 				result += "</div>";
-				z++;
 				
 			}
 			
@@ -179,7 +182,7 @@ public class MQLDocumentation {
 		
 		menu += "</div>";
 		
-		return "<div style='height:1px;width:100%;background-color:#999'></div>"+menu+"<div style='height:1px;width:100%;background-color:#999'/></div><br>"+result;
+		return menu+"<div style='height:1px;width:100%;background-color:#999'/></div><br>"+result;
 		
 	}
 	
@@ -369,11 +372,11 @@ public class MQLDocumentation {
 			}
 			
 			Misc.create("docs/mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html", Misc.load("docs/mql_fx_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[PAGE_TITLE]", ""+e.getKey()).replace("[MQL_FX]", result).replace("[MQL_VERSION]", Start.version));
-			if ((new File("/Users/jimmitry/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions")).exists()) {
-				Misc.create("/Users/jimmitry/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions/mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html", Misc.load("docs"+File.separator+"mentdb.org"+File.separator+"mql_fx_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[PAGE_TITLE]", ""+e.getKey()).replace("[PAGE_TITLE_U]", (""+e.getKey()).toUpperCase()).replace("[MQL_FX]", result).replace("[MQL_VERSION]", Start.version));
+			if ((new File("/Users/jimmitry/Dropbox/INNOV-AI/LAB/mentdb.org/functions")).exists()) {
+				Misc.create("/Users/jimmitry/Dropbox/INNOV-AI/LAB/mentdb.org/functions/mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html", Misc.load("docs/mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html"));
 			}
-			if ((new File("/Users/jim/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions")).exists()) {
-				Misc.create("/Users/jim/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions/mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html", Misc.load("docs"+File.separator+"mentdb.org"+File.separator+"mql_fx_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[PAGE_TITLE]", ""+e.getKey()).replace("[PAGE_TITLE_U]", (""+e.getKey()).toUpperCase()).replace("[MQL_FX]", result).replace("[MQL_VERSION]", Start.version));
+			if ((new File("/Users/jim/Dropbox/INNOV-AI/LAB/mentdb.org/functions")).exists()) {
+				Misc.create("/Users/jim/Dropbox/INNOV-AI/LAB/mentdb.org/functions/mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html", Misc.load("docs/mql_"+e.getKey().toLowerCase().replace(" ", "_")+".html"));
 			}
 			
 		}
@@ -1260,13 +1263,13 @@ public class MQLDocumentation {
 		}
 		
 		Misc.create("docs"+File.separator+"mql.html", Misc.load("docs"+File.separator+"mql_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[PAGE_TITLE]", "MQL").replace("[MQL]", MQLDocumentation.menu_to_html()).replace("[MQL_VERSION]", Start.version).replace("[MQL_NB_FUNCTIONS]", ""+MQLDocumentation.nbFunction));
-		Misc.create("docs"+File.separator+"index.html", Misc.load("docs"+File.separator+"index_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[MQL_VERSION]", Start.version));
+		Misc.create("docs"+File.separator+"index.html", Misc.load("docs"+File.separator+"mql.html"));
 
-		if ((new File("/Users/jimmitry/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions")).exists()) {
-			Misc.create("/Users/jimmitry/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions/index.html", Misc.load("docs"+File.separator+"mentdb.org"+File.separator+"mql_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[MQL]", MQLDocumentation.menu_to_html()).replace("[MQL_VERSION]", Start.version).replace("[MQL_NB_FUNCTIONS]", ""+MQLDocumentation.nbFunction));
+		if ((new File("/Users/jimmitry/Dropbox/INNOV-AI/LAB/mentdb.org/functions")).exists()) {
+			Misc.create("/Users/jimmitry/Dropbox/INNOV-AI/LAB/mentdb.org/functions/index.html", Misc.load("docs"+File.separator+"mql.html"));
 		}
-		if ((new File("/Users/jim/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions")).exists()) {
-			Misc.create("/Users/jim/Dropbox/INNOV-AI/WebDocuments/mentdb.org/functions/index.html", Misc.load("docs"+File.separator+"mentdb.org"+File.separator+"mql_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[MQL]", MQLDocumentation.menu_to_html()).replace("[MQL_VERSION]", Start.version).replace("[MQL_NB_FUNCTIONS]", ""+MQLDocumentation.nbFunction));
+		if ((new File("/Users/jim/Dropbox/INNOV-AI/LAB/mentdb.org/functions")).exists()) {
+			Misc.create("/Users/jim/Dropbox/INNOV-AI/LAB/mentdb.org/functions/index.html", Misc.load("docs"+File.separator+"mql.html"));
 		}
 		
 		Doc_required.load();Misc.create("docs"+File.separator+"required.html", Misc.load("docs"+File.separator+"doc_page_tmp.html").replace("[SERVER_YEAR]", Start.copyright).replace("[PAGE_TITLE]", ((JSONObject) Doc.pages.get("required")).get("title")+"").replace("[DOC]", Doc.to_html("required")).replace("[MQL_VERSION]", Start.version));
