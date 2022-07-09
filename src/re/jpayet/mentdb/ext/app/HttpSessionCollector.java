@@ -34,8 +34,6 @@ public class HttpSessionCollector implements HttpSessionListener {
 		HttpSession session = event.getSession();
 		sessions.put(session.getId(), session);
 		
-		Log.trace("log web add session: "+session.getId());
-		
 	}
 
 	@Override

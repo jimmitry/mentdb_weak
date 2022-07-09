@@ -204,13 +204,16 @@ public class Log {
 		String condition = "";
 		String orderby = "";
 		String limit = "";
-		
+
+		if (c_key==null) {c_key = "";}
+		if (c_val==null) {c_val = "";}
+		if (msgFilter==null) {msgFilter = "";}
+		if (script==null) {script = "";}
 		if (script!=null && !script.equals("")) {
 			
 			condition += " and script like "+SQLManager.encode_like(script);
 			
 		}
-		
 		if (c_key!=null && !c_key.equals("")) {
 			
 			condition += " and c_key like "+SQLManager.encode_like(c_key);
@@ -239,9 +242,9 @@ public class Log {
 		status = status.toLowerCase();
 		
 		//Generate an error if the status is not valid
-		if (!status.equals("ok") && !status.equals("ko")) {
+		if (!status.equals("ok") && !status.equals("ko") && !status.equals("*")) {
 			
-			throw new Exception("Sorry, the status must be 'ok|ko'.");
+			throw new Exception("Sorry, the status must be 'ok|ko|*'.");
 			
 		}
 		
@@ -262,7 +265,9 @@ public class Log {
 		JSONArray data = new JSONArray();
 		table.put("data", data);
 		
-		condition += " and status = "+SQLManager.encode(status.toUpperCase());
+		if (!status.equals("*")) {
+			condition += " and status = "+SQLManager.encode(status.toUpperCase());
+		}
 		
 		//Generate an error if the min date
 		if (DateFx.is_valid_timestamp(dtMin).equals("0")) {

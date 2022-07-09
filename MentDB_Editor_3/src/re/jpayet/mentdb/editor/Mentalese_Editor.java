@@ -5707,12 +5707,15 @@ public class Mentalese_Editor {
 
 			JRadioButton b1 = new JRadioButton("ok");
 			JRadioButton b2 = new JRadioButton("ko");b2.setSelected(true);
+			JRadioButton b3 = new JRadioButton("*");
 
 			bgt.add(b1);
 			bgt.add(b2);
+			bgt.add(b3);
 
 			tPanel.add(b1);
 			tPanel.add(b2);
+			tPanel.add(b3);
 
 			typePanel.add(tPanel, BorderLayout.NORTH);
 			typePanel.add(scriptPanel, BorderLayout.CENTER);
