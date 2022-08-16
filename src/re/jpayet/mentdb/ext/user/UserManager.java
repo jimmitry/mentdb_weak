@@ -14,9 +14,6 @@ package re.jpayet.mentdb.ext.user;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.Vector;
-import java.util.Map.Entry;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -30,7 +27,6 @@ import re.jpayet.mentdb.ext.json.JsonManager;
 import re.jpayet.mentdb.ext.server.Start;
 import re.jpayet.mentdb.ext.session.Session;
 import re.jpayet.mentdb.ext.session.SessionThreadAgent;
-import re.jpayet.mentdb.ext.session.WebSocketThread;
 import re.jpayet.mentdb.ext.tools.Misc;
 
 //User management
@@ -290,35 +286,6 @@ public class UserManager {
 
 			}
 		} catch (Exception e) {};
-		
-	}
-	
-	//Get all user who talking with a specific user
-	public static Vector<String> allUsersWhoTalkingWith(String user) {
-		
-		//Initialization
-		Set<Entry<String, WebSocketThread>> set = Session.allSessions.entrySet();
-		Vector<String> result = new Vector<String>();
-		
-		//Parse all connected users
-		for (Entry<String, WebSocketThread> e : set) {
-			
-			try {
-				
-				//Get the user
-				String username = e.getKey();
-				
-				if (WebSocketThread.target.get(username).contains(user)) {
-					
-					result.add(username);
-				
-				}
-			
-			} catch (Exception f) {};
-			
-		}
-		
-		return result;
 		
 	}
 	

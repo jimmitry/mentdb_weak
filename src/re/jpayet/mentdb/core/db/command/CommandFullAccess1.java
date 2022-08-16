@@ -89,18 +89,6 @@ public class CommandFullAccess1 {
 
 			return Start.AI_FIRST_NAME+" "+Start.AI_LAST_NAME;
 
-		case "@chat": 
-
-			try {
-
-				Session.allSessions.get(session.user).mqlQueryMode=false;
-
-				return "CHAT mode activated (do not use directly with the editor, only in your application with the web socket driver).";
-			} catch (Exception e) {
-				if (!Session.allSessions.containsKey(session.user)) throw new Exception("Sorry, the user '"+session.user+"' is not connected through web-socket canal.");
-				else throw new Exception("Sorry, an error appears: "+e.getMessage());
-			}
-
 		case "@sid": 
 
 			try {

@@ -54,6 +54,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import re.jpayet.mentdb.core.db.basic.MQLValue;
+import re.jpayet.mentdb.ext.bot.BotManager;
+import re.jpayet.mentdb.ext.bot.SimiRes;
 import re.jpayet.mentdb.ext.env.EnvManager;
 import re.jpayet.mentdb.ext.json.JsonManager;
 import re.jpayet.mentdb.ext.tools.Misc;
@@ -90,121 +92,15 @@ public class StringFx {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static JSONArray get_variable(String input, String pattern) {
+	public static JSONArray get_variable(String input, String pattern) throws Exception {
 	       
-        String[] split_input = input.split(" ");
-        String[] split_pattern = pattern.split(" ");
-
-        int[] start_positions = new int[split_pattern.length];
-        int[] end_positions = new int[split_pattern.length];
-       
-        for(int i_pattern=0;i_pattern<split_pattern.length;i_pattern++) {
-           
-            String current_pattern_word = split_pattern[i_pattern];
-           
-            if (current_pattern_word.startsWith("[") && current_pattern_word.endsWith("]")) {
-                start_positions[i_pattern]=-1;
-                end_positions[i_pattern]=-1;
-            } else {
-                start_positions[i_pattern]=-2;
-                end_positions[i_pattern]=-2;
-            }
-           
-        }
-
-        ArrayList<Integer> words_pos = new ArrayList<Integer>();
-       
-        HashMap<Integer, ArrayList<Integer>> prob = new HashMap<Integer, ArrayList<Integer>>();
-       
-        for(int i_input=0;i_input<split_input.length;i_input++) {
-           
-            String current_input_word = split_input[i_input];
-           
-            for(int i_pattern=0;i_pattern<split_pattern.length;i_pattern++) {
-               
-                String current_pattern_word = split_pattern[i_pattern];
-               
-                if (!current_pattern_word.startsWith("[") && !current_pattern_word.startsWith("]") && current_input_word.equals(current_pattern_word)) {
-                   
-                    ArrayList<Integer> tab_prob = null;
-                    if (prob.containsKey(i_input)) {
-                        tab_prob = prob.get(i_input);
-                    } else {
-                        tab_prob = new ArrayList<Integer>();
-                        prob.put(i_input, tab_prob);
-                    }
-                   
-                    if (!tab_prob.contains(i_pattern)) {
-                        tab_prob.add(i_pattern);
-                    }
-                   
-                }
-               
-            }
-           
-            words_pos.add(i_input);
-           
-        }
-
-        //show(prob);
-        for(int i=9;i>=1;i--) {
-            correction(split_input, prob, Math.min(i, split_input.length));
-        }
-        //show(prob);
-       
-        for(int word_position : prob.keySet()) {
-
-            start_positions[prob.get(word_position).get(0)] = word_position;
-            end_positions[prob.get(word_position).get(0)] = word_position;
-           
-        }
-       
-        int start_pos = -1;
-        for(int i=0;i<start_positions.length;i++) {
-           
-            if (start_positions[i]==-1) {
-                start_positions[i] = start_pos;
-            } else if (start_positions[i]!=-2) {
-                start_pos = start_positions[i];
-            }
-           
-        }
-       
-        int end_pos = split_input.length;
-        for(int i=end_positions.length-1;i>=0;i--) {
-           
-            if (end_positions[i]==-1) {
-                end_positions[i] = end_pos;
-            } else if (end_positions[i]!=-2) {
-                end_pos = end_positions[i];
-            }
-           
-        }
-       
-        JSONArray variable_data = new JSONArray();
-       
-        for(int i_pattern=0;i_pattern<split_pattern.length;i_pattern++) {
-           
-            String current_pattern_word = split_pattern[i_pattern];
-           
-            if (current_pattern_word.startsWith("[") && current_pattern_word.endsWith("]")) {
-               
-                String data = "";
-                for(int i=start_positions[i_pattern]+1;i<=end_positions[i_pattern]-1;i++) {
-                   
-                    data += " "+split_input[i];
-                   
-                }
-                if (data.length()>0) {
-                    data = data.substring(1);
-                }
-                variable_data.add(data);
-               
-            }
-       
-        }
-       
-        return variable_data;
+		SimiRes simi = BotManager.similarityCount(input, pattern);
+		JSONArray variables = new JSONArray();
+		for(int i=0;i<simi.vars.size();i++) {
+			variables.add(simi.vars.get(i));
+		}
+		
+        return variables;
        
     }
 	

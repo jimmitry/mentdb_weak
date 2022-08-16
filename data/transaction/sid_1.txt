@@ -1,0 +1,17 @@
+################# Timestamp #################
+2022-08-16 13:05:19
+
+################# Origin #################
+MQL
+
+################# User #################
+admin
+
+################# Current MQL #################
+
+
+################# Last MQL #################
+restricted maintenance_get ;
+
+################# Last result #################
+j23i88m90m76i39t04r09y35p14a96y09e57t48{"stack":false,"web":false,"mql":false,"ws":false,"job":false}

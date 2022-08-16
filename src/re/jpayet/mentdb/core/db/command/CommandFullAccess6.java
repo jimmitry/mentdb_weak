@@ -142,15 +142,6 @@ public class CommandFullAccess6 {
 					
 					return "1";
 
-				case "bot aiml set":
-					
-					//Get parameters
-					String botName = inputVector.get(3).value;
-					String filename = inputVector.get(4).value;
-					String xml = inputVector.get(5).value;
-					
-					return BotManager.set_aiml_file(env, botName, filename, xml);
-	
 				case "dl bayesian add_sentence":
 					
 					//Get parameters
@@ -304,6 +295,17 @@ public class CommandFullAccess6 {
 				default: 
 
 					switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+					case "bot user_set_var":
+
+						String bot = inputVector.get(2).value;
+						String user = inputVector.get(3).value;
+						String varname = inputVector.get(4).value;
+						String value = inputVector.get(5).value;
+						
+						BotManager.set_var(bot, user, varname, value);
+						
+						return "1";
+						
 					case "sql select":
 
 						cmId = inputVector.get(2).value;
@@ -394,7 +396,7 @@ public class CommandFullAccess6 {
 						
 						//Get key
 						key = inputVector.get(2).value;
-						String user = inputVector.get(3).value;
+						user = inputVector.get(3).value;
 						String directory = inputVector.get(4).value;
 						String scriptName = inputVector.get(5).value;
 						
@@ -451,7 +453,7 @@ public class CommandFullAccess6 {
 						//Get key, name and value
 						key = inputVector.get(2).value;
 						String xPath = inputVector.get(3).value;
-						String value = inputVector.get(4).value;
+						value = inputVector.get(4).value;
 						type = inputVector.get(5).value;
 						
 						if (!GroupManager.isGrantedUser("sys", session.user)) {

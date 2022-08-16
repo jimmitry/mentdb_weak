@@ -20,16 +20,14 @@ import java.util.Vector;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 
 import re.jpayet.mentdb.core.db.basic.BasicResult;
 import re.jpayet.mentdb.core.db.basic.MQLValue;
+import re.jpayet.mentdb.ext.bot.BotManager;
 import re.jpayet.mentdb.ext.client.MentDBConnector;
 import re.jpayet.mentdb.ext.log.Log;
 import re.jpayet.mentdb.ext.server.Start;
 import re.jpayet.mentdb.ext.tools.Misc;
-import re.jpayet.mentdb.ext.user.UserManager;
 
 //Web socket management
 @WebSocket
@@ -37,7 +35,6 @@ public class WebSocketThread extends WebSocketAdapter {
 	
 	//Static
 	public static HashMap<Long, WebSocketThread> allSessions = new HashMap<Long, WebSocketThread>();
-	public static HashMap<String, Vector<String>> target = new HashMap<String, Vector<String>>();
 	
 	//Object
 	public Session session ;
@@ -51,9 +48,6 @@ public class WebSocketThread extends WebSocketAdapter {
 	public MentDBConnector mentdb = null;
 	public boolean isValidSession = false;
 	boolean alreadyOpenSession = false;
-	public boolean mqlQueryMode = true;
-	public boolean isGrantedApiMql = false;
-	public boolean isGrantedApiAi = false;
 
 	//A user cannot open 2 sessions in the same time
 	public static boolean openCloseSession(String user, boolean openSession, boolean isValidSession, WebSocketThread session) {
@@ -200,18 +194,12 @@ public class WebSocketThread extends WebSocketAdapter {
 				
 				try {
 					
-					if (isCmdSession("#login_ws", inputVector.get(0), session, 4) || isCmdSession("#login", inputVector.get(0), session, 4)) {
+					if (isCmdSession("#login_ws", inputVector.get(0), session, 4)) {
 						
 						//Get the user and the password
 						bot = inputVector.get(0).get(1).value;
 						user = inputVector.get(0).get(2).value;
 						password = inputVector.get(0).get(3).value;
-						
-						if (inputVector.get(0).get(0).value.toLowerCase().equals("#login_ws")) {
-							
-							this.mqlQueryMode = false;
-						
-						}
 						
 					} else {
 						
@@ -221,74 +209,17 @@ public class WebSocketThread extends WebSocketAdapter {
 					
 					try {
 						
-						if (UserManager.connect(user, password)) {
+						if (BotManager.connect_ai(bot, user, password)) {
 							
-							mentdb = re.jpayet.mentdb.ext.session.Session.allConnections.get(user);
-							
-							mentdbIdConnection = mentdb.idConnection;
-							
-							//Add the new session
-							isValidSession = true;
-							
-							openCloseSession(user, true, isValidSession, this);
-							
-							//Add default target
-							Vector<String> targetUserList = new Vector<String>();
-							targetUserList.add("ai");
-							target.put(user, targetUserList);
-							
-							String result = mentdb.execute("group is granted user \""+user.replace("\"", "\\\"")+"\" \"api-mql\";");
-							if (result.equals("1")) {
-								
-								isGrantedApiMql = true;
-								
-							}
-							
-							result = mentdb.execute("group is granted user \""+user.replace("\"", "\\\"")+"\" \"api-ai\";");
-							if (result.equals("1")) {
-								
-								isGrantedApiAi = true;
-								
-							}
-							
-							//Granted connection
-							result = mentdb.execute("user show;");
-							JSONParser jsonParser = new JSONParser();
-							JSONArray a = (JSONArray) jsonParser.parse(result);
-							BasicResult br = null;
-							if (this.mqlQueryMode) {
-								
-								br = new BasicResult(user, bot, 1, 
-									"#-------------------------------------------------;\n"+
-									" #-  Welcome to MentDB Weak!             v_"+Start.version+"  -;\n"+
-									" #-  Generalized Interoperability                 -;\n"+
-									" #-                                               -;\n"+
-									" #-  https://www.mentdb.org                       -;\n"+
-									" #-  © "+Start.copyright+", contact@mentdb.org            -;\n"+
-									" #-                                               -;\n"+
-								    Misc.rpad(" #-  SID: "+mentdb.idConnection+", User: "+user, " ", "50")+"-;\n"+
-								    " #------------------------------------------------;", Misc.JSONArray2StringTab(a), WebSocketThread.target.get(user), UserManager.allUsersWhoTalkingWith(user), 0, "", "0", "fr");
-								
-							} else {
-								
-								br = new BasicResult(user, bot, 1, 
-										"", Misc.JSONArray2StringTab(a), WebSocketThread.target.get(user), UserManager.allUsersWhoTalkingWith(user), 0, "", "0", "fr");
-								
-							}
+							BasicResult br = new BasicResult(bot, 1, "", 0, "", "0", "fr") {};
 							session.getRemote().sendString(WebSocketThread.encrypt(br.toString()));
-							
-						} else {
-							
-							//This clause is never pass
 							
 						}
 						
 					} catch (Exception f) {
 						
 						//Database connection error
-						BasicResult br = null;
-						if ((f.getMessage()+"").startsWith("jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht") || (f.getMessage()+"").startsWith("j12hki95orm35hrm62vni90tkmr33sdy")) br = new BasicResult("", "ai", 0, f.getMessage(), 0);
-						else br = new BasicResult("", "ai", 0, "j12hki95orm35hrm62vni90tkmr33sdy9", 0);
+						BasicResult br = new BasicResult("", "ai", 0, f.getMessage(), 0);
 						session.getRemote().sendString(WebSocketThread.encrypt(br.toString()));
 						session.close(0, "exit");
 						
@@ -304,63 +235,16 @@ public class WebSocketThread extends WebSocketAdapter {
 				}
 				
 			} else {
-				
-				//Handle the command
-				if (!inputText.startsWith("#j8i9m0m5i5t3r2y1p9a6y4e5t") || inputText.indexOf(" ")>-1) {
-					
-					inputVector = Misc.splitCommand(inputText);
-					re.jpayet.mentdb.ext.session.Session.sendMessageToTargetsAndMe(bot, user, 1, inputText, inputVector);
-					
-				} else {
-					
-					if (inputText.startsWith("#j8i9m0m5i5t3r2y1p9a6y4e5t%")) {
-						
-						try {
-							
-							re.jpayet.mentdb.ext.session.Session.allSessions.get(user).mqlQueryMode=false;
-							
-						} catch (Exception e) {}
-						
-						try {
-							re.jpayet.mentdb.ext.session.Session.sendMessageToMe(mentdbIdConnection, user, 4, "Refresh.");
-						} catch (Exception e) {}
-						
-					} else if (inputText.startsWith("#j8i9m0m5i5t3r2y1p9a6y4e5t$")) {
-						
-						try {
-							
-							re.jpayet.mentdb.ext.session.Session.allSessions.get(user).mqlQueryMode=true;
-							
-						} catch (Exception e) {}
-						
-						try {
-							re.jpayet.mentdb.ext.session.Session.sendMessageToMe(mentdbIdConnection, user, 4, "Refresh.");
-						} catch (Exception e) {}
-						
-						
-					} else {
-						
-						//Update target
-						if (target.get(user).contains(inputText.substring(27))) {
-							
-							target.get(user).remove(inputText.substring(27));
-							
-						} else {
-							target.get(user).add(inputText.substring(27));
-						}
-						
-						re.jpayet.mentdb.ext.session.Session.sendTargetToMeAndAnother(mentdbIdConnection, user, inputText.substring(27), 4, "Target <"+inputText.substring(27)+"> updated.");
-						
-					}
-					
-				}
+
+				inputVector = Misc.splitCommand(inputText);
+				re.jpayet.mentdb.ext.session.Session.execute_commandes(this, bot, user, 1, inputText, inputVector);
 								
 			}
 
 		} catch (Exception e) {
 			
 			try {
-				re.jpayet.mentdb.ext.session.Session.mentdbSendMessageToMe(mentdbIdConnection, user, 0, ""+e.getMessage(), 0);
+				re.jpayet.mentdb.ext.session.Session.mentdbSendMessageToMe(this, user, 0, ""+e.getMessage(), 0);
 			} catch (Exception f) {
 				
 			}
@@ -380,9 +264,6 @@ public class WebSocketThread extends WebSocketAdapter {
 		
 		//Decrement the number of thread
 		nbOpenConnection--;
-		
-		//Clear target list
-		target.remove(user);
 		
 		//Remove the session
 		try {

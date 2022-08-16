@@ -21,32 +21,26 @@ import re.jpayet.mentdb.ext.env.EnvManager;
 import re.jpayet.mentdb.ext.fx.StringFx;
 import re.jpayet.mentdb.ext.session.Session;
 import re.jpayet.mentdb.ext.session.SessionThread;
+import re.jpayet.mentdb.ext.session.WebSocketThread;
 import re.jpayet.mentdb.ext.tools.Misc;
 
 //Command
 public class CommandManager {
 
 	//Execute the command
-	public static void execute(String bot, String user, String inputText, Vector<Vector<MQLValue>> inputVector) throws Exception {
+	public static void execute(WebSocketThread session, String bot, String user, String inputText, Vector<Vector<MQLValue>> inputVector) throws Exception {
 		
 		String result = "";
 		boolean err = false;
 		long seconds = 0;
 		
-		if (Session.allSessions.get(user).mqlQueryMode) {
-			
-			if (!Session.allSessions.get(user).isGrantedApiMql) {
-				
-				Session.mentdbSendMessageToMe(Session.allSessions.get(user).mentdbIdConnection, user, 0, "Sorry, '"+user+"' is not in 'api-mql' group.", seconds);
-				return;
-				
-			}
+		for(int i=0;i<inputVector.size();i++) {
 			
 			try {
-				
-				//MentDB mode
+
 				Date d1 = new Date();
-				result = Session.allConnections.get(user).execute(inputText);
+				
+				result = executeCmd(session, bot, user, Misc.vectorToStringMsg(inputVector.get(i)));
 				Date d2 = new Date();
 				seconds = (d2.getTime()-d1.getTime())/1000;
 				
@@ -57,48 +51,10 @@ public class CommandManager {
 				
 			}
 			
-			if (err) Session.mentdbSendMessageToMe(Session.allSessions.get(user).mentdbIdConnection, user, 0, result, seconds);
-			else {
-				if (result==null) {
-					Session.mentdbSendMessageToMe(Session.allSessions.get(user).mentdbIdConnection, user, 1, result, seconds);
-				} else if (result.equals("jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht1")) {
-					Session.close(user);
-				} else {
-					Session.mentdbSendMessageToMe(Session.allSessions.get(user).mentdbIdConnection, user, 1, result, seconds);
-				}
-			}
-			
-		} else {
-			
-			if (!Session.allSessions.get(user).isGrantedApiAi) {
+			if (result!=null) {
 				
-				Session.mentdbSendMessageToMe(Session.allSessions.get(user).mentdbIdConnection, user, 0, "Sorry, '"+user+"' is not in 'api-ai' group.", seconds);
-				return;
-				
-			}
-		
-			for(int i=0;i<inputVector.size();i++) {
-				
-				try {
-
-					Date d1 = new Date();
-					result = executeCmd(Session.allSessions.get(user).mentdbIdConnection, bot, user, Misc.vectorToStringMsg(inputVector.get(i)));
-					Date d2 = new Date();
-					seconds = (d2.getTime()-d1.getTime())/1000;
-					
-				} catch (Exception e) {
-					
-					err = true;
-					result = ""+e.getMessage();
-					
-				}
-				
-				if (result!=null) {
-				
-					if (err) Session.mentdbSendMessageToMe(Session.allSessions.get(user).mentdbIdConnection, user, 0, result, seconds);
-					else Session.mentdbSendMessageToMe(Session.allSessions.get(user).mentdbIdConnection, user, 1, result, seconds);
-					
-				}
+				if (err) Session.mentdbSendMessageToMe(session, user, 0, result, seconds);
+				else Session.mentdbSendMessageToMe(session, user, 1, result, seconds);
 				
 			}
 			
@@ -107,33 +63,17 @@ public class CommandManager {
 	}
 
 	//Execute the command
-	public static String executeCmd(long sessionId, String bot, String user, String inputText) throws Exception {
+	public static String executeCmd(WebSocketThread session, String bot, String user, String inputText) throws Exception {
 		
 		//Brain mode
-		String response = BotManager.execute(bot, user, inputText).get("response")+"";
-		String mql = null;
-		if (response.indexOf("|")>-1) {
-			mql = response.substring(0, response.indexOf("|"));
-			response = response.substring(response.indexOf("|")+1);
-		}
 		
-		if (!StringFx.lrtrim(response).equals("")) {
+		String response = (String) BotManager.execute(bot, user, inputText).get("msg");
+		
+		if (!StringFx.lrtrim(StringFx.lrtrim(response)).equals("")) {
 			
-			Session.aiSendMessageToMe(sessionId, bot, user, 1, 
+			Session.aiSendMessageToMe(session, bot, user, 1, 
 					response, ""
 					);
-			
-		}
-		
-		if (mql!=null) {
-			
-			response = Session.allConnections.get(user).execute(mql);
-			
-			if (response!=null && !StringFx.lrtrim(response).equals("")) {
-				Session.aiSendMessageToMe(sessionId, bot, user, 1, 
-						response, ""
-					);
-			}
 			
 		}
 		

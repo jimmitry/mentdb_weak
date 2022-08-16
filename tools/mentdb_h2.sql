@@ -263,7 +263,68 @@ CREATE TABLE IF NOT EXISTS `record` (
   PRIMARY KEY (`key`),
   KEY `fk_record_type_index` (`type`)
 );
+  
+CREATE TABLE IF NOT EXISTS `mona_bot` (
+  `bot` varchar(250) NOT NULL,
+  `lang` varchar(250) NOT NULL,
+  `firstname` varchar(250) NOT NULL,
+  `lastname` varchar(250) NOT NULL,
+  `is_male` char(1) NOT NULL,
+  `cancel_key` varchar(250) NULL DEFAULT NULL,
+  `not_found_response` varchar(512) NOT NULL DEFAULT '',
+  PRIMARY KEY (`bot`)
+);
+  
+CREATE TABLE IF NOT EXISTS `mona_user` (
+  `bot` varchar(250) NOT NULL,
+  `login` varchar(250) NOT NULL,
+  `password` varchar(40) NOT NULL,
+  `vars` longtext NOT NULL,
+  `rights` varchar(2048) NOT NULL,
+  `key` varchar(250) NULL DEFAULT NULL,
+  PRIMARY KEY (`bot`, `login`),
+  CONSTRAINT `fk_mona_user_mona_bot` FOREIGN KEY (`bot`) REFERENCES `mona_bot` (`bot`) ON DELETE CASCADE ON UPDATE NO ACTION
+);
+  
+CREATE TABLE IF NOT EXISTS `mona_training` (
+  `bot` varchar(250) NOT NULL,
+  `key` varchar(250) NOT NULL,
+  `context` varchar(250) NOT NULL,
+  `rights` varchar(2048) NOT NULL,
+  `desc` varchar(1024) NOT NULL,
+  `in_trigger_array` longtext NOT NULL,
+  `out_mql_output` longtext NOT NULL,
+  `consciousness_obj` longtext NOT NULL,
+  PRIMARY KEY (`bot`, `key`),
+  CONSTRAINT `fk_mona_training_mona_bot` FOREIGN KEY (`bot`) REFERENCES `mona_bot` (`bot`) ON DELETE CASCADE ON UPDATE NO ACTION
+);
+  
+CREATE TABLE IF NOT EXISTS `mona_task` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `bot` varchar(250) NOT NULL,
+  `login` varchar(250) NOT NULL,
+  `key` varchar(250) NOT NULL,
+  `vars_copy` longtext NOT NULL,
+  `dtcreate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_mona_training` FOREIGN KEY (`bot`, `key`) REFERENCES `mona_training` (`bot`, `key`) ON DELETE CASCADE ON UPDATE NO ACTION
+);
+  
+CREATE TABLE IF NOT EXISTS `mona_not_found` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `bot` varchar(250) NOT NULL,
+  `login` varchar(250) NOT NULL,
+  `input` varchar(2048) NOT NULL,
+  `dtcreate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_mona_not_found` FOREIGN KEY (`bot`, `login`) REFERENCES `mona_user` (`bot`, `login`) ON DELETE CASCADE ON UPDATE NO ACTION
+);
 
+DELETE FROM `mona_bot`;
+DELETE FROM `mona_user`;
+DELETE FROM `mona_training`;
+DELETE FROM `mona_task`;
+DELETE FROM `mona_not_found`;
 DELETE FROM `stack_closed`;
 DELETE FROM `stack_error`;
 DELETE FROM `stack_var`;

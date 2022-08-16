@@ -27,7 +27,6 @@ public class ParameterManager {
 	public static void init() throws Exception {
 		
 		add("ELEVATION_MAX_%_ACCEPTANCE", "30");
-		add("AIML_DEFAULT_RESPONSE", "@Change your AIML_DEFAULT_RESPONSE default response in parameter...");
 		add("WEB_SERVER_PORT_APP_TIMEOUT_1", "{}");
 		add("WEB_SERVER_PORT_APP_TIMEOUT_0", "{}");
 		add("WEB_SERVER_INVALIDATE_IF_DISCONNECT", "{}");

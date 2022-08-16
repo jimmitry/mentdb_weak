@@ -102,67 +102,19 @@ function onMessage(evt) {
 
       activeLoginMode("");
 
-		} else if (value==="j12hki95orm35hrm62vni90tkmr33sdy11") {
+		} else if (value==="j12hki95orm35hrm62vni90tkmr33sdy4") {
 
-			activeLoginMode("Mental process is not activated.");
-			
-				} else if (value==="j12hki95orm35hrm62vni90tkmr33sdy4") {
-
-      activeLoginMode("User already connected.");
-
-		} else if (value==="j12hki95orm35hrm62vni90tkmr33sdy9") {
-
-      activeLoginMode("Database connection error.");
+      activeLoginMode("Bad user or password.");
 
 		} else if (value==="j12hki95orm35hrm62vni90tkmr33sdy8") {
 
       activeLoginMode("Protocol error.");
 
-		} else if (value==="j12hki95orm35hrm62vni90tkmr33sdy7") {
-
-      activeLoginMode("Cannot find MentDB connection to match with your session.");
-
-		} else if (value==="j12hki95orm35hrm62vni90tkmr33sdy0") {
-
-      activeLoginMode("Shutdown with successful.\nBye.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht0") {
-
-      activeLoginMode("Shutdown with successful.\nBye.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht1") {
-
-      activeLoginMode("Session close with successful.\nBye.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht2") {
-
-      activeLoginMode("User does not exist.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht3") {
-
-      activeLoginMode("Bad password.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht5") {
-
-      activeLoginMode("\"mentdb\" is a system user.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht6") {
-
-      activeLoginMode("\"ai\" is a system user.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht7") {
-
-      activeLoginMode("Protocol error.");
-
-		} else if (value==="jajidfm62mr7i8dtyfr2tyrypzea8tyyoejht") {
-
-      activeLoginMode("Unknow error.");
-
 		} else {
 
         
-      if (nbCmd===1) showMsg(login, typeMsg, replaceAll(replaceAll(value, '\n', '<br>'), ' ', '&nbsp;'), strategy);
-      else showMsg(login, typeMsg, value, strategy);
+      if (nbCmd===1) showMsg(aiLogin, 1, replaceAll(replaceAll(value, '\n', '<br>'), ' ', '&nbsp;'), strategy);
+      else showMsg(aiLogin, 1, value, strategy);
 
       window.scrollTo(0,document.body.scrollHeight);
 
@@ -235,9 +187,7 @@ function showMsg(user, type, msg, strategy) {
     
   var date = new Date();
 
-  if (type===1) {
-
-    if (user===document.getElementById("x-user").value) {
+  if (user===document.getElementById("x-user").value) {
 
       var html = '<div class="bubble_init_left"><img src="images/who.png" style="margin-top: 8px;float:left;width:32px;vertical-align:middle"><div class="bubble me">'+
         '  <span style="font-weight:bold;font-size:15px">'+user+'</span> &nbsp;<span style="font-size:11px;color:#aaa">'+date.YYYYMMDDHHMMSS()+'</span> &nbsp;<span style="font-size:11px;color:#E0E0E0">'+strategy+'</span>'+
@@ -261,21 +211,11 @@ function showMsg(user, type, msg, strategy) {
 
     }
 
-  } else {
-
-    var html = '<div class="bubble_init_right"><img src="images/lisa128x128.png" style="margin-top: 8px;float:left;width:32px;vertical-align:middle"><div class="bubble me">'+
-        '  <span style="font-weight:bold;font-size:15px">mentdb</span> &nbsp;<span style="font-size:11px;color:#aaa">'+date.YYYYMMDDHHMMSS()+'</span> &nbsp;<span style="font-size:11px;color:#E0E0E0">'+strategy+'</span>'+
-        '  <div style="height:1px;background-color:#e6e6e6;margin: 5px 0px 8px 0px;"></div><p><img src="images/warning.png" style="vertical-align: middle;"> '+msg+'</p>'+
-        '</div></div>';
-
-    $('#outputMsg').append(html);
-
-  }
-
 }
 
 function pushData() {
 
+  showMsg(document.getElementById("x-user").value, 1, document.getElementById('input_data').value, "");
   sendToServer(document.getElementById('input_data').value);
   document.getElementById('input_data').value = "";
 
@@ -459,7 +399,7 @@ function handle(e){
 
     //SpeechRecognition
     function speechSynt(inputTxt) {
-
+        
         if (window.hasOwnProperty('webkitSpeechRecognition')) {
 
             var utterThis = new SpeechSynthesisUtterance(replaceAll(inputTxt, "<br>", ""));

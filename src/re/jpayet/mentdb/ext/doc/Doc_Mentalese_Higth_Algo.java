@@ -1191,62 +1191,380 @@ public class Doc_Mentalese_Higth_Algo {
 		functions.put("Bot", new Vector<MQLDocumentation>());
 		page_description.put("Bot", "<img src='images/p.png' style='vertical-align: middle;'>Bot.");
 
-		mql = new MQLDocumentation(true, "bot show", "To show all bots.", "bot show", "[\"lisa\"]", null, null, null, null, false, "");
+		mql = new MQLDocumentation(true, "bot create", "To create a new bot", "bot create \"mona\" \"fr\" 0 \"mona\" \"payet\" \"cancel_key\" \"Désolé, je ne comprends pas. Je préviens l'administrateur...\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("lang", "The language (en|fr)", "string", true));
+		mql.addParam(new MQLParam("is_male", "1: male, 0: female", "string", true));
+		mql.addParam(new MQLParam("firstname", "The firstname", "string", true));
+		mql.addParam(new MQLParam("lastname", "The lastname", "string", true));
+		mql.addParam(new MQLParam("cancel_key", "The cancel key", "string", true));
+		mql.addParam(new MQLParam("not_found_response", "The not found response", "string", true));
 		functions.get("Bot").add(mql);
-		mql = new MQLDocumentation(true, "bot create", "To create a new bot.", "bot create \"bob\" 1 \"fr\";", "1", null, null, null, null, false, "");
-		mql.addParam(new MQLParam("botName", "The bot name", "string", true));
-		mql.addParam(new MQLParam("is_male", "Is male", "string", true));
-		mql.addParam(new MQLParam("lang", "The language (fr|en)", "string", true));
+		mql = new MQLDocumentation(true, "bot show", "To show all bots", "bot show;", "[]", null, null, null, null, false, "");
 		functions.get("Bot").add(mql);
-		mql = new MQLDocumentation(true, "bot remove", "To remove a bot.", "bot remove \"bob\";", "1", null, null, null, null, false, "");
-		mql.addParam(new MQLParam("botName", "The bot name", "string", true));
+		mql = new MQLDocumentation(true, "bot get", "To get a bot", "bot get \"mona\";", "{}", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
 		functions.get("Bot").add(mql);
-		mql = new MQLDocumentation(true, "bot exist", "To check if a bot already exist.", "bot exist \"bob\"", "1", null, null, null, null, false, "");
-		mql.addParam(new MQLParam("botName", "The bot name", "string", true));
+		mql = new MQLDocumentation(true, "bot exist", "To check if a bot already exist", "bot exist \"mona\"", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
 		functions.get("Bot").add(mql);
-		mql = new MQLDocumentation(true, "bot aiml set", "To set (overwrite) a new AIML file.", "bot aiml set \"bob\" \"hello.aiml\" \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>\n" + 
-				"<aiml>\n" + 
-				"<!--  -->\n" + 
-				"<category><pattern>BONJOUR</pattern>\n" + 
-				"<template>Salut.</template>\n" + 
-				"</category>\n" + 
-				"<category><pattern>BONJOUR JE SUIS *</pattern>\n" + 
-				"<template>Salut <star index = \\\"1\\\"/>.</template>\n" + 
-				"</category>\n" + 
-				"<category><pattern>* EST UN DEVELOPPEUR</pattern>\n" + 
-				"<template>Oui <star index = \\\"1\\\"/> est un développeur.</template>\n" + 
-				"</category>\n" + 
-				"<category>\n" + 
-				"   <pattern>TU CONNAIS *</pattern>\n" + 
-				"   \n" + 
-				"   <template>\n" + 
-				"      <srai><star/> EST UN DEVELOPPEUR</srai>\n" + 
-				"   </template>\n" + 
-				"   \n" + 
-				"</category>\n" + 
-				"<category><pattern>QUI ES TU</pattern>\n" + 
-				"<template>concat \\\"Je suis '\\\" (name) \\\"'.\\\"|</template>\n" + 
-				"</category>\n" + 
-				"<category><pattern>MERCI</pattern>\n" + 
-				"<template>De rien.</template>\n" + 
-				"</category>\n" + 
-				"<category><pattern>COMMENT SA VAS</pattern>\n" + 
-				"<template>Bien.</template>\n" + 
-				"</category>\n" + 
-				"</aiml>\n" + 
-				"\";", "Loaded after 6 categories in 0.011 sec", null, null, null, null, false, "");
-		mql.addParam(new MQLParam("botName", "The bot name", "string", true));
-		mql.addParam(new MQLParam("filename", "The AIML filename", "string", true));
-		mql.addParam(new MQLParam("xml", "The XML file in AIML format", "string", true));
+		mql = new MQLDocumentation(true, "bot reload", "To reload a bot", "bot reload \"mona\";", "Trigger: 2; Training: 1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
 		functions.get("Bot").add(mql);
-		mql = new MQLDocumentation(true, "bot execute", "To execute a string.", "bot execute \"bob\" \"admin\" \"how are you ?\";", "I'm fine.", null, null, null, null, false, "");
-		mql.addParam(new MQLParam("botName", "The bot name", "string", true));
-		mql.addParam(new MQLParam("user", "The current user", "string", true));
-		mql.addParam(new MQLParam("sentence", "The sentence", "string", true));
+		mql = new MQLDocumentation(true, "bot delete", "To delete a bot", "bot delete \"mona\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
 		functions.get("Bot").add(mql);
-		mql = new MQLDocumentation(true, "bot aiml remove", "To set (overwrite) a new AIML file.", "bot aiml remove \"bob\" \"hello.aiml\";", "1", null, null, null, null, false, "");
-		mql.addParam(new MQLParam("botName", "The bot name", "string", true));
-		mql.addParam(new MQLParam("filename", "The AIML filename", "string", true));
+		mql = new MQLDocumentation(true, "bot user_create", "To create a new user for a bot", "bot user_create \"mona\" \"jim\" \"pwd\" \"{\n"
+				+ "  \\\"[user_firstname]\\\": \\\"jimmitry\\\",\n"
+				+ "  \\\"[user_lastname]\\\": \\\"payet\\\"\n"
+				+ "}\" \"*\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		mql.addParam(new MQLParam("password", "The password", "string", true));
+		mql.addParam(new MQLParam("json_vars", "The json variable object", "string", true));
+		mql.addParam(new MQLParam("rights", "The rights separate by coma ,", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot user_show", "To show all users for a bot", "bot user_show \"mona\";", "[]", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot user_get", "To get a user for a bot", "bot user_get \"mona\" \"jim\"", "{}", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot user_exist", "To check if a user already exist for a bot", "bot user_exist \"mona\" \"jim\"", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot set_wait_replay", "To set a key for a user", "bot set_wait_replay \"mona\" \"jim\" \"dire_bonjour\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		mql.addParam(new MQLParam("key", "The training key", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot get_wait_replay", "To set a variable for a user", "bot get_wait_replay \"mona\" \"jim\";", "dire_bonjour", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot user_set_var", "To set a variable for a user", "bot user_set_var \"mona\" \"jim\" \"[A]\" \"9\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		mql.addParam(new MQLParam("varname", "The variable name", "string", true));
+		mql.addParam(new MQLParam("value", "The value", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot user_get_var", "To get a variable for a user", "bot user_get_var \"mona\" \"jim\" \"[A]\";", "9", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		mql.addParam(new MQLParam("varname", "The variable name", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot user_get_vars", "To get all variables for a user", "bot user_get_vars \"mona\" \"jim\";", "{}", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot user_delete", "To delete a user for a bot", "bot user_delete \"mona\" \"jim\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("login", "The user", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot training_merge", "To add/update a training", "json load \"trigger\" \"[]\";\n"
+				+ "json iarray \"trigger\" / \"abandonnes l'affaire\" STR;\n"
+				+ "json iarray \"trigger\" / \"abandonnes la tâche\" STR;\n"
+				+ "json iarray \"trigger\" / \"annules la tâche en cours\" STR;\n"
+				+ "json iarray \"trigger\" / \"tu peux abandonner l'affaire\" STR;\n"
+				+ "json iarray \"trigger\" / \"tu peux abandonner la tâche\" STR;\n"
+				+ "json iarray \"trigger\" / \"tu peux annuler la tâche en cours\" STR;\n"
+				+ "json iarray \"trigger\" / \"laisses tomber l'affaire\" STR;\n"
+				+ "json iarray \"trigger\" / \"tu peux laisser tomber l'affaire\" STR;\n"
+				+ "json iarray \"trigger\" / \"reprends tout à zéro\" STR;\n"
+				+ "json iarray \"trigger\" / \"tu peux reprendre tout à zéro\" STR;\n"
+				+ "json load \"consciousness_done\" \"[]\";\n"
+				+ "json iarray \"consciousness_done\" / \"j'ai repris tout à zéro.\" STR;\n"
+				+ "json iarray \"consciousness_done\" / \"j'ai abandonné la tâche en cours.\" STR;\n"
+				+ "json load \"consciousness_think\" \"[]\";\n"
+				+ "json iarray \"consciousness_think\" / \"j'avais pensé que je devais reprendre tout à zéro.\" STR;\n"
+				+ "json iarray \"consciousness_think\" / \"j'avais pensé que je devais abandonner la tâche en cours.\" STR;\n"
+				+ "json load \"consciousness_understand\" \"[]\";\n"
+				+ "json iarray \"consciousness_understand\" / \"j'avais compris que je devais reprendre tout à zéro.\" STR;\n"
+				+ "json iarray \"consciousness_understand\" / \"j'avais compris que je devais abandonner la tâche en cours.\" STR;\n"
+				+ "json load \"consciousness_subject\" \"[]\";\n"
+				+ "json iarray \"consciousness_subject\" / \"il s'agissait de reprendre tout à zéro.\" STR;\n"
+				+ "json iarray \"consciousness_subject\" / \"il s'agissait d'abandonner la tâche en cours.\" STR;\n"
+				+ "json load \"consciousness\" \"{}\";\n"
+				+ "json iobject \"consciousness\" / \"done\" (json doc \"consciousness_done\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"think\" (json doc \"consciousness_think\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"understand\" (json doc \"consciousness_understand\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"subject\" (json doc \"consciousness_subject\") ARRAY;\n"
+				+ "bot training_merge \"mona\" \"cancel_key\" \"task\"\n"
+				+ "	\"\" \"Annuler la tâche en cours\"\n"
+				+ "	(json doc \"trigger\")\n"
+				+ "	(mql {\n"
+				+ "		######################################\n"
+				+ "		# Default variables :\n"
+				+ "		# [bot]\n"
+				+ "		# [bot_lang]\n"
+				+ "		# [bot_is_male]\n"
+				+ "		# [bot_firstname]\n"
+				+ "		# [bot_lastname]\n"
+				+ "		\n"
+				+ "		# [training_key]\n"
+				+ "		# [training_context]\n"
+				+ "		# [training_rights]\n"
+				+ "		\n"
+				+ "		# [user]\n"
+				+ "		# [user_request]\n"
+				+ "		# [user_variables]\n"
+				+ "		# [user_firstname]\n"
+				+ "		# [user_lastname]\n"
+				+ "		# [user_rights]\n"
+				+ "		# [user_wait_replay]\n"
+				+ "		######################################;\n"
+				+ "\n"
+				+ "		bot set_wait_replay [bot] [user] null;\n"
+				+ "		\n"
+				+ "		switch (math random 5)\n"
+				+ "			(0) {\"D'accord.\"}\n"
+				+ "			(1) {\"Ok.\"}\n"
+				+ "			(2) {\"Okay.\"}\n"
+				+ "			(3) {\"C'est d'accord.\"}\n"
+				+ "			{\"Bien reçu.\"}\n"
+				+ "		;\n"
+				+ "		\n"
+				+ "	})\n"
+				+ "	(json doc \"consciousness\")\n"
+				+ ";\n"
+				+ "\n"
+				+ "json load \"trigger\" \"[]\";\n"
+				+ "json iarray \"trigger\" / \"bonjour\" STR;\n"
+				+ "json iarray \"trigger\" / \"salut\" STR;\n"
+				+ "json load \"consciousness_done\" \"[]\";\n"
+				+ "json iarray \"consciousness_done\" / \"j'ai dis bonjour.\" STR;\n"
+				+ "json iarray \"consciousness_done\" / \"j'ai répondu salut.\" STR;\n"
+				+ "json load \"consciousness_think\" \"[]\";\n"
+				+ "json iarray \"consciousness_think\" / \"j'avais pensé que je devais dire bonjour.\" STR;\n"
+				+ "json iarray \"consciousness_think\" / \"j'avais pensé que je devais répondre salut.\" STR;\n"
+				+ "json load \"consciousness_understand\" \"[]\";\n"
+				+ "json iarray \"consciousness_understand\" / \"j'avais compris que je devais dire bonjour.\" STR;\n"
+				+ "json iarray \"consciousness_understand\" / \"j'avais compris que je devais répondre salut.\" STR;\n"
+				+ "json load \"consciousness_subject\" \"[]\";\n"
+				+ "json iarray \"consciousness_subject\" / \"il s'agissait de dire bonjour.\" STR;\n"
+				+ "json iarray \"consciousness_subject\" / \"il s'agissait de répondre salut.\" STR;\n"
+				+ "json load \"consciousness\" \"{}\";\n"
+				+ "json iobject \"consciousness\" / \"done\" (json doc \"consciousness_done\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"think\" (json doc \"consciousness_think\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"understand\" (json doc \"consciousness_understand\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"subject\" (json doc \"consciousness_subject\") ARRAY;\n"
+				+ "bot training_merge \"mona\" \"dire_bonjour\" \"politesse\"\n"
+				+ "	\"\" \"Répondre à un bonjour de l'utilisateur\"\n"
+				+ "	(json doc \"trigger\")\n"
+				+ "	(mql {\n"
+				+ "\n"
+				+ "		bot set_wait_replay [bot] [user] null;\n"
+				+ "		\n"
+				+ "		switch (math random 2)\n"
+				+ "			(0) {\"Salut.\"}\n"
+				+ "			{\"Bonjour.\"}\n"
+				+ "		;\n"
+				+ "		\n"
+				+ "	})\n"
+				+ "	(json doc \"consciousness\")\n"
+				+ ";\n"
+				+ "\n"
+				+ "json load \"trigger\" \"[]\";\n"
+				+ "json iarray \"trigger\" / \"[1] + [2]\" STR;\n"
+				+ "json iarray \"trigger\" / \"fait une addition avec les nombres [1] et [2]\" STR;\n"
+				+ "json load \"consciousness_done\" \"[]\";\n"
+				+ "json iarray \"consciousness_done\" / \"j'ai fait une addition avec les nombres [1] et [2].\" STR;\n"
+				+ "json iarray \"consciousness_done\" / \"j'ai additionné les nombres [1] et [2].\" STR;\n"
+				+ "json load \"consciousness_think\" \"[]\";\n"
+				+ "json iarray \"consciousness_think\" / \"j'avais pensé que je devais faire une addition avec les nombres [1] et [2].\" STR;\n"
+				+ "json iarray \"consciousness_think\" / \"j'avais pensé que je devais additionner les nombres [1] et [2].\" STR;\n"
+				+ "json load \"consciousness_understand\" \"[]\";\n"
+				+ "json iarray \"consciousness_understand\" / \"j'avais compris que je devais faire une addition avec les nombres [1] et [2].\" STR;\n"
+				+ "json iarray \"consciousness_understand\" / \"j'avais compris que je devais additionner les nombres [1] et [2].\" STR;\n"
+				+ "json load \"consciousness_subject\" \"[]\";\n"
+				+ "json iarray \"consciousness_subject\" / \"il s'agissait de faire une addition avec les nombres [1] et [2].\" STR;\n"
+				+ "json iarray \"consciousness_subject\" / \"il s'agissait d'additionner les nombres [1] et [2].\" STR;\n"
+				+ "json load \"consciousness\" \"{}\";\n"
+				+ "json iobject \"consciousness\" / \"done\" (json doc \"consciousness_done\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"think\" (json doc \"consciousness_think\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"understand\" (json doc \"consciousness_understand\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"subject\" (json doc \"consciousness_subject\") ARRAY;\n"
+				+ "bot training_merge \"mona\" \"faire_une_addition\" \"math\"\n"
+				+ "	\"\" \"Faire une addition avec 2 nombres\"\n"
+				+ "	(json doc \"trigger\")\n"
+				+ "	(mql {\n"
+				+ "\n"
+				+ "		json load \"vars\" [user_variables];\n"
+				+ "\n"
+				+ "		if (and (== (json count \"vars\" /) 2) (and (not (is null or empty (json select \"vars\" \"/[0]\"))) (not (is null or empty (json select \"vars\" \"/[1]\"))))) {\n"
+				+ "\n"
+				+ "			-> \"[1]\" (json select \"vars\" \"/[0]\");\n"
+				+ "			-> \"[2]\" (json select \"vars\" \"/[1]\");\n"
+				+ "			\n"
+				+ "			-> \"[calc]\" (+ [1] [2]);\n"
+				+ "\n"
+				+ "			bot set_wait_replay [bot] [user] null;\n"
+				+ "	\n"
+				+ "			switch (math random 4)\n"
+				+ "				(0) {concat \"Le résultat est \" [calc] \".\"}\n"
+				+ "				(1) {concat \"Le résultat de l'addition est \" [calc] \".\"}\n"
+				+ "				(2) {concat [1] \" + \" [2] \" = \" [calc]}\n"
+				+ "				{[calc]}\n"
+				+ "			;\n"
+				+ "			\n"
+				+ "		} {\n"
+				+ "\n"
+				+ "			case\n"
+				+ "				(string starts_with (string lower [user_request]) \"utilises le nombre\") {\n"
+				+ "					json load \"split\" (string get_variable (string lower [user_request]) \"utilises le nombre [1]\");\n"
+				+ "					if (and (== (json count \"split\" \"/\") 1) (type is_double (json select \"split\" \"/[0]\"))) {\n"
+				+ "						case\n"
+				+ "							(not (env exist var \"[1]\")) {\n"
+				+ "								-> \"[1]\" (json select \"split\" \"/[0]\");\n"
+				+ "							}\n"
+				+ "							(not (env exist var \"[2]\")) {\n"
+				+ "								-> \"[2]\" (json select \"split\" \"/[0]\");\n"
+				+ "							}\n"
+				+ "						;\n"
+				+ "					};\n"
+				+ "				}\n"
+				+ "				(string starts_with (string lower [user_request]) \"utilises les nombres\") {\n"
+				+ "					json load \"split\" (string get_variable (string lower [user_request]) \"utilises les nombres [1] et [2]\");\n"
+				+ "					if (and (and (== (json count \"split\" \"/\") 2) (type is_double (json select \"split\" \"/[0]\"))) (type is_double (json select \"split\" \"/[1]\"))) {\n"
+				+ "						-> \"[1]\" (json select \"split\" \"/[0]\");\n"
+				+ "						-> \"[2]\" (json select \"split\" \"/[1]\");\n"
+				+ "					};\n"
+				+ "				}\n"
+				+ "				(\n"
+				+ "					json load \"split\" (string split (string lower [user_request]) \" \" -1);\n"
+				+ "					and (== (json count \"split\" \"/\") 2) (and (type is_double (json select \"split\" \"/[0]\")) (type is_double (json select \"split\" \"/[1]\")))\n"
+				+ "				) {\n"
+				+ "					-> \"[1]\" (json select \"split\" \"/[0]\");\n"
+				+ "					-> \"[2]\" (json select \"split\" \"/[1]\");\n"
+				+ "				}\n"
+				+ "				(\n"
+				+ "					json load \"split\" (string split (string lower [user_request]) \" \" -1);\n"
+				+ "					and (== (json count \"split\" \"/\") 3) (and (equal (json select \"split\" \"/[1]\") \"et\") (and (type is_double (json select \"split\" \"/[0]\")) (type is_double (json select \"split\" \"/[2]\"))))\n"
+				+ "				) {\n"
+				+ "					-> \"[1]\" (json select \"split\" \"/[0]\");\n"
+				+ "					-> \"[2]\" (json select \"split\" \"/[2]\");\n"
+				+ "				}\n"
+				+ "			;\n"
+				+ "\n"
+				+ "			if (and (not (env exist var \"[1]\")) (not (env exist var \"[2]\"))) {\n"
+				+ "				bot set_wait_replay [bot] [user] [training_key];\n"
+				+ "				\"Désolé, pour faire une addition il me faut 2 nombres.\";\n"
+				+ "			} {\n"
+				+ "				if (or (not (env exist var \"[1]\")) (not (env exist var \"[2]\"))) {\n"
+				+ "					bot set_wait_replay [bot] [user] [training_key];\n"
+				+ "					\"Désolé, pour faire une addition il me faut encore un nombre.\";\n"
+				+ "				} {\n"
+				+ "\n"
+				+ "					bot set_wait_replay [bot] [user] null;\n"
+				+ "				\n"
+				+ "					-> \"[calc]\" (+ [1] [2]);\n"
+				+ "			\n"
+				+ "					switch (math random 4)\n"
+				+ "						(0) {concat \"Le résultat est \" [calc] \".\"}\n"
+				+ "						(1) {concat \"Le résultat de l'addition est \" [calc] \".\"}\n"
+				+ "						(2) {concat [1] \" + \" [2] \" = \" [calc]}\n"
+				+ "						{[calc]}\n"
+				+ "					;\n"
+				+ "					\n"
+				+ "				};\n"
+				+ "			};\n"
+				+ "			\n"
+				+ "		};\n"
+				+ "		\n"
+				+ "	})\n"
+				+ "	(json doc \"consciousness\")\n"
+				+ ";\n"
+				+ "\n"
+				+ "json load \"trigger\" \"[]\";\n"
+				+ "json iarray \"trigger\" / \"tu te trompes ce n'est pas ce que je voulais\" STR;\n"
+				+ "json iarray \"trigger\" / \"tu te trompes ce n'est pas ce que j'attendais\" STR;\n"
+				+ "json load \"consciousness_done\" \"[]\";\n"
+				+ "json iarray \"consciousness_done\" / \"j'ai comprenais que je m'étais trompé.\" STR;\n"
+				+ "json load \"consciousness_think\" \"[]\";\n"
+				+ "json iarray \"consciousness_think\" / \"j'avais pensé que je m'étais trompé.\" STR;\n"
+				+ "json load \"consciousness_understand\" \"[]\";\n"
+				+ "json iarray \"consciousness_understand\" / \"j'avais compris que je m'étais trompé.\" STR;\n"
+				+ "json load \"consciousness_subject\" \"[]\";\n"
+				+ "json iarray \"consciousness_subject\" / \"il s'agissait de comprendre que je m'étais trompé.\" STR;\n"
+				+ "json load \"consciousness\" \"{}\";\n"
+				+ "json iobject \"consciousness\" / \"done\" (json doc \"consciousness_done\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"think\" (json doc \"consciousness_think\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"understand\" (json doc \"consciousness_understand\") ARRAY;\n"
+				+ "json iobject \"consciousness\" / \"subject\" (json doc \"consciousness_subject\") ARRAY;\n"
+				+ "bot training_merge \"mona\" \"error_key\" \"task\"\n"
+				+ "	\"\" \"Remarquer que je me trompe\"\n"
+				+ "	(json doc \"trigger\")\n"
+				+ "	(mql {\n"
+				+ "\n"
+				+ "		if (env exist var \"[user_last_request]\") {\n"
+				+ "			sql connect \"session1\" {cm get \"MENTDB\";};\n"
+				+ "			sql dml \"session1\" (concat \"INSERT INTO public.mona_not_found (\n"
+				+ "					bot,\n"
+				+ "					login,\n"
+				+ "					input\n"
+				+ "				) VALUES (\n"
+				+ "					\" (sql encode [bot]) \" ,\n"
+				+ "					\" (sql encode [user]) \" ,\n"
+				+ "					\" (sql encode [user_last_request]) \"\n"
+				+ "				);\");\n"
+				+ "			sql disconnect \"session1\";\n"
+				+ "		};\n"
+				+ "		\n"
+				+ "		switch (math random 5)\n"
+				+ "			(0) {\"D'accord, je préviens l'administrateur.\"}\n"
+				+ "			(1) {\"Ok, je préviens l'administrateur.\"}\n"
+				+ "			(2) {\"Okay, je préviens l'administrateur.\"}\n"
+				+ "			(3) {\"C'est d'accord, je préviens l'administrateur.\"}\n"
+				+ "			{\"Bien reçu, je préviens l'administrateur.\"}\n"
+				+ "		;\n"
+				+ "		\n"
+				+ "	})\n"
+				+ "	(json doc \"consciousness\")\n"
+				+ ";\n"
+				+ "bot execute \"mona\" \"jim\" \"fait une addition\";\n"
+				+ "bot execute \"mona\" \"jim\" \"utilises les nombres 99 et 100\";\n"
+				+ "bot execute \"mona\" \"jim\" \"abandonnes la tâche\";\n"
+				+ "bot execute \"mona\" \"jim\" \"bonjour\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("key", "The training key", "string", true));
+		mql.addParam(new MQLParam("context", "The context", "string", true));
+		mql.addParam(new MQLParam("rights", "The rights separate by |", "string", true));
+		mql.addParam(new MQLParam("description", "The description", "string", true));
+		mql.addParam(new MQLParam("in_trigger_json", "The triggers", "string", true));
+		mql.addParam(new MQLParam("out_mql_output_json", "MQL to execute (the result is return)", "string", true));
+		mql.addParam(new MQLParam("consciousness_json", "The consciousness object", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot training_get", "To get a training for a bot", "bot training_get \"mona\" \"dire_bonjour\"", "{}", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("key", "The training key", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot training_exist", "To check if a training key already exist for a bot", "bot training_exist \"mona\" \"dire_bonjour\"", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("key", "The training key", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot training_generate_merge", "To update a training", "bot training_generate_merge \"mona\" \"dire_bonjour\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("key", "The training key", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot training_delete", "To delete a training for a bot", "bot training_delete \"mona\" \"dire_bonjour\";", "1", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("key", "The training key", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot training_search", "To search a training", "bot training_search \"%mona%\" \"%dire_bonjour%\" \"%%\" \"%%\" \"%%\" \"%%\" \"%%\";", "...", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("key", "The training key", "string", true));
+		mql.addParam(new MQLParam("context", "The context", "string", true));
+		mql.addParam(new MQLParam("description", "The description", "string", true));
+		mql.addParam(new MQLParam("in_trigger_json", "The triggers", "string", true));
+		mql.addParam(new MQLParam("out_mql_output_json", "MQL to execute (the result is return)", "string", true));
+		mql.addParam(new MQLParam("consciousness_json", "The consciousness object", "string", true));
+		functions.get("Bot").add(mql);
+		mql = new MQLDocumentation(true, "bot execute", "To execute a talk", "bot execute \"mona\" \"jim\" \"bonjour\"", "[\"lisa\"]", null, null, null, null, false, "");
+		mql.addParam(new MQLParam("bot", "The bot name", "string", true));
+		mql.addParam(new MQLParam("user", "The user", "string", true));
+		mql.addParam(new MQLParam("request", "The request", "string", true));
 		functions.get("Bot").add(mql);
 		
 	}

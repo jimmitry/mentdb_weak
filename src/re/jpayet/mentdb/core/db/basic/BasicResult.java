@@ -12,13 +12,9 @@
 
 package re.jpayet.mentdb.core.db.basic;
 
-import java.util.Vector;
-
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import re.jpayet.mentdb.ext.server.Start;
-import re.jpayet.mentdb.ext.session.Session;
 
 //The basic result JSON object
 public class BasicResult {
@@ -39,16 +35,13 @@ public class BasicResult {
 		resultNode.put("msg", value);
 		resultNode.put("s", seconds);
 		resultNode.put("s", seconds);
-		try {
-			resultNode.put("mqlQueryMode", Session.allSessions.get(userSession).mqlQueryMode);
-		} catch (Exception e) {resultNode.put("mqlQueryMode", false);};
 		resultNode.put("ai", Start.AI_FIRST_NAME);
 		
 	}
 	
 	//Constructor
 	@SuppressWarnings("unchecked")
-	public BasicResult(String userSession, String user, int type, String value, String[] currentUsers, Vector<String> target, Vector<String> userWhoTalkingWith, long seconds, String strategy, String bot_is_male, String bot_lang) {
+	public BasicResult(String userSession, String user, int type, String value, long seconds, String strategy, String bot_is_male, String bot_lang) {
 		
 		//Initialization
 		resultNode = new JSONObject();
@@ -61,35 +54,26 @@ public class BasicResult {
 		resultNode.put("msg", value);
 		resultNode.put("s", seconds);
 		resultNode.put("strategy", strategy);
-		resultNode.put("api-mql", Session.allSessions.get(userSession).isGrantedApiMql);
-		resultNode.put("api-ai", Session.allSessions.get(userSession).isGrantedApiAi);
-		try {
-			resultNode.put("mqlQueryMode", Session.allSessions.get(userSession).mqlQueryMode);
-		} catch (Exception e) {resultNode.put("mqlQueryMode", false);};
 		resultNode.put("ai", Start.AI_FIRST_NAME);
 		
-		JSONArray array = new JSONArray();
-		for(int i = 0;i<currentUsers.length;i++) {
-			array.add(currentUsers[i]);
-		}
+	}
+	
+	//Constructor
+	@SuppressWarnings("unchecked")
+	public BasicResult(String user, int type, String value, long seconds, String strategy, String bot_is_male, String bot_lang) {
 		
-		resultNode.put("currentUsers", array);
+		//Initialization
+		resultNode = new JSONObject();
 		
-		JSONArray t = new JSONArray();
-		for(int i = 0;i<target.size();i++) {
-			t.add(target.get(i));
-		}
-		
-		resultNode.put("target", t);
-		
-		JSONArray u = new JSONArray();
-		u.add("ai");
-		for(int i = 0;i<userWhoTalkingWith.size();i++) {
-			u.add(userWhoTalkingWith.get(i));
-		}
-		
-		resultNode.put("userWhoTalkingWith", u);
-		
+		//Add fields
+		resultNode.put("bot_is_male", bot_is_male);
+		resultNode.put("bot_lang", bot_lang);
+		resultNode.put("user", user);
+		resultNode.put("type", type);
+		resultNode.put("msg", value);
+		resultNode.put("s", seconds);
+		resultNode.put("strategy", strategy);
+		resultNode.put("ai", user);
 		
 	}
 	

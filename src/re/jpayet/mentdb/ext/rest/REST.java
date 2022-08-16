@@ -441,7 +441,7 @@ if ( rc >= 200 && rc <= 206) {
 			// Read input from the input stream.
 			int rc = conn.getResponseCode();
 			
-if ( rc >= 200 && rc <= 206) {
+			if ( rc >= 200 && rc <= 206) {
 				
 				//Initialization
 				BufferedReader is = new BufferedReader(new InputStreamReader( conn.getInputStream()));

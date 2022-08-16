@@ -267,6 +267,43 @@ public class CommandFullAccess3 {
 		default: 
 
 			switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+			case "bot user_show":
+
+				//Get parameters
+				String bot = inputVector.get(2).value;
+				
+				return NodeManager.format(BotManager.show_user(bot));
+
+			case "bot get":
+
+				//Get parameters
+				bot = inputVector.get(2).value;
+				
+				return NodeManager.format(BotManager.get_bot(bot).toJSONString());
+
+			case "bot exist":
+
+				//Get parameters
+				bot = inputVector.get(2).value;
+				
+				return BotManager.bot_exist(bot);
+
+			case "bot delete":
+
+				//Get parameters
+				bot = inputVector.get(2).value;
+				
+				BotManager.delete_bot(bot);
+				
+				return "1";
+
+			case "bot reload":
+
+				//Get parameters
+				bot = inputVector.get(2).value;
+				
+				return BotManager.reload_index(bot);
+
 			case "stack flow_json_get":
 				
 				//Get key
@@ -849,22 +886,6 @@ public class CommandFullAccess3 {
 				cluster_id = inputVector.get(2).value;
 				
 				return ClusterManager.signals_remote_show(env, session.idConnection, cluster_id);
-
-			case "bot remove":
-				
-				//Get parameters
-				String botName = inputVector.get(2).value;
-				
-				BotManager.delete_bot(botName);
-
-				return "1";
-
-			case "bot exist":
-				
-				//Get parameters
-				botName = inputVector.get(2).value;
-				
-				return BotManager.exist_bot(botName);
 
 			case "app is_granted_a":
 				

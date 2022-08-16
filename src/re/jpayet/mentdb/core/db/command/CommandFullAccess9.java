@@ -15,6 +15,7 @@ package re.jpayet.mentdb.core.db.command;
 import java.util.Vector;
 
 import re.jpayet.mentdb.core.db.basic.MQLValue;
+import re.jpayet.mentdb.ext.bot.BotManager;
 import re.jpayet.mentdb.ext.dq.DQManager;
 import re.jpayet.mentdb.ext.env.EnvManager;
 import re.jpayet.mentdb.ext.excel.ExcelManager;
@@ -101,6 +102,33 @@ public class CommandFullAccess9 {
 			default:
 
 				switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+				case "bot training_search":
+					
+					String bot = inputVector.get(2).value;
+					String key = inputVector.get(3).value;
+					String context = inputVector.get(4).value;
+					String description = inputVector.get(5).value;
+					String in_trigger_json = inputVector.get(6).value;
+					String out_mql_output_json = inputVector.get(7).value;
+					String consciousness_json = inputVector.get(8).value;
+					
+					return BotManager.training_search(session, bot, key, context, description, in_trigger_json, out_mql_output_json, consciousness_json);
+				
+				case "bot create":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					String bot_lang = inputVector.get(3).value;
+					String is_male = inputVector.get(4).value;
+					String firstname = inputVector.get(5).value;
+					String lastname = inputVector.get(6).value;
+					String cancel_key = inputVector.get(7).value;
+					String not_found_response = inputVector.get(8).value;
+					
+					BotManager.create_bot(bot, bot_lang, is_male, firstname, lastname, cancel_key, not_found_response);
+
+					return "1";
+
 				case "script update":
 					
 					String scriptName = inputVector.get(2).value;

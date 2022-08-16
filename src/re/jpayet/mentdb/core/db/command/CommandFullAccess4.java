@@ -27,6 +27,7 @@ import re.jpayet.mentdb.core.entity.symbol.SymbolManager;
 import re.jpayet.mentdb.core.entity.thought.ThoughtManager;
 import re.jpayet.mentdb.core.entity.word.WordManager;
 import re.jpayet.mentdb.ext.app.AppManager;
+import re.jpayet.mentdb.ext.bot.BotManager;
 import re.jpayet.mentdb.ext.cluster.ClusterManager;
 import re.jpayet.mentdb.ext.cm.CMManager;
 import re.jpayet.mentdb.ext.compress.CompressManager;
@@ -807,6 +808,82 @@ public class CommandFullAccess4 {
 			default:
 
 				switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+				case "bot user_exist":
+
+					//Get parameters
+					String bot = inputVector.get(2).value;
+					login = inputVector.get(3).value;
+					
+					return BotManager.bot_exist_user(bot, login);
+
+				case "bot user_get":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					login = inputVector.get(3).value;
+					
+					return NodeManager.format(BotManager.get_user(bot, login).toJSONString());
+
+				case "bot training_get":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					key = inputVector.get(3).value;
+					
+					return NodeManager.format(BotManager.training_get(bot, key).toJSONString());
+
+				case "bot training_exist":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					key = inputVector.get(3).value;
+					
+					return BotManager.training_exist(bot, key);
+
+				case "bot user_get_vars":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					String user = inputVector.get(3).value;
+					
+					return BotManager.get_vars(bot, user);
+
+				case "bot get_wait_replay":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					user = inputVector.get(3).value;
+					
+					return BotManager.get_key(bot, user);
+
+				case "bot training_generate_merge":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					key = inputVector.get(3).value;
+					
+					return BotManager.training_generate_merge(bot, key);
+
+				case "bot training_delete":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					key = inputVector.get(3).value;
+					
+					BotManager.training_remove(bot, key);
+					
+					return "1";
+
+				case "bot user_delete":
+
+					//Get parameters
+					bot = inputVector.get(2).value;
+					login = inputVector.get(3).value;
+					
+					BotManager.delete_user(bot, login);
+					
+					return "1";
+
 				case "stack flow_json_set":
 					
 					//Get key
@@ -1216,7 +1293,7 @@ public class CommandFullAccess4 {
 
 					str = inputVector.get(2).value;
 					String pattern = inputVector.get(3).value;
-
+					
 					return JsonManager.format_Gson(StringFx.get_variable(str, pattern).toJSONString());
 
 				case "mongodb collection_delete":

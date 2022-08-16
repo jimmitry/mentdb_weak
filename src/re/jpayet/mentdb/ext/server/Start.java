@@ -409,7 +409,7 @@ public class Start
 			
 			Misc.system_out_print("Load bots > ", false, "", "");
 			
-			BotManager.init();
+			BotManager.reload_all();
 			
 			Misc.system_out_print("[OK]", true, "", "");
 			

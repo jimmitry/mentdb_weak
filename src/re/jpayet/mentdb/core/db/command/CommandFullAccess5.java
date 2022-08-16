@@ -357,16 +357,6 @@ public class CommandFullAccess5 {
 					
 					return JsonFormatter.format(WordManager.showSymbolPerception(word, lang).toJSONString());
 				
-				case "bot aiml remove":
-					
-					//Get parameters
-					String botName = inputVector.get(3).value;
-					String filename = inputVector.get(4).value;
-					
-					BotManager.remove_aiml_file(env, botName, filename);
-					
-					return "1";
-	
 				case "dl n_bayesian load":
 					
 					//Get parameters
@@ -695,6 +685,34 @@ public class CommandFullAccess5 {
 				default:
 
 					switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+					case "bot execute":
+
+						//Get parameters
+						String bot = inputVector.get(2).value;
+						String u = inputVector.get(3).value;
+						String inputText = inputVector.get(4).value;
+						
+						return NodeManager.format(BotManager.execute(bot, u, inputText).toJSONString());
+
+					case "bot set_wait_replay":
+
+						//Get parameters
+						bot = inputVector.get(2).value;
+						String u_bot = inputVector.get(3).value;
+						String key_t = inputVector.get(4).value;
+						
+						BotManager.set_key(bot, u_bot, key_t);
+
+						return "1";
+
+					case "bot user_get_var":
+
+						bot = inputVector.get(2).value;
+						user = inputVector.get(3).value;
+						String varname = inputVector.get(4).value;
+						
+						return BotManager.get_var(bot, user, varname);
+						
 					case "cifs ls":
 
 						//Get parameters
@@ -1061,26 +1079,6 @@ public class CommandFullAccess5 {
 						String privateKey = inputVector.get(4).value;
 
 						return MyRSA.encode(data, publicKey, privateKey);
-
-					case "bot create":
-						
-						//Get parameters
-						botName = inputVector.get(2).value;
-						String is_male = inputVector.get(3).value;
-						lang = inputVector.get(4).value;
-						
-						BotManager.create_bot(botName, is_male, lang);
-		
-						return "1";
-		
-					case "bot execute":
-
-						//Get parameters
-						botName = inputVector.get(2).value;
-						user = inputVector.get(3).value;
-						sentence = inputVector.get(4).value;
-
-						return JsonManager.format_Gson(BotManager.execute(botName, user, sentence).toJSONString());
 
 					case "msword replace":
 

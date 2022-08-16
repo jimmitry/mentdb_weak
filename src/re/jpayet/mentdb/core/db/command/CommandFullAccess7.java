@@ -28,6 +28,7 @@ import re.jpayet.mentdb.core.entity.language.LanguageManager;
 import re.jpayet.mentdb.core.entity.relation.SearchEngine;
 import re.jpayet.mentdb.core.entity.thought.ThoughtManager;
 import re.jpayet.mentdb.ext.azure.AzureManager;
+import re.jpayet.mentdb.ext.bot.BotManager;
 import re.jpayet.mentdb.ext.cluster.ClusterManager;
 import re.jpayet.mentdb.ext.dl.ImageNeuralNetworkManager;
 import re.jpayet.mentdb.ext.dl.TextCatManager;
@@ -255,6 +256,19 @@ public class CommandFullAccess7 {
 				default:
 
 					switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+					case "bot user_create":
+
+						//Get parameters
+						String bot = inputVector.get(2).value;
+						String login = inputVector.get(3).value;
+						String pwd = inputVector.get(4).value;
+						json = inputVector.get(5).value;
+						String rights = inputVector.get(6).value;
+						
+						BotManager.create_user(bot, login, pwd, json, rights);
+
+						return "1";
+
 					case "maintenance set": 
 						
 						if (!session.user.equals("admin")) {

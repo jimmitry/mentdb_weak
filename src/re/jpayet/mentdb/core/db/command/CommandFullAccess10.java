@@ -15,6 +15,7 @@ package re.jpayet.mentdb.core.db.command;
 import java.util.Vector;
 
 import re.jpayet.mentdb.core.db.basic.MQLValue;
+import re.jpayet.mentdb.ext.bot.BotManager;
 import re.jpayet.mentdb.ext.dl.ImageNeuralNetworkManager;
 import re.jpayet.mentdb.ext.env.EnvManager;
 import re.jpayet.mentdb.ext.ml.MLManager;
@@ -62,6 +63,21 @@ public class CommandFullAccess10 {
 			default:
 			
 				switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+				case "bot training_merge":
+					
+					String bot = inputVector.get(2).value;
+					String key = inputVector.get(3).value;
+					String context = inputVector.get(4).value;
+					String rights = inputVector.get(5).value;
+					String description = inputVector.get(6).value;
+					String in_trigger_json = inputVector.get(7).value;
+					String out_mql_output_json = inputVector.get(8).value;
+					String consciousness_json = inputVector.get(9).value;
+					
+					BotManager.training_merge(bot, key, context, rights, description, in_trigger_json, out_mql_output_json, consciousness_json);
+					
+					return "1";
+				
 				case "script add": case "script create": case "script insert":
 
 					String method = inputVector.get(2).value;

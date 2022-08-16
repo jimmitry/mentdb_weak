@@ -70,6 +70,10 @@ public class CommandFullAccess2 {
 	public static String execute(SessionThread session, Vector<MQLValue> inputVector, EnvManager env, String parent_pid, String current_pid) throws Exception {
 		
 		switch (inputVector.get(0).value+" "+inputVector.get(1).value) {
+		case "bot show": 
+
+			return NodeManager.format(BotManager.show_bot());
+
 		case "restricted is": 
 
 			if (GroupManager.isGrantedUser("api-mql", session.user)) return "0";
@@ -216,10 +220,6 @@ public class CommandFullAccess2 {
 			
 			ClusterManager.process_signal();
 			return "1";
-
-		case "bot show":
-			
-			return JsonManager.format_Gson(BotManager.show().toJSONString());
 
 		case "stack process_limit": 
 			
