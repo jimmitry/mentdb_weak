@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,6 +28,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCursor;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import re.jpayet.mentdb.ext.env.EnvManager;
 
 public class MongoDBManager {
@@ -311,7 +313,7 @@ public class MongoDBManager {
 		
 	}
 
-	public static void collection_insert(EnvManager env, String collectionId, String json) throws Exception {
+	public static String collection_insert(EnvManager env, String collectionId, String json) throws Exception {
 		
 		if (!env.mongoCollectionObj.containsKey(collectionId)) {
 			
@@ -323,7 +325,9 @@ public class MongoDBManager {
 		
 		env.mongoCollectionObj.get(collectionId).insertOne(doc);
 		
+		return doc.getObjectId("_id").toString();
 	}
+	
 
 	public static long collection_update(EnvManager env, String collectionId, String jsonTarget, String jsonAction) throws Exception {
 		

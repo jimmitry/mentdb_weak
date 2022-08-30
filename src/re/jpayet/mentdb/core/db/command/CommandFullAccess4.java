@@ -1310,9 +1310,9 @@ public class CommandFullAccess4 {
 					collectionId = inputVector.get(2).value;
 					json = inputVector.get(3).value;
 					
-					MongoDBManager.collection_insert(env, collectionId, json);
+					return MongoDBManager.collection_insert(env, collectionId, json);
 					
-					return "1";
+//					return "1";
 	
 				case "mongodb connect":
 					
